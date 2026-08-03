@@ -1,0 +1,26 @@
+{
+  "name": "@celoht/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Smart contracts for the CeloHT dApp: agent registry, certificates, donations, and reforestation impact tracking on Celo.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "deploy:alfajores": "hardhat run scripts/deploy.ts --network alfajores",
+    "deploy:localhost": "hardhat run scripts/deploy.ts --network localhost",
+    "clean": "hardhat clean"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "@openzeppelin/hardhat-upgrades": "^3.5.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.15",
+    "solhint": "^5.0.3",
+    "typescript": "^5.6.3"
+  }
+}

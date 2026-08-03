@@ -1,0 +1,26 @@
+# CODEOWNERS for the CeloHT dApp
+# See https://docs.github.com/articles/about-codeowners
+
+# Default
+*                                   @celo-ht/maintainers
+
+# Smart contracts require dedicated review — see GOVERNANCE.md
+/packages/contracts/                @celo-ht/contracts-maintainers
+/packages/contracts/contracts/      @celo-ht/contracts-maintainers
+
+# Frontend
+/apps/web/                          @celo-ht/frontend-maintainers
+
+# Security-sensitive paths
+/SECURITY.md                        @celo-ht/security
+/apps/web/next.config.ts            @celo-ht/security
+/.github/workflows/                 @celo-ht/security
+
+# Governance and legal
+/GOVERNANCE.md                      @celo-ht/founders
+/LICENSE                            @celo-ht/founders
+/TERMS.md                           @celo-ht/founders
+/PRIVACY_POLICY.md                  @celo-ht/founders
+
+# Documentation
+/docs/                              @celo-ht/docs-team
