@@ -4,47 +4,55 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import dynamic from "next/dynamic";
+import { useAccount } from "wagmi";
+import { celo } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
-const ConnectWalletButton = dynamic(
-  () => import("@/components/web3/ConnectWalletButton").then((mod) => mod.ConnectWalletButton),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-navy-700/10 dark:bg-parchment-100/10 h-9 w-36 animate-pulse rounded-full" />
-    ),
-  },
-);
+import { Button } from "@/components/ui/Button";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { isConnected, chain } = useAccount();
+
+  const networkStatus = !isConnected
+    ? "Demo mode"
+    : chain?.id === celo.id
+      ? "Connected"
+      : "Wrong network";
+
+  const statusStyle =
+    networkStatus === "Connected"
+      ? "bg-forest-500/15 text-forest-700 dark:text-forest-300"
+      : networkStatus === "Wrong network"
+        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+        : "bg-navy-700/10 text-ink-soft dark:bg-parchment-100/10 dark:text-parchment-100/70";
 
   return (
     <header className="border-navy-700/10 bg-parchment/90 dark:border-parchment-100/10 dark:bg-navy-950/90 sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 rounded-md">
-          <Image src="/celoht-logo.png" alt="CeloHT" width={28} height={28} priority />
-          <span className="font-display text-lg font-semibold tracking-tight">CeloHT</span>
-          <span className="bg-gold-500/15 text-gold-800 dark:text-gold-300 hidden rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide uppercase sm:inline">
-            dApp
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md">
+            <Image src="/celoht-logo.png" alt="CeloHT" width={28} height={28} priority />
+            <span className="font-display text-lg font-semibold tracking-tight">CeloHT</span>
+          </Link>
+          <span className={`hidden rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] sm:inline ${statusStyle}`}>
+            {networkStatus}
           </span>
-        </Link>
+        </div>
 
-        <nav aria-label="Primary" className="hidden lg:block">
+        <nav aria-label="Primary" className="hidden flex-1 justify-center lg:flex">
           <ul className="flex items-center gap-1">
             {primaryNav.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`rounded-md px-3 py-2 text-sm transition-colors ${
+                    className={`rounded-full px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "text-gold-800 dark:text-gold-300"
+                        ? "bg-gold-500/10 text-gold-800 dark:text-gold-300"
                         : "text-ink-soft hover:text-ink dark:text-parchment-100/70 dark:hover:text-parchment-100"
                     }`}
                   >
@@ -57,8 +65,13 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <span className="hidden rounded-full border border-navy-700/15 bg-white/60 px-2.5 py-1.5 text-[11px] font-medium text-ink-soft dark:border-parchment-100/10 dark:bg-navy-900/80 dark:text-parchment-100/75 md:inline-flex">
+            CELO $1.22
+          </span>
+          <Button asChild size="sm" className="hidden sm:inline-flex">
+            <Link href="/wallet">Launch CeloHT</Link>
+          </Button>
           <ThemeToggle />
-          <ConnectWalletButton />
           <button
             type="button"
             aria-expanded={menuOpen}

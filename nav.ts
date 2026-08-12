@@ -1,50 +1,49 @@
 export type NavItem = { label: string; href: string };
 
 export const primaryNav: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Education", href: "/education" },
+  { label: "Overview", href: "/" },
+  { label: "Wallet", href: "/wallet" },
+  { label: "Exchange", href: "/exchange" },
+  { label: "Transactions", href: "/transactions" },
   { label: "Agents", href: "/agents" },
-  { label: "Reforestation", href: "/reforestation" },
+  { label: "Education", href: "/education" },
+  { label: "Impact", href: "/impact" },
   { label: "Governance", href: "/governance" },
-  { label: "Community", href: "/community" },
+  { label: "About", href: "/about" },
 ];
 
 export const footerNav: { heading: string; items: NavItem[] }[] = [
   {
+    heading: "Platform",
+    items: [
+      { label: "Overview", href: "/" },
+      { label: "Wallet", href: "/wallet" },
+      { label: "Exchange", href: "/exchange" },
+      { label: "Transactions", href: "/transactions" },
+    ],
+  },
+  {
     heading: "Pillars",
     items: [
-      { label: "Education", href: "/education" },
-      { label: "Courses", href: "/education/courses" },
-      { label: "Certificates", href: "/certificates" },
       { label: "Agents", href: "/agents" },
-      { label: "Agent Map", href: "/agents/map" },
-      { label: "Reforestation", href: "/reforestation" },
-      { label: "Projects", href: "/reforestation/projects" },
-    ],
-  },
-  {
-    heading: "Ecosystem",
-    items: [
-      { label: "Governance", href: "/governance" },
-      { label: "Donations", href: "/donations" },
+      { label: "Education", href: "/education" },
       { label: "Impact", href: "/impact" },
-      { label: "Partners", href: "/partners" },
+      { label: "Governance", href: "/governance" },
+    ],
+  },
+  {
+    heading: "Community",
+    items: [
+      { label: "About", href: "/about" },
       { label: "Community", href: "/community" },
-    ],
-  },
-  {
-    heading: "Account",
-    items: [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Transactions", href: "/transactions" },
       { label: "Profile", href: "/profile" },
-      { label: "Settings", href: "/settings" },
+      { label: "Impact", href: "/impact" },
     ],
   },
   {
-    heading: "Support",
+    heading: "Resources",
     items: [
-      { label: "Help Center", href: "/help" },
+      { label: "Documentation", href: "/education" },
       { label: "GitHub", href: "https://github.com/celo-ht/dapp" },
     ],
   },

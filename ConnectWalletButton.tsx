@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Wallet, LogOut } from "lucide-react";
+import { Wallet, LogOut, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
 import { shortenAddress } from "@/lib/utils";
@@ -42,8 +42,8 @@ export function ConnectWalletButton() {
             id="connect-wallet-description"
             className="text-ink-soft dark:text-parchment-100/70 mt-1 text-sm"
           >
-            Connect a Valora-compatible wallet to access your profile, certificates, and transaction
-            history.
+            Connect a Valora-compatible wallet, MiniPay, or browser wallet. This app never requests
+            your private keys or seed phrase.
           </DialogDescription>
 
           <div className="mt-6 flex flex-col gap-2">
@@ -69,17 +69,16 @@ export function ConnectWalletButton() {
 
           {!isWalletConnectConfigured && (
             <p className="text-ink-soft dark:text-parchment-100/60 mt-4 text-xs">
-              WalletConnect (needed to connect Valora from a desktop browser via QR code)
-              isn&rsquo;t configured in this build — set{" "}
-              <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code>. See{" "}
-              <code>docs/DEVELOPMENT.md</code>.
+              WalletConnect is not configured in this environment, so mobile wallet QR flows are
+              temporarily unavailable. Demo mode remains available for product review.
             </p>
           )}
 
           {error && (
-            <p role="alert" className="mt-4 text-xs text-red-600 dark:text-red-400">
-              {error.message}
-            </p>
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-700 dark:text-red-300">
+              <ShieldAlert size={14} aria-hidden="true" className="mt-0.5" />
+              <p role="alert">{error.message}</p>
+            </div>
           )}
         </DialogContent>
       </Dialog>

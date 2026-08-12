@@ -1,0 +1,22 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "BasisPoints",
+  "sourceName": "contracts/libraries/BasisPoints.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "BasisPointsOverflow",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x60556032600b8282823980515f1a607314602657634e487b7160e01b5f525f60045260245ffd5b305f52607381538281f3fe730000000000000000000000000000000000000000301460806040525f5ffdfea26469706673582212201e9715b9844755b74d3428199fa787ba14ec95c50578f3e7a2a54677058a019364736f6c634300081b0033",
+  "deployedBytecode": "0x730000000000000000000000000000000000000000301460806040525f5ffdfea26469706673582212201e9715b9844755b74d3428199fa787ba14ec95c50578f3e7a2a54677058a019364736f6c634300081b0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

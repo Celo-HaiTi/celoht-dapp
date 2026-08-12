@@ -13,13 +13,37 @@ const SITE_URL = "https://app.celoht.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "CeloHT dApp",
-    template: "%s — CeloHT dApp",
+    default: "CeloHT — Financial Inclusion, Web3 Education & Environmental Impact",
+    template: "%s | CeloHT",
   },
   description:
-    "The official CeloHT dApp: learn, connect with community agents, and support reforestation on the Celo ecosystem.",
+    "CeloHT brings financial inclusion, digital finance education, and community impact together on the Celo ecosystem.",
+  keywords: ["CeloHT", "Celo", "cUSD", "financial inclusion", "Web3 education", "reforestation"],
   icons: { icon: "/favicon.svg" },
-  robots: { index: false, follow: false }, // pre-launch: see docs/DEPLOYMENT.md
+  openGraph: {
+    title: "CeloHT — Financial Inclusion, Web3 Education & Environmental Impact",
+    description:
+      "A community-driven Celo app for accessible wallets, learning, and environmental impact.",
+    url: SITE_URL,
+    siteName: "CeloHT",
+    type: "website",
+    images: [
+      {
+        url: "/celoht-logo.png",
+        width: 998,
+        height: 1000,
+        alt: "CeloHT Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CeloHT — Financial Inclusion, Web3 Education & Environmental Impact",
+    description:
+      "A community-driven Celo app for accessible wallets, learning, and environmental impact.",
+    images: ["/celoht-logo.png"],
+  },
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

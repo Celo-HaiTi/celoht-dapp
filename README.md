@@ -13,11 +13,35 @@ community agent network, and reforestation, built on the Celo ecosystem.
 
 [Flagship repository](https://github.com/celo-ht/celoht) · [Website](https://github.com/celo-ht/website) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
-</div>
-
 ---
 
-## What this is
+## 🚀 **Demo**
+
+### **[👉 Deploy Live for Investors (2 min) →](DEPLOY.md)**
+
+### **Direct Access (For Investors)**
+
+| Option | Link | Time |
+|--------|------|------|
+| **🔴 Live Demo** | [Launch dApp on Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCelo-HaiTi%2Fceloht-dapp&project-name=celoht-dapp&repository-name=celoht-dapp&env=NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID&envDescription=Get%20a%20free%20WalletConnect%20project%20ID%20at%20https%3A%2F%2Fcloud.walletconnect.com) | 1-2 min |
+| **💻 Run Locally** | `npm install && npm run dev` | 1 min |
+| **📖 Full Guide** | [See DEPLOY.md](DEPLOY.md) | — |
+
+**Want to explore CeloHT before diving into the code?**
+
+Explore these features:
+- ✅ **Wallet** — Send/receive demo assets with validation
+- ✅ **Exchange** — Swap CELO ↔ cUSD with realistic rates
+- ✅ **Education** — Browse courses and certificates
+- ✅ **Agents** — Discover community agents on a map
+- ✅ **Governance** — Vote on sample proposals
+- ✅ **Impact** — Track reforestation metrics
+
+> **Transparency:** All flows are clearly labeled **"Demo mode"** using realistic sample data with no false blockchain claims.
+
+**See [DEPLOY.md](DEPLOY.md) for full deployment options and troubleshooting.**
+
+---
 
 This is a decentralized application that lets people learn financial and
 Web3 basics, connect with verified community agents, and support

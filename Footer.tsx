@@ -26,11 +26,11 @@ export function Footer() {
         </div>
 
         <div className="border-parchment-100/10 mt-10 border-t pt-6">
-          <p className="text-parchment-100/50 max-w-2xl text-xs">
+          <p className="text-parchment-100/50 max-w-3xl text-xs">
             CeloHT is a community-driven, open-source initiative built on the Celo ecosystem. It is
-            not a cryptocurrency, an ICO, an NFT project, or an investment platform, and it does not
-            issue a token. CELO and cUSD are used as network and payment infrastructure; Valora is
-            supported as a compatible wallet — CeloHT does not own or operate Valora.
+            not a cryptocurrency, an ICO, or an investment platform. CELO and cUSD are used as
+            wallet and payment infrastructure, while the dApp provides a clearly labeled demo
+            experience when live blockchain services are unavailable.
           </p>
           <p className="text-parchment-100/40 mt-4 text-xs">
             © {new Date().getFullYear()} CeloHT Contributors. Code licensed under Apache 2.0.

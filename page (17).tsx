@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAccount, useChainId, useReadContract } from "wagmi";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
@@ -35,6 +36,7 @@ export default function DashboardPage() {
 
   return (
     <>
+      <Breadcrumbs items={[{ label: "Dashboard" }]} />
       <PageHero
         eyebrow="Dashboard"
         title={isConnected ? "Welcome back" : "Connect your wallet to get started"}
