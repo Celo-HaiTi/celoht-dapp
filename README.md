@@ -2,7 +2,7 @@
   <img width="260" height="260" alt="celoht-logo" src="https://github.com/user-attachments/assets/e1cb6f18-a648-4ca9-aa93-b167f8fccdb6" />
 
 
-# CeloHT dApp
+# CeloHT dApp (Demo Mode)
 
 **The official decentralized application for CeloHT** education, a
 community agent network, and reforestation, built on the Celo ecosystem.
