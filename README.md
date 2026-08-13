@@ -16,7 +16,7 @@ community agent network, and reforestation, built on the Celo ecosystem.
 
 ---
 
-## 🚀 **Demo**
+## **Live Demo**
 
 ### **[👉 Deploy Live for Investors (2 min) →](DEPLOY.md)**
 
@@ -31,12 +31,12 @@ community agent network, and reforestation, built on the Celo ecosystem.
 **Want to explore CeloHT before diving into the code?**
 
 Explore these features:
-- ✅ **Wallet** — Send/receive demo assets with validation
-- ✅ **Exchange** — Swap CELO ↔ cUSD with realistic rates
-- ✅ **Education** — Browse courses and certificates
-- ✅ **Agents** — Discover community agents on a map
-- ✅ **Governance** — Vote on sample proposals
-- ✅ **Impact** — Track reforestation metrics
+- ✅ **Wallet** - Send/receive demo assets with validation
+- ✅ **Exchange** - Swap CELO ↔ cUSD with realistic rates
+- ✅ **Education** - Browse courses and certificates
+- ✅ **Agents** - Discover community agents on a map
+- ✅ **Governance** - Vote on sample proposals
+- ✅ **Impact** - Track reforestation metrics
 
 > **Transparency:** All flows are clearly labeled **"Demo mode"** using realistic sample data with no false blockchain claims.
 
