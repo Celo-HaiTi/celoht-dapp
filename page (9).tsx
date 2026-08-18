@@ -80,7 +80,7 @@ export default function HomePage() {
               </span>
             </CardHeader>
             <CardDescription>
-              Track verified tree-planting projects and support them directly in cUSD.
+              Track verified tree-planting projects and support them directly in USDm.
             </CardDescription>
             <Link
               href="/reforestation"

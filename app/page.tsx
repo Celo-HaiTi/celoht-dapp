@@ -32,7 +32,7 @@ export default function HomePage() {
             </p>
             <p className="mt-3 font-display text-3xl font-semibold">${demoWalletState.estimatedValue.toFixed(2)}</p>
             <p className="mt-2 text-sm text-ink-soft dark:text-parchment-100/60">
-              CELO {demoWalletState.celoBalance.toFixed(2)} · cUSD {demoWalletState.cUsdBalance.toFixed(2)}
+              CELO {demoWalletState.celoBalance.toFixed(2)} · USDm {demoWalletState.usdmBalance.toFixed(2)}
             </p>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function HomePage() {
               <CardTitle>Financial inclusion</CardTitle>
             </CardHeader>
             <CardDescription>
-              Simple wallet access, CELO and cUSD flows, and practical onboarding for everyday digital finance.
+              Simple wallet access, CELO and USDm flows, and practical onboarding for everyday digital finance.
             </CardDescription>
             <Link href="/wallet" className="mt-5 inline-flex items-center text-sm font-semibold text-gold-800 dark:text-gold-300">
               Open wallet <ArrowRight size={15} aria-hidden="true" className="ml-1" />
@@ -110,7 +110,7 @@ export default function HomePage() {
               What the app does
             </p>
             <ul className="mt-4 space-y-3 text-sm text-ink-soft dark:text-parchment-100/75">
-              <li>• Connect wallet and monitor CELO/cUSD balances</li>
+              <li>• Connect wallet and monitor CELO/USDm balances</li>
               <li>• Access educational modules and learning progress</li>
               <li>• Review transactions and demo exchange flows</li>
               <li>• Explore agent network and reforestation impact</li>

@@ -6,7 +6,7 @@ import {
 } from "../lib/demo-wallet.ts";
 
 describe("CeloHT demo wallet utilities", function () {
-  it("accepts valid transfer input for CELO and cUSD", function () {
+  it("accepts valid transfer input for CELO and USDm", function () {
     expect(
       validateTransferInput({
         asset: "CELO",
@@ -20,7 +20,7 @@ describe("CeloHT demo wallet utilities", function () {
 
     expect(
       validateTransferInput({
-        asset: "cUSD",
+        asset: "USDm",
         amount: "0.5",
         recipient: "0x1234567890123456789012345678901234567890",
         balance: 1,
@@ -44,14 +44,14 @@ describe("CeloHT demo wallet utilities", function () {
 
     expect(
       validateTransferInput({
-        asset: "cUSD",
+        asset: "USDm",
         amount: "5",
         recipient: "0x1234567890123456789012345678901234567890",
         balance: 2,
         isConnected: true,
         wrongNetwork: false,
       }),
-    ).to.deep.equal({ valid: false, error: "Insufficient cUSD balance." });
+    ).to.deep.equal({ valid: false, error: "Insufficient USDm balance." });
   });
 
   it("formats monetary values consistently for the UI", function () {

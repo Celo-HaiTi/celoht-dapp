@@ -42,4 +42,4 @@ See [`../ARCHITECTURE.md`](../ARCHITECTURE.md#why-some-ui-components-are-hand-au
 No contract in `packages/contracts` inherits from `ERC20` or represents a
 fungible, transferable balance of anything CeloHT controls. The only
 `ERC20` reference in the codebase is `MockERC20.sol`, explicitly marked
-test-only, standing in for cUSD in the test suite.
+test-only, standing in for USDm in the test suite.

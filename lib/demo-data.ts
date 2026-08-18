@@ -1,7 +1,7 @@
 export type DemoTransaction = {
   id: string;
   type: "Send" | "Receive" | "Exchange" | "Deposit" | "Withdraw";
-  asset: "CELO" | "cUSD";
+  asset: "CELO" | "USDm";
   amount: string;
   status: "Pending" | "Successful" | "Failed";
   date: string;
@@ -17,7 +17,7 @@ export const demoWalletState = {
   address: "0x8A9C1B4Ff1c8A2b0c1d4E11D7c5f7f3EA0b5B2cA",
   network: "Celo Mainnet",
   celoBalance: 14.82,
-  cUsdBalance: 428.35,
+  usdmBalance: 428.35,
   estimatedValue: 540.27,
   demoMode: true,
 };
@@ -26,7 +26,7 @@ export const demoTransactions: DemoTransaction[] = [
   {
     id: "tx-001",
     type: "Receive",
-    asset: "cUSD",
+    asset: "USDm",
     amount: "+120.00",
     status: "Successful",
     date: "2026-08-10 08:15",
@@ -50,7 +50,7 @@ export const demoTransactions: DemoTransaction[] = [
   {
     id: "tx-003",
     type: "Send",
-    asset: "cUSD",
+    asset: "USDm",
     amount: "-60.00",
     status: "Pending",
     date: "2026-08-09 11:08",
@@ -80,7 +80,7 @@ export const demoAgents = [
     status: "Active",
     availability: "Today · 9:00–18:00",
     services: ["Cash-in", "Cash-out", "Wallet setup"],
-    assets: ["CELO", "cUSD"],
+    assets: ["CELO", "USDm"],
     rating: 4.9,
   },
   {
@@ -89,7 +89,7 @@ export const demoAgents = [
     status: "Active",
     availability: "Today · 10:00–17:00",
     services: ["Remittances", "Education support"],
-    assets: ["CELO", "cUSD"],
+    assets: ["CELO", "USDm"],
     rating: 4.8,
   },
   {
@@ -113,12 +113,12 @@ export const demoCourses = [
     summary: "Learn budgeting, saving, and how to protect your money before using digital wallets.",
   },
   {
-    title: "How cUSD works",
+    title: "How USDm works",
     category: "Stablecoins",
     level: "Beginner",
     minutes: 18,
     progress: 52,
-    summary: "Understand stable value, transaction safety, and why cUSD is useful in daily life.",
+    summary: "Understand stable value, transaction safety, and why USDm is useful in daily life.",
   },
   {
     title: "Wallet safety fundamentals",
@@ -134,7 +134,7 @@ export const demoCourses = [
     level: "Intermediate",
     minutes: 31,
     progress: 61,
-    summary: "Explore Celo’s mission, mobile-first design, and the role of CELO and cUSD.",
+    summary: "Explore Celo’s mission, mobile-first design, and the role of CELO and USDm.",
   },
 ];
 
@@ -199,7 +199,7 @@ export const demoReforestationProjects = [
 
 export const demoExchangeQuote = {
   from: "CELO",
-  to: "cUSD",
+  to: "USDm",
   rate: 1.11,
   minimumReceived: 120.18,
   networkFee: 0.008,

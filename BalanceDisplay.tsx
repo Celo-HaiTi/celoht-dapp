@@ -5,22 +5,22 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
  * Displays the connected wallet's native CELO balance (used for gas) and,
- * when a cUSD token address is provided, its cUSD balance.
+ * when a USDm token address is provided, its USDm balance.
  */
-export function BalanceDisplay({ cUsdAddress }: { cUsdAddress?: `0x${string}` }) {
+export function BalanceDisplay({ usdmAddress }: { usdmAddress?: `0x${string}` }) {
   const { address, isConnected } = useAccount();
 
   const celoBalance = useBalance({ address, query: { enabled: isConnected } });
-  const cUsdBalance = useBalance({
+  const usdmBalance = useBalance({
     address,
-    token: cUsdAddress,
-    query: { enabled: isConnected && Boolean(cUsdAddress) },
+    token: usdmAddress,
+    query: { enabled: isConnected && Boolean(usdmAddress) },
   });
 
   if (!isConnected) {
     return (
       <p className="text-ink-soft dark:text-parchment-100/70 text-sm">
-        Connect your wallet to see your CELO and cUSD balances.
+        Connect your wallet to see your CELO and USDm balances.
       </p>
     );
   }
@@ -41,17 +41,17 @@ export function BalanceDisplay({ cUsdAddress }: { cUsdAddress?: `0x${string}` })
       </div>
       <div className="border-navy-700/15 dark:border-parchment-100/10 rounded-xl border p-4">
         <dt className="text-ink-soft dark:text-parchment-100/50 text-xs tracking-wide uppercase">
-          cUSD
+          USDm
         </dt>
-        {!cUsdAddress ? (
+        {!usdmAddress ? (
           <dd className="text-ink-soft dark:text-parchment-100/60 mt-1 text-sm">
             Not configured for this network
           </dd>
-        ) : cUsdBalance.isLoading ? (
+        ) : usdmBalance.isLoading ? (
           <Skeleton className="mt-2 h-7 w-24" />
         ) : (
           <dd className="mt-1 font-mono text-2xl font-semibold">
-            {cUsdBalance.data ? Number(cUsdBalance.data.formatted).toFixed(2) : "—"}
+            {usdmBalance.data ? Number(usdmBalance.data.formatted).toFixed(2) : "—"}
           </dd>
         )}
       </div>

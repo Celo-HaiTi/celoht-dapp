@@ -5,7 +5,7 @@
 - `/reforestation` — pillar overview
 - `/reforestation/projects` — registered projects with live tree counts
   where `ImpactRegistry` is deployed
-- `/donations` — direct cUSD donations to a specific project
+- `/donations` — direct USDm donations to a specific project
 
 ## On-Chain Model
 
@@ -14,7 +14,7 @@ Two contracts work together:
 - **`ImpactRegistry`**: a `VERIFIER_ROLE` holder logs a `PlantingRecord`
   (tree count + IPFS evidence URI) against a registered project. Totals
   are summed on-chain and are the source of truth for "trees planted."
-- **`DonationManager`**: accepts cUSD donations earmarked to a project;
+- **`DonationManager`**: accepts USDm donations earmarked to a project;
   a `WITHDRAWER_ROLE` holder routes funds to the project's beneficiary.
 
 These are deliberately separate contracts — verifying planting activity

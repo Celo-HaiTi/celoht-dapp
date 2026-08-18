@@ -23,7 +23,7 @@ export default function DonationsPage() {
 
   const deployed = isContractDeployed(chainId, "DonationManager");
   const donationManagerAddress = getContractAddress(chainId, "DonationManager");
-  // cUSD (or the configured donation token) address isn't hardcoded here —
+  // USDm (or the configured donation token) address isn't hardcoded here —
   // it's read from DonationManager.donationToken() in a full integration.
   // See docs/API.md for the read pattern.
 
@@ -99,7 +99,7 @@ export default function DonationsPage() {
                   htmlFor="amount"
                   className="text-ink-soft dark:text-parchment-100/50 text-xs font-medium tracking-wide uppercase"
                 >
-                  Amount (cUSD)
+                  Amount (USDm)
                 </label>
                 <input
                   id="amount"

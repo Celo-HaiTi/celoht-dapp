@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Reforestation",
-  description: "Verified tree-planting projects, supportable directly in cUSD.",
+  description: "Verified tree-planting projects, supportable directly in USDm.",
 };
 
 export default function ReforestationPage() {
@@ -37,7 +37,7 @@ export default function ReforestationPage() {
           <div className="border-forest-500/30 rounded-2xl border p-6">
             <h3 className="font-semibold">3. You can support it</h3>
             <p className="text-ink-soft dark:text-parchment-100/70 mt-2 text-sm">
-              Donate cUSD directly to a project through the Donations page.
+              Donate USDm directly to a project through the Donations page.
             </p>
           </div>
         </div>

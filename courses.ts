@@ -43,14 +43,14 @@ export const courses: Course[] = [
     level: "Beginner",
   },
   {
-    id: "hands-on-valora-cusd",
-    title: "Hands-On Valora & cUSD",
+    id: "hands-on-valora-usdm",
+    title: "Hands-On Valora & USDm",
     pillar: "education",
     summary: "Step-by-step guided use, with heavy emphasis on seed-phrase security.",
     modules: [
       "Installing Valora",
       "Your first wallet",
-      "Sending and receiving cUSD",
+      "Sending and receiving USDm",
       "Protecting your seed phrase",
     ],
     durationMinutes: 60,

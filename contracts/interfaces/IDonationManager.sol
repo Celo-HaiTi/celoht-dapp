@@ -2,7 +2,7 @@
 pragma solidity ^0.8.27;
 
 /// @title IDonationManager
-/// @notice Interface for accepting ERC-20 donations (e.g. cUSD) earmarked
+/// @notice Interface for accepting ERC-20 donations (e.g. USDm) earmarked
 ///         to a specific CeloHT project, such as a reforestation campaign.
 interface IDonationManager {
     event Donated(

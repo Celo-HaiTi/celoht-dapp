@@ -4,7 +4,7 @@
 
 The Education section (`/education`, `/education/courses`) presents
 CeloHT's core curriculum — financial literacy, blockchain/Web3
-fundamentals, hands-on Valora/cUSD use, and crypto risk awareness — as
+fundamentals, hands-on Valora/USDm use, and crypto risk awareness — as
 structured courses with progress tracking.
 
 ## How Completion Is Recorded

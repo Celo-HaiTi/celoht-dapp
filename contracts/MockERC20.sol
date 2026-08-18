@@ -5,7 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title MockERC20
 /// @notice A minimal mintable ERC-20 used ONLY in tests to stand in for
-///         cUSD. Never deployed to a live network.
+///         USDm. Never deployed to a live network.
 contract MockERC20 is ERC20 {
     constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {}
 

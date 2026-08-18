@@ -11,7 +11,7 @@ import { demoTransactions, demoWalletState } from "@/lib/demo-data";
 import { formatCurrency, validateTransferInput } from "@/lib/demo-wallet";
 
 export default function WalletPage() {
-  const [asset, setAsset] = useState<"CELO" | "cUSD">("cUSD");
+  const [asset, setAsset] = useState<"CELO" | "USDm">("USDm");
   const [amount, setAmount] = useState("25");
   const [recipient, setRecipient] = useState("0x1234567890123456789012345678901234567890");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -22,7 +22,7 @@ export default function WalletPage() {
         asset,
         amount,
         recipient,
-        balance: asset === "CELO" ? demoWalletState.celoBalance : demoWalletState.cUsdBalance,
+        balance: asset === "CELO" ? demoWalletState.celoBalance : demoWalletState.usdmBalance,
         isConnected: false,
         wrongNetwork: false,
       }),
@@ -53,10 +53,10 @@ export default function WalletPage() {
           <Card>
             <CardHeader>
               <Download size={18} aria-hidden="true" />
-              <CardTitle>cUSD</CardTitle>
+              <CardTitle>USDm</CardTitle>
             </CardHeader>
-            <p className="font-display text-3xl font-semibold">{demoWalletState.cUsdBalance.toFixed(2)}</p>
-            <CardDescription className="mt-2">≈ {formatCurrency(demoWalletState.cUsdBalance)}</CardDescription>
+            <p className="font-display text-3xl font-semibold">{demoWalletState.usdmBalance.toFixed(2)}</p>
+            <CardDescription className="mt-2">≈ {formatCurrency(demoWalletState.usdmBalance)}</CardDescription>
           </Card>
           <Card>
             <CardHeader>
@@ -80,11 +80,11 @@ export default function WalletPage() {
                 <select
                   id="asset"
                   value={asset}
-                  onChange={(event) => setAsset(event.target.value as "CELO" | "cUSD")}
+                  onChange={(event) => setAsset(event.target.value as "CELO" | "USDm")}
                   className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
                 >
                   <option value="CELO">CELO</option>
-                  <option value="cUSD">cUSD</option>
+                  <option value="USDm">USDm</option>
                 </select>
               </div>
 
@@ -147,7 +147,7 @@ export default function WalletPage() {
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-ink-soft dark:text-parchment-100/60">Balance</dt>
-                <dd>{asset === "CELO" ? demoWalletState.celoBalance.toFixed(2) : demoWalletState.cUsdBalance.toFixed(2)}</dd>
+                <dd>{asset === "CELO" ? demoWalletState.celoBalance.toFixed(2) : demoWalletState.usdmBalance.toFixed(2)}</dd>
               </div>
             </dl>
             <div className="mt-5 rounded-xl border border-dashed border-navy-700/20 p-3 text-xs text-ink-soft dark:border-parchment-100/15 dark:text-parchment-100/65">

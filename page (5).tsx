@@ -19,7 +19,7 @@ export default function EducationPage() {
       <PageHero
         eyebrow="Pillar 01 · Education"
         title="Understanding comes before access"
-        lead="Four core modules — financial literacy, blockchain fundamentals, hands-on Valora/cUSD use, and risk awareness — each with a quiz and a certificate on completion."
+        lead="Four core modules — financial literacy, blockchain fundamentals, hands-on Valora/USDm use, and risk awareness — each with a quiz and a certificate on completion."
       />
 
       <Section eyebrow="Curriculum" title={`${courses.length} modules available`}>

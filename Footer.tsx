@@ -28,7 +28,7 @@ export function Footer() {
         <div className="border-parchment-100/10 mt-10 border-t pt-6">
           <p className="text-parchment-100/50 max-w-3xl text-xs">
             CeloHT is a community-driven, open-source initiative built on the Celo ecosystem. It is
-            not a cryptocurrency, an ICO, or an investment platform. CELO and cUSD are used as
+            not a cryptocurrency, an ICO, or an investment platform. CELO and USDm are used as
             wallet and payment infrastructure, while the dApp provides a clearly labeled demo
             experience when live blockchain services are unavailable.
           </p>

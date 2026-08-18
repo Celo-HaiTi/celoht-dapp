@@ -11,7 +11,7 @@ import {Roles} from "./libraries/Roles.sol";
 import {BasisPoints} from "./libraries/BasisPoints.sol";
 
 /// @title DonationManager
-/// @notice Accepts ERC-20 donations (in practice, cUSD on Celo) earmarked
+/// @notice Accepts ERC-20 donations (in practice, USDm on Celo) earmarked
 ///         to a specific CeloHT project — most commonly a reforestation
 ///         campaign — and lets an approved withdrawer route funds to that
 ///         project's beneficiary. This contract does not create, hold, or

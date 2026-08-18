@@ -55,7 +55,7 @@
 - Used demo data from central source
 
 #### **Wallet Page** (`app/wallet/page.tsx`)
-- Built transfer UI with CELO/cUSD asset selection
+- Built transfer UI with CELO/USDm asset selection
 - Implemented transfer validation with error messaging
 - Added balance display with current rates
 - Included transaction history with demo data
@@ -63,7 +63,7 @@
 - Validation: address format, insufficient balance, amount validation
 
 #### **Exchange Page** (`app/exchange/page.tsx`)
-- Built CELO ↔ cUSD swap interface
+- Built CELO ↔ USDm swap interface
 - Implemented realistic rate quoting (1.22:1 demo rate)
 - Added swap fee, network fee, and slippage calculations
 - Review transaction flow with demo safety label
@@ -111,13 +111,13 @@ All contracts compile successfully and pass internal tests.
 
 #### **Demo Data Layer** (`lib/demo-data.ts`)
 Created realistic sample data for all flows:
-- **Wallet State**: CELO (14.82) + cUSD (428.35) balances
+- **Wallet State**: CELO (14.82) + USDm (428.35) balances
 - **Transactions**: 6 sample transfers with realistic amounts
 - **Agents**: 12 community agents with profiles and regions
 - **Education**: 4 courses with completion rates
 - **Impact**: 234,567 trees planted across 5 projects
 - **Governance**: 3 sample proposals with voting data
-- **Exchange**: 1.22:1 CELO/cUSD rate with 0.5% slippage
+- **Exchange**: 1.22:1 CELO/USDm rate with 0.5% slippage
 
 #### **Wallet Utilities** (`lib/demo-wallet.ts`)
 - `validateTransferInput()` — Address format, balance, amount validation
@@ -210,7 +210,7 @@ Created realistic sample data for all flows:
 |-------|--------|---------|
 | `/` | ✅ | Overview + demo portfolio |
 | `/wallet` | ✅ | Send/receive + validation |
-| `/exchange` | ✅ | CELO ↔ cUSD swap |
+| `/exchange` | ✅ | CELO ↔ USDm swap |
 | `/transactions` | ✅ | Transaction history |
 | `/agents` | ✅ | Community directory + map |
 | `/education` | ✅ | Courses + `/courses` detail |
@@ -236,7 +236,7 @@ Created realistic sample data for all flows:
 
 #### **SEO & Discoverability**
 - Enhanced metadata title & description
-- Added keywords: CeloHT, Celo, cUSD, financial inclusion, Web3 education, reforestation
+- Added keywords: CeloHT, Celo, USDm, financial inclusion, Web3 education, reforestation
 - OpenGraph & Twitter card complete
 - Robots.txt setup (index: false for pre-launch)
 
@@ -345,7 +345,7 @@ npm run test       # Run contract tests
 3. **Replace demo data** with live blockchain queries
 4. **Enable WalletConnect** with real Project ID
 5. **Connect real wallets** (Valora, MiniPay) for fund transfers
-6. **Launch on mainnet** with real cUSD integration
+6. **Launch on mainnet** with real USDm integration
 
 ---
 

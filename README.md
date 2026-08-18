@@ -32,7 +32,7 @@ community agent network, and reforestation, built on the Celo ecosystem.
 
 Explore these features:
 - ✅ **Wallet** - Send/receive demo assets with validation
-- ✅ **Exchange** - Swap CELO ↔ cUSD with realistic rates
+- ✅ **Exchange** - Swap CELO ↔ USDm with realistic rates
 - ✅ **Education** - Browse courses and certificates
 - ✅ **Agents** - Discover community agents on a map
 - ✅ **Governance** - Vote on sample proposals
@@ -60,7 +60,7 @@ pillars see [`docs/mission.md`](docs/mission.md).
 | ----------------- | --------------------------------------------------------------------------------------------------------- |
 | **Education**     | Courses, quizzes, progress tracking, and soulbound (non-transferable) on-chain certificates on completion |
 | **Agent Network** | A directory and map of verified community agents, backed by an on-chain registry                          |
-| **Reforestation** | Verified planting records and direct cUSD donations to registered projects                                |
+| **Reforestation** | Verified planting records and direct USDm donations to registered projects                                |
 
 ## Repository structure
 

@@ -1,4 +1,4 @@
-export type Asset = "CELO" | "cUSD";
+export type Asset = "CELO" | "USDm";
 
 export type TransferInput = {
   asset: Asset;

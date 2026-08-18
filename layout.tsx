@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   description:
     "CeloHT brings financial inclusion, digital finance education, and community impact together on the Celo ecosystem.",
-  keywords: ["CeloHT", "Celo", "cUSD", "financial inclusion", "Web3 education", "reforestation"],
+  keywords: ["CeloHT", "Celo", "USDm", "financial inclusion", "Web3 education", "reforestation"],
   icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "CeloHT — Financial Inclusion, Web3 Education & Environmental Impact",

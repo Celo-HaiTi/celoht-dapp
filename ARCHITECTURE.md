@@ -29,7 +29,7 @@ a shared runtime.
 | ------------------------- | --------------------------------------------------------------------------- |
 | `AgentRegistry.sol`       | Self-registration and coordinator-approved status for community agents      |
 | `CertificateRegistry.sol` | Soulbound ERC-721 education certificates                                    |
-| `DonationManager.sol`     | ERC-20 (cUSD) donations earmarked per project, with a fee hard-capped at 5% |
+| `DonationManager.sol`     | ERC-20 (USDm) donations earmarked per project, with a fee hard-capped at 5% |
 | `ImpactRegistry.sol`      | Verifier-recorded reforestation planting records                            |
 | `GovernanceVoting.sol`    | Role-based, one-address-one-vote proposals — no token                       |
 

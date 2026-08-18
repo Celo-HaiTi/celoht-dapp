@@ -2,7 +2,7 @@
 
 **Does the CeloHT dApp have a token?**
 No. There is no CeloHT token anywhere in this codebase, and none is
-planned. The app uses CELO (for gas) and cUSD (for donations), both
+planned. The app uses CELO (for gas) and USDm (for donations), both
 existing Celo ecosystem assets that CeloHT doesn't issue or control.
 
 **Is this an exchange or a DeFi protocol?**

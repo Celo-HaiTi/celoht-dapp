@@ -10,8 +10,8 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Ca
 import { demoExchangeQuote } from "@/lib/demo-data";
 
 export default function ExchangePage() {
-  const [fromAsset, setFromAsset] = useState<"CELO" | "cUSD">("CELO");
-  const [toAsset, setToAsset] = useState<"CELO" | "cUSD">("cUSD");
+  const [fromAsset, setFromAsset] = useState<"CELO" | "USDm">("CELO");
+  const [toAsset, setToAsset] = useState<"CELO" | "USDm">("USDm");
   const [amount, setAmount] = useState("12.5");
 
   const quote = useMemo(() => {
@@ -28,7 +28,7 @@ export default function ExchangePage() {
       <Breadcrumbs items={[{ label: "Exchange" }]} />
       <PageHero
         eyebrow="Exchange"
-        title="Swap between CELO and cUSD"
+        title="Swap between CELO and USDm"
         lead="This flow is intentionally demo-only until a real DEX or bridge is integrated. It presents realistic figures and labels them clearly as sample values."
       />
 
@@ -46,11 +46,11 @@ export default function ExchangePage() {
                 <select
                   id="from"
                   value={fromAsset}
-                  onChange={(event) => setFromAsset(event.target.value as "CELO" | "cUSD")}
+                  onChange={(event) => setFromAsset(event.target.value as "CELO" | "USDm")}
                   className="rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
                 >
                   <option value="CELO">CELO</option>
-                  <option value="cUSD">cUSD</option>
+                  <option value="USDm">USDm</option>
                 </select>
                 <input
                   type="number"
@@ -81,17 +81,17 @@ export default function ExchangePage() {
                 <label htmlFor="to" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
                   To
                 </label>
-                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: 428.35 cUSD</span>
+                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: 428.35 USDm</span>
               </div>
               <div className="flex gap-2">
                 <select
                   id="to"
                   value={toAsset}
-                  onChange={(event) => setToAsset(event.target.value as "CELO" | "cUSD")}
+                  onChange={(event) => setToAsset(event.target.value as "CELO" | "USDm")}
                   className="rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
                 >
                   <option value="CELO">CELO</option>
-                  <option value="cUSD">cUSD</option>
+                  <option value="USDm">USDm</option>
                 </select>
                 <div className="flex w-full items-center rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10">
                   {quote.expected.toFixed(2)}

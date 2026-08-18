@@ -24,8 +24,8 @@ This runs [`scripts/deploy.ts`](../packages/contracts/scripts/deploy.ts),
 which deploys all five contracts in dependency order and writes addresses
 to `packages/contracts/deployments/<network>.json`. For Alfajores or a
 local network without `CUSD_ADDRESS` set, it deploys a `MockERC20` to
-stand in for cUSD — **never use this on mainnet**; mainnet deployment
-requires the real cUSD contract address, or the script throws.
+stand in for USDm — **never use this on mainnet**; mainnet deployment
+requires the real USDm contract address, or the script throws.
 
 After deploying, sync the addresses into the frontend:
 
@@ -63,7 +63,7 @@ variables.
 - [ ] External audit of all five contracts
 - [ ] Alfajores deployment tested end-to-end, including a real donation
       and a real certificate issuance
-- [ ] `CUSD_ADDRESS` confirmed against Celo's official cUSD contract
+- [ ] `CUSD_ADDRESS` confirmed against Celo's official USDm contract
       address before running `deploy:celo`
 - [ ] `WITHDRAWER_ROLE` and `VERIFIER_ROLE` assigned to real, vetted
       addresses — not left on the deployer key

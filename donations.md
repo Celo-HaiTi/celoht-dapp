@@ -5,7 +5,7 @@
 1. A project is registered in `DonationManager` (and separately in
    `ImpactRegistry`, for tracking planting activity against the same
    project ID).
-2. A donor approves the donation token (cUSD) for the `DonationManager`
+2. A donor approves the donation token (USDm) for the `DonationManager`
    contract, then calls `donate(projectId, amount, memoURI)`.
 3. The donated amount, minus an optional platform fee (0% by default,
    hard-capped at 5% in the contract), is credited to that project's

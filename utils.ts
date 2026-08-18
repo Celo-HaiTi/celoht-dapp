@@ -12,7 +12,7 @@ export function shortenAddress(address: string, chars = 4): string {
   return `${address.slice(0, 2 + chars)}\u2026${address.slice(-chars)}`;
 }
 
-/** Format a bigint token amount (18 decimals, e.g. cUSD) as a display string. */
+/** Format a bigint token amount (18 decimals, e.g. USDm) as a display string. */
 export function formatTokenAmount(value: bigint, decimals = 18, maxFractionDigits = 2): string {
   const divisor = BigInt(10) ** BigInt(decimals);
   const whole = value / divisor;

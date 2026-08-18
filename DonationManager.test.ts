@@ -9,7 +9,7 @@ describe("DonationManager", function () {
     const [admin, feeRecipient, donor1, donor2, beneficiary] = await ethers.getSigners();
 
     const MockERC20 = await ethers.getContractFactory("MockERC20");
-    const token = await MockERC20.deploy("Mock cUSD", "mcUSD");
+    const token = await MockERC20.deploy("Mock USDm", "mUSDm");
     await token.mint(donor1.address, ethers.parseEther("1000"));
     await token.mint(donor2.address, ethers.parseEther("1000"));
 

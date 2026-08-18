@@ -14,7 +14,7 @@ advice. Educational content is provided for informational purposes only.
 ## No Token, No Investment
 
 This app does not offer, sell, or facilitate the purchase of any token,
-security, or investment product. CELO and cUSD are existing Celo
+security, or investment product. CELO and USDm are existing Celo
 ecosystem assets, used here for gas and donations respectively — CeloHT
 doesn't issue or control either.
 

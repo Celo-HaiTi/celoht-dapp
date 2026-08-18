@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const faqs = [
   {
     q: "Do I need a token to use this app?",
-    a: "No. CeloHT has no token. You'll need CELO (for gas) and, for donations, cUSD — both are Celo ecosystem assets, not something CeloHT issues.",
+    a: "No. CeloHT has no token. You'll need CELO (for gas) and, for donations, USDm — both are Celo ecosystem assets, not something CeloHT issues.",
   },
   {
     q: "Which wallets are supported?",

@@ -24,7 +24,7 @@ the flagship repository's
 ## Phase 3 — Mainnet Launch
 
 - [ ] External audit findings resolved
-- [ ] Contracts deployed to Celo mainnet with the real cUSD address
+- [ ] Contracts deployed to Celo mainnet with the real USDm address
 - [ ] Transaction history indexer (replacing the current Celoscan link-out)
 - [ ] Public launch of the dApp alongside the CeloHT website
 

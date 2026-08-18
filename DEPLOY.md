@@ -58,7 +58,7 @@ All routes are **static and pre-built**, so no backend server is needed:
 |-------|---------|
 | `/` | Overview + demo portfolio |
 | `/wallet` | Send/receive with balance display |
-| `/exchange` | Swap CELO ↔ cUSD (demo rates) |
+| `/exchange` | Swap CELO ↔ USDm (demo rates) |
 | `/education` | Courses + certificates |
 | `/agents` | Community agent directory |
 | `/governance` | Voting interface (sample proposals) |

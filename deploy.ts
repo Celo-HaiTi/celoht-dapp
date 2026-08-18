@@ -7,23 +7,23 @@ import * as path from "path";
  * the resulting addresses to `deployments/<network>.json`, which
  * `scripts/sync-abis.mjs` (at the repo root) reads to wire the frontend.
  *
- * On Celo mainnet, pass the real cUSD address via CUSD_ADDRESS. On
+ * On Celo mainnet, pass the real USDm address via CUSD_ADDRESS. On
  * Alfajores or a local network, this script deploys a MockERC20 to stand
- * in for cUSD so the full flow can be exercised end to end.
+ * in for USDm so the full flow can be exercised end to end.
  */
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log(`Deploying to network "${network.name}" as ${deployer.address}`);
 
-  // --- Donation asset (cUSD) ---------------------------------------
+  // --- Donation asset (USDm) ---------------------------------------
   let donationTokenAddress = process.env.CUSD_ADDRESS;
   if (!donationTokenAddress) {
     if (network.name === "celo") {
       throw new Error("CUSD_ADDRESS must be set for a mainnet deployment. See docs/DEPLOYMENT.md.");
     }
-    console.log("No CUSD_ADDRESS set — deploying MockERC20 to stand in for cUSD (test only).");
+    console.log("No CUSD_ADDRESS set — deploying MockERC20 to stand in for USDm (test only).");
     const MockERC20 = await ethers.getContractFactory("MockERC20");
-    const mock = await MockERC20.deploy("Mock cUSD", "mcUSD");
+    const mock = await MockERC20.deploy("Mock USDm", "mUSDm");
     await mock.waitForDeployment();
     donationTokenAddress = await mock.getAddress();
   }
