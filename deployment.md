@@ -23,7 +23,7 @@ npm run deploy:alfajores
 This runs [`scripts/deploy.ts`](../packages/contracts/scripts/deploy.ts),
 which deploys all five contracts in dependency order and writes addresses
 to `packages/contracts/deployments/<network>.json`. For Alfajores or a
-local network without `CUSD_ADDRESS` set, it deploys a `MockERC20` to
+local network without `USDM_ADDRESS` set, it deploys a `MockERC20` to
 stand in for USDm — **never use this on mainnet**; mainnet deployment
 requires the real USDm contract address, or the script throws.
 
