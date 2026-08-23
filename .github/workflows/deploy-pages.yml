@@ -33,11 +33,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Typecheck
-        run: npm run typecheck
-
       - name: Compile contracts
         run: npm run compile
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Test contracts and application
         run: npm test
@@ -53,6 +53,9 @@ jobs:
           test -f out/index.html
           test -f out/wallet/index.html
           test -f out/celoht-logo.png
+          test -f out/favicon.svg
+          test -f out/favicon.ico
+          test -f out/manifest.json
           touch out/.nojekyll
 
       - name: Upload Pages artifact
