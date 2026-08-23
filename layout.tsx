@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 import { SkipLink } from "@/components/SkipLink";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const SITE_URL = "https://app.celoht.com";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

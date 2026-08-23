@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "compile": "hardhat compile",
-    "test": "hardhat test",
+    "test": "hardhat test test/demo-wallet.test.ts AgentRegistry.test.ts CertificateRegistry.test.ts DonationManager.test.ts GovernanceVoting.test.ts ImpactRegistry.test.ts",
     "coverage": "hardhat coverage",
     "deploy:alfajores": "hardhat run scripts/deploy.ts --network alfajores",
     "deploy:localhost": "hardhat run scripts/deploy.ts --network localhost",

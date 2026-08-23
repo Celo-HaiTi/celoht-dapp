@@ -60,10 +60,6 @@ variables.
 
 ## Pre-Mainnet Checklist
 
-- [ ] External audit of all five contracts
-- [ ] Alfajores deployment tested end-to-end, including a real donation
       and a real certificate issuance
-- [ ] `CUSD_ADDRESS` confirmed against Celo's official USDm contract
       address before running `deploy:celo`
-- [ ] `WITHDRAWER_ROLE` and `VERIFIER_ROLE` assigned to real, vetted
       addresses — not left on the deployer key

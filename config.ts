@@ -10,6 +10,9 @@ import { injected, walletConnect } from "wagmi/connectors";
  * wallets are offered. See docs/DEVELOPMENT.md and .env.example.
  */
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || undefined;
+const alfajoresRpcUrl = process.env.NEXT_PUBLIC_ALFAJORES_RPC_URL || undefined;
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
 const connectors = [
   injected(),
@@ -20,8 +23,8 @@ const connectors = [
           metadata: {
             name: "CeloHT",
             description: "CeloHT dApp — education, agent network, and reforestation on Celo.",
-            url: "https://app.celoht.com",
-            icons: ["https://app.celoht.com/celoht-logo.png"],
+            url: appUrl,
+            icons: [`${appUrl.replace(/\/$/, "")}/celoht-logo.png`],
           },
           showQrModal: true,
         }),
@@ -33,8 +36,8 @@ export const wagmiConfig = createConfig({
   chains: [celo, celoAlfajores],
   connectors,
   transports: {
-    [celo.id]: http(),
-    [celoAlfajores.id]: http(),
+    [celo.id]: http(celoRpcUrl),
+    [celoAlfajores.id]: http(alfajoresRpcUrl),
   },
   ssr: true,
 });

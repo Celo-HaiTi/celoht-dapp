@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { Wallet, LogOut, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +13,19 @@ export function ConnectWalletButton() {
   const { connect, connectors, isPending, error } = useConnect();
   const { disconnect } = useDisconnect();
   const [open, setOpen] = useState(false);
+  const isMiniPay =
+    typeof window !== "undefined" &&
+    (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum?.isMiniPay === true;
+
+  useEffect(() => {
+    const ethereum = (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum;
+    const detected = ethereum?.isMiniPay === true;
+
+    if (detected && !isConnected) {
+      const injectedConnector = connectors.find((connector) => connector.id === "injected");
+      if (injectedConnector) connect({ connector: injectedConnector });
+    }
+  }, [connect, connectors, isConnected]);
 
   if (isConnected && address) {
     return (
@@ -26,6 +39,18 @@ export function ConnectWalletButton() {
           <span className="sr-only">Disconnect wallet</span>
         </Button>
       </div>
+    );
+  }
+
+  if (isMiniPay) {
+    return (
+      <Button size="sm" disabled={isPending} onClick={() => {
+        const injectedConnector = connectors.find((connector) => connector.id === "injected");
+        if (injectedConnector) connect({ connector: injectedConnector });
+      }}>
+        <Wallet size={16} aria-hidden="true" />
+        {isPending ? "Connecting to MiniPay" : "Connect MiniPay"}
+      </Button>
     );
   }
 

@@ -1,6 +1,8 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import hre from "hardhat";
+import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers.js";
+
+const { ethers } = hre;
 
 describe("ImpactRegistry", function () {
   const PROJECT_A = ethers.encodeBytes32String("reforest-leogane-01");

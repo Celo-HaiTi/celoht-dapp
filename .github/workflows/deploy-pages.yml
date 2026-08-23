@@ -28,7 +28,19 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --include=optional
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Test contracts and application
+        run: npm test
 
       - name: Build static app
         env:
@@ -37,7 +49,11 @@ jobs:
         run: npm run build
 
       - name: Add .nojekyll
-        run: touch out/.nojekyll
+        run: |
+          test -f out/index.html
+          test -f out/wallet/index.html
+          test -f out/celoht-logo.png
+          touch out/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
