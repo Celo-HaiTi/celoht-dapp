@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Section } from "@/components/Section";
 import { StatGrid } from "@/components/StatGrid";
-import { demoImpact, demoWalletState } from "@/lib/demo-data";
+import { demoImpact } from "@/lib/demo-data";
 
 export default function HomePage() {
   return (
@@ -28,11 +28,11 @@ export default function HomePage() {
           </div>
           <div className="rounded-2xl border border-navy-700/15 bg-white/60 p-4 shadow-sm dark:border-parchment-100/10 dark:bg-navy-900/80">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-soft dark:text-parchment-100/60">
-              Demo portfolio
+              Live wallet
             </p>
-            <p className="mt-3 font-display text-3xl font-semibold">${demoWalletState.estimatedValue.toFixed(2)}</p>
+            <p className="mt-3 font-display text-3xl font-semibold">Connect to begin</p>
             <p className="mt-2 text-sm text-ink-soft dark:text-parchment-100/60">
-              CELO {demoWalletState.celoBalance.toFixed(2)} · USDm {demoWalletState.usdmBalance.toFixed(2)}
+              Balances come directly from your wallet on Celo.
             </p>
           </div>
         </div>

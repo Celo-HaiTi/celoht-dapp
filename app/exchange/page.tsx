@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRightLeft, Banknote, RefreshCw } from "lucide-react";
+import { useAccount, useBalance } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -13,6 +14,9 @@ export default function ExchangePage() {
   const [fromAsset, setFromAsset] = useState<"CELO" | "USDm">("CELO");
   const [toAsset, setToAsset] = useState<"CELO" | "USDm">("USDm");
   const [amount, setAmount] = useState("12.5");
+  const [reviewed, setReviewed] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { data: celoBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
 
   const quote = useMemo(() => {
     const numericAmount = Number(amount) || 0;
@@ -40,7 +44,7 @@ export default function ExchangePage() {
                 <label htmlFor="from" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
                   From
                 </label>
-                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: 14.82 CELO</span>
+                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: {celoBalance ? `${Number(celoBalance.formatted).toFixed(4)} CELO` : "Connect wallet"}</span>
               </div>
               <div className="flex gap-2">
                 <select
@@ -81,7 +85,7 @@ export default function ExchangePage() {
                 <label htmlFor="to" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
                   To
                 </label>
-                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: 428.35 USDm</span>
+                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: USDm balance unavailable</span>
               </div>
               <div className="flex gap-2">
                 <select
@@ -98,7 +102,8 @@ export default function ExchangePage() {
                 </div>
               </div>
 
-              <Button className="w-full">Review transaction</Button>
+              <Button className="w-full" disabled={!isConnected || Number(amount) <= 0} onClick={() => setReviewed(true)}>Review demo quote</Button>
+              {reviewed && <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-200">Quote reviewed. No transaction was signed because no Celo DEX is configured for this deployment.</p>}
             </div>
           </Card>
 
