@@ -1,181 +1,70 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ChevronRight, Download, Send, ShieldAlert, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useState } from "react";
+import { CheckCircle2, ExternalLink, Send, ShieldAlert, Wallet } from "lucide-react";
+import { isAddress, parseEther } from "viem";
+import { useAccount, useBalance, useChainId, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
+import { celo, celoAlfajores } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
-import { demoTransactions, demoWalletState } from "@/lib/demo-data";
-import { formatCurrency, validateTransferInput } from "@/lib/demo-wallet";
+import { Button } from "@/components/ui/Button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { formatTokenAmount } from "@/lib/utils";
+
+const supportedChainIds = new Set([celo.id, celoAlfajores.id]);
 
 export default function WalletPage() {
-  const [asset, setAsset] = useState<"CELO" | "USDm">("USDm");
-  const [amount, setAmount] = useState("25");
-  const [recipient, setRecipient] = useState("0x1234567890123456789012345678901234567890");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const { address, isConnected, chain } = useAccount();
+  const chainId = useChainId();
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const { data: balance, isLoading: balanceLoading } = useBalance({ address, query: { enabled: Boolean(address) } });
+  const { data: hash, error: sendError, isPending: isSending, sendTransaction } = useSendTransaction();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+  const wrongNetwork = isConnected && !supportedChainIds.has(chainId);
+  const amountValid = amount !== "" && Number(amount) > 0;
+  const recipientValid = isAddress(recipient);
+  const canSubmit = isConnected && !wrongNetwork && amountValid && recipientValid && !isSending;
 
-  const validation = useMemo(
-    () =>
-      validateTransferInput({
-        asset,
-        amount,
-        recipient,
-        balance: asset === "CELO" ? demoWalletState.celoBalance : demoWalletState.usdmBalance,
-        isConnected: false,
-        wrongNetwork: false,
-      }),
-    [amount, asset, recipient],
-  );
-
-  const handlePreview = () => setIsSubmitted(true);
+  function handleSend() {
+    if (!canSubmit) return;
+    setSubmitted(true);
+    sendTransaction({ to: recipient, value: parseEther(amount) });
+  }
 
   return (
     <>
       <Breadcrumbs items={[{ label: "Wallet" }]} />
-      <PageHero
-        eyebrow="Wallet"
-        title="Manage your Celo wallet safely"
-        lead="This interface supports the real wallet flow shape while clearly staying in demo account state when live blockchain access is unavailable."
-      />
+      <PageHero eyebrow="Wallet" title="Your Celo account, clearly presented" lead="Connect a wallet to read its live CELO balance and submit transactions directly through your wallet provider. CeloHT never invents balances or transaction results." />
 
-      <Section eyebrow="Portfolio" title="Account overview">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <Wallet size={18} aria-hidden="true" />
-              <CardTitle>CELO</CardTitle>
-            </CardHeader>
-            <p className="font-display text-3xl font-semibold">{demoWalletState.celoBalance.toFixed(2)}</p>
-            <CardDescription className="mt-2">≈ {formatCurrency(demoWalletState.celoBalance * 1.22)}</CardDescription>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Download size={18} aria-hidden="true" />
-              <CardTitle>USDm</CardTitle>
-            </CardHeader>
-            <p className="font-display text-3xl font-semibold">{demoWalletState.usdmBalance.toFixed(2)}</p>
-            <CardDescription className="mt-2">≈ {formatCurrency(demoWalletState.usdmBalance)}</CardDescription>
-          </Card>
-          <Card>
-            <CardHeader>
-              <ShieldAlert size={18} aria-hidden="true" />
-              <CardTitle>Network</CardTitle>
-            </CardHeader>
-            <p className="font-display text-3xl font-semibold">Celo</p>
-            <CardDescription className="mt-2">Demo mode · no wallet connected</CardDescription>
-          </Card>
-        </div>
+      <Section eyebrow="Portfolio" title="Live account overview">
+        {!isConnected ? (
+          <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>Connect your wallet</CardTitle></CardHeader><CardDescription>Use the Connect Wallet button above to load live account data from Celo.</CardDescription></Card>
+        ) : wrongNetwork ? (
+          <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Unsupported network</CardTitle></CardHeader><CardDescription>Switch your wallet to Celo Mainnet or Alfajores before sending funds.</CardDescription></Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>CELO</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{balanceLoading ? "Loading..." : balance ? formatTokenAmount(balance.value, balance.decimals) : "Unavailable"}</p><CardDescription className="mt-2">Live native balance from {chain?.name ?? "Celo"}</CardDescription></Card>
+            <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Account</CardTitle></CardHeader><p className="break-all font-mono text-sm">{address}</p><CardDescription className="mt-2">Connected through your wallet provider</CardDescription></Card>
+            <Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>USDm</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">Not configured</p><CardDescription className="mt-2">A verified USDm contract address is required before reading this token.</CardDescription></Card>
+          </div>
+        )}
       </Section>
 
-      <Section eyebrow="Send" title="Transfer funds">
+      <Section eyebrow="Send" title="Transfer CELO">
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="asset" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
-                  Asset
-                </label>
-                <select
-                  id="asset"
-                  value={asset}
-                  onChange={(event) => setAsset(event.target.value as "CELO" | "USDm")}
-                  className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                >
-                  <option value="CELO">CELO</option>
-                  <option value="USDm">USDm</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="recipient" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
-                  Recipient
-                </label>
-                <input
-                  id="recipient"
-                  value={recipient}
-                  onChange={(event) => setRecipient(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="amount" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
-                  Amount
-                </label>
-                <input
-                  id="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={amount}
-                  onChange={(event) => setAmount(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                />
-              </div>
-
-              {validation.error && (
-                <p className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">
-                  {validation.error}
-                </p>
-              )}
-
-              <Button onClick={handlePreview} className="w-full" disabled={!validation.valid && amount.length > 0}>
-                Review transfer
-              </Button>
-            </div>
+          <Card><div className="space-y-4">
+            <div><label htmlFor="recipient" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Recipient address</label><input id="recipient" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="0x..." className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" />{recipient !== "" && !recipientValid && <p className="mt-2 text-sm text-red-700 dark:text-red-300">Enter a valid EVM address.</p>}</div>
+            <div><label htmlFor="amount" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Amount in CELO</label><input id="amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" /></div>
+            <Button onClick={handleSend} className="w-full" disabled={!canSubmit}><Send size={16} aria-hidden="true" />{isSending ? "Confirm in wallet" : "Send CELO"}</Button>
+            {!isConnected && <p className="text-sm text-ink-soft dark:text-parchment-100/65">Connect a wallet before preparing a transaction.</p>}
+            {sendError && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">Transaction failed or was rejected: {sendError.message}</p>}
+          </div></Card>
+          <Card><CardHeader><Send size={18} aria-hidden="true" /><CardTitle>Transaction status</CardTitle></CardHeader>
+            {!submitted ? <CardDescription>No transaction submitted.</CardDescription> : isSending ? <CardDescription>Waiting for wallet approval.</CardDescription> : isConfirming ? <CardDescription>Transaction submitted. Waiting for Celo confirmation.</CardDescription> : isConfirmed && hash ? <div className="space-y-3 text-sm"><p className="flex items-center gap-2 text-forest-600"><CheckCircle2 size={16} aria-hidden="true" />Confirmed on-chain</p><a className="inline-flex items-center gap-1 underline" href={`https://celoscan.io/tx/${hash}`} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div> : hash ? <CardDescription>Transaction submitted. Check your wallet or explorer for its status.</CardDescription> : <CardDescription>Waiting for a wallet response.</CardDescription>}
           </Card>
-
-          <Card>
-            <CardHeader>
-              <Send size={18} aria-hidden="true" />
-              <CardTitle>Transfer summary</CardTitle>
-            </CardHeader>
-            <dl className="space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Asset</dt>
-                <dd>{asset}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Amount</dt>
-                <dd>{amount || "0.00"}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Network fee</dt>
-                <dd>0.005 CELO</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Balance</dt>
-                <dd>{asset === "CELO" ? demoWalletState.celoBalance.toFixed(2) : demoWalletState.usdmBalance.toFixed(2)}</dd>
-              </div>
-            </dl>
-            <div className="mt-5 rounded-xl border border-dashed border-navy-700/20 p-3 text-xs text-ink-soft dark:border-parchment-100/15 dark:text-parchment-100/65">
-              {isSubmitted ? "Demo transfer prepared — no blockchain transaction executed." : "No live transaction yet. Demo state only."}
-            </div>
-          </Card>
-        </div>
-      </Section>
-
-      <Section eyebrow="Recent activity" title="Demo transaction history">
-        <div className="space-y-3">
-          {demoTransactions.map((tx) => (
-            <div key={tx.id} className="flex flex-col gap-2 rounded-2xl border border-navy-700/10 bg-parchment-50 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-parchment-100/10 dark:bg-navy-900/60">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{tx.type}</span>
-                  <span className="rounded-full bg-gold-500/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.16em] text-gold-800 dark:text-gold-300">
-                    {tx.status}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-ink-soft dark:text-parchment-100/60">{tx.asset} {tx.amount} · {tx.date}</p>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-ink-soft dark:text-parchment-100/60">
-                <span>{tx.hash}</span>
-                <ChevronRight size={16} aria-hidden="true" />
-              </div>
-            </div>
-          ))}
         </div>
       </Section>
     </>
