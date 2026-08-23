@@ -46,6 +46,8 @@ jobs:
         env:
           GITHUB_PAGES: true
           REPO_NAME: celoht-dapp
+          NEXT_PUBLIC_BASE_PATH: /celoht-dapp
+          NEXT_PUBLIC_APP_URL: https://celo-haiti.github.io/celoht-dapp/
         run: npm run build
 
       - name: Add .nojekyll

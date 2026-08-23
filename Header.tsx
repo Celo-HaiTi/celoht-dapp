@@ -14,6 +14,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { isConnected, chain } = useAccount();
+  const logoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/celoht-logo.png`;
 
   const networkStatus = !isConnected
     ? "Demo mode"
@@ -33,7 +34,7 @@ export function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md">
-            <Image src="/celoht-logo.png" alt="CeloHT" width={28} height={28} priority />
+            <Image src={logoSrc} alt="CeloHT" width={28} height={28} priority />
             <span className="font-display text-lg font-semibold tracking-tight">CeloHT</span>
           </Link>
           <span className={`hidden rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] sm:inline ${statusStyle}`}>
