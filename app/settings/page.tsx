@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { Settings, ShieldCheck } from "lucide-react";
+import { ConnectWalletButton } from "@/ConnectWalletButton";
+
+export default function SettingsPage() {
+  return <div className="mx-auto max-w-3xl px-4 py-10 pb-28 sm:px-6 lg:px-8"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-800">Preferences</p><h1 className="mt-2 text-3xl font-semibold text-navy-950">Settings</h1><div className="mt-8 divide-y divide-navy-700/10 overflow-hidden rounded-2xl border border-navy-700/10 bg-white shadow-sm"><section className="flex items-center justify-between gap-4 p-6"><div className="flex items-start gap-3"><Settings className="mt-0.5 text-gold-700" size={20} aria-hidden="true" /><div><h2 className="font-semibold">Connected wallet</h2><p className="mt-1 text-sm text-ink-soft">Manage your wallet connection from the secure provider dialog.</p></div></div><ConnectWalletButton /></section><section className="p-6"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 text-forest-500" size={20} aria-hidden="true" /><div><h2 className="font-semibold">Privacy and safety</h2><p className="mt-1 text-sm leading-6 text-ink-soft">CeloHT never asks for private keys or recovery phrases. Read the <Link className="font-semibold text-gold-800 underline" href="/privacy">privacy policy</Link> and <Link className="font-semibold text-gold-800 underline" href="/terms">terms</Link>.</p></div></div></section></div></div>;
+}

@@ -72,7 +72,7 @@ export function ConnectWalletButton() {
           </DialogDescription>
 
           <div className="mt-6 flex flex-col gap-2">
-            {connectors.map((connector) => (
+            {connectors.length > 0 ? connectors.map((connector) => (
               <Button
                 key={connector.uid}
                 variant="secondary"
@@ -89,13 +89,13 @@ export function ConnectWalletButton() {
               >
                 {connector.name}
               </Button>
-            ))}
+            )) : <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800">Wallet connection unavailable. Please install or enable a supported wallet.</p>}
           </div>
 
           {!isWalletConnectConfigured && (
             <p className="text-ink-soft dark:text-parchment-100/60 mt-4 text-xs">
               WalletConnect is not configured in this environment, so mobile wallet QR flows are
-              temporarily unavailable. Demo mode remains available for product review.
+              temporarily unavailable in this environment.
             </p>
           )}
 
