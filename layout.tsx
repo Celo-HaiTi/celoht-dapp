@@ -9,6 +9,8 @@ import { SkipLink } from "@/components/SkipLink";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
+const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
+const assetUrl = (path: string) => `${BASE_PATH}${path}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -19,7 +21,6 @@ export const metadata: Metadata = {
   description:
     "CeloHT brings financial inclusion, digital finance education, and community impact together on the Celo ecosystem.",
   keywords: ["CeloHT", "Celo", "USDm", "financial inclusion", "Web3 education", "reforestation"],
-  icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "CeloHT — Financial Inclusion, Web3 Education & Environmental Impact",
     description:
@@ -59,6 +60,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href={`${BASE_PATH}/favicon.svg`} type="image/svg+xml" />
+        <link rel="icon" href={`${BASE_PATH}/favicon.ico`} />
+        <link rel="apple-touch-icon" href={`${BASE_PATH}/celoht-logo.png`} />
+        <link rel="manifest" href={`${BASE_PATH}/manifest.json`} />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="bg-parchment font-body text-ink dark:bg-navy-950 dark:text-parchment-100 antialiased">

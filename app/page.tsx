@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Section } from "@/components/Section";
 import { StatGrid } from "@/components/StatGrid";
-import { demoImpact } from "@/lib/demo-data";
 
 export default function HomePage() {
   return (
@@ -119,13 +118,13 @@ export default function HomePage() {
         </div>
       </Section>
 
-      <Section eyebrow="Impact snapshot" title="Community traction and outcomes">
+      <Section eyebrow="Impact snapshot" title="Verified impact, when available">
         <StatGrid
           stats={[
-            { value: `${demoImpact.treesPlanted.toLocaleString()}`, label: "Trees planted (Demo data)" },
-            { value: `${demoImpact.communities}`, label: "Communities involved" },
-            { value: `${demoImpact.projects}`, label: "Environmental initiatives" },
-            { value: `${demoImpact.volunteers.toLocaleString()}`, label: "Community learners and volunteers" },
+            { value: "Unavailable", label: "Trees planted" },
+            { value: "Unavailable", label: "Active projects" },
+            { value: "Unavailable", label: "Verified donations" },
+            { value: "Connect", label: "Read on-chain data" },
           ]}
         />
       </Section>

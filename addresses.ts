@@ -1,5 +1,6 @@
 import { celo, celoAlfajores } from "wagmi/chains";
 import type { Address } from "viem";
+import { isAddress } from "viem";
 
 /**
  * Deployed contract addresses per chain.
@@ -12,6 +13,7 @@ import type { Address } from "viem";
  * doesn't exist.
  */
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
+const configuredUsdmAddress = process.env.NEXT_PUBLIC_USDM_ADDRESS;
 
 export type ContractName =
   | "AgentRegistry"
@@ -46,4 +48,11 @@ export function getContractAddress(chainId: number, contract: ContractName): Add
 
 export function isContractDeployed(chainId: number, contract: ContractName): boolean {
   return getContractAddress(chainId, contract) !== undefined;
+}
+
+export function getUsdmAddress(chainId: number): Address | undefined {
+  if (chainId !== celo.id || !configuredUsdmAddress || !isAddress(configuredUsdmAddress)) {
+    return undefined;
+  }
+  return configuredUsdmAddress;
 }

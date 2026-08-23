@@ -1,0 +1,23 @@
+{
+  "name": "CeloHT",
+  "short_name": "CeloHT",
+  "description": "CeloHT financial inclusion, education, and community impact tools on Celo.",
+  "start_url": "/celoht-dapp/",
+  "display": "standalone",
+  "background_color": "#F7F8FA",
+  "theme_color": "#0B1120",
+  "icons": [
+    {
+      "src": "/celoht-dapp/celoht-logo.png",
+      "sizes": "998x1000",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/celoht-dapp/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
