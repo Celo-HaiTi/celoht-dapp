@@ -24,10 +24,10 @@ export function Header() {
 
   const statusStyle =
     networkStatus === "Connected"
-      ? "bg-forest-500/15 text-forest-700 dark:text-forest-300"
+      ? "bg-forest-500/15 text-forest-300"
       : networkStatus === "Wrong network"
-        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
-        : "bg-navy-700/10 text-ink-soft dark:bg-parchment-100/10 dark:text-parchment-100/70";
+        ? "bg-amber-500/15 text-amber-300"
+        : "bg-white/10 text-parchment-100/70";
 
   const iconFor = (label: string) => {
     const icons = { Overview: LayoutDashboard, Wallet: WalletCards, Transactions: ReceiptText, Education: GraduationCap, Agents: Users, Reforestation: Sprout, Settings: MoreHorizontal };

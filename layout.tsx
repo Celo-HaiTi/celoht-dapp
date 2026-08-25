@@ -59,12 +59,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="apple-touch-icon" href={`${BASE_PATH}/celoht-logo.png`} />
         <link rel="manifest" href={`${BASE_PATH}/manifest.json`} />
       </head>
-      <body className="bg-parchment font-body text-ink antialiased">
+      <body className="bg-navy-950 font-body text-parchment antialiased">
         <Web3Gate>
           <ToastProvider>
             <SkipLink />
             <Header />
-            <main id="main-content">
+            <main id="main-content" className="lg:ml-64">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
           </ToastProvider>

@@ -4,13 +4,13 @@ type Props = { title?: string; eyebrow?: string; children: ReactNode; className?
 
 export function Section({ title, eyebrow, children, className = "" }: Props) {
   return (
-    <section className={`mx-auto max-w-6xl px-4 py-10 sm:px-6 ${className}`}>
+    <section className={`mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 ${className}`}>
       {eyebrow && (
-        <p className="text-ink-soft dark:text-parchment-100/50 font-mono text-xs tracking-[0.2em] uppercase">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-parchment-100/45">
           {eyebrow}
         </p>
       )}
-      {title && <h2 className="font-display mt-2 text-2xl font-semibold sm:text-3xl">{title}</h2>}
+      {title && <h2 className="mt-2 font-display text-2xl font-semibold text-white sm:text-3xl">{title}</h2>}
       <div className={title || eyebrow ? "mt-6" : ""}>{children}</div>
     </section>
   );

@@ -2,14 +2,14 @@ type Props = { eyebrow: string; title: string; lead: string };
 
 export function PageHero({ eyebrow, title, lead }: Props) {
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-8 pb-8 sm:px-6">
-      <p className="text-gold-800 dark:text-gold-300 font-mono text-xs tracking-[0.2em] uppercase">
+    <div className="mx-auto max-w-6xl px-4 pb-5 pt-8 sm:px-6 lg:px-8">
+      <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold-300">
         {eyebrow}
       </p>
-      <h1 className="font-display mt-3 text-4xl leading-tight font-semibold sm:text-5xl">
+      <h1 className="mt-3 max-w-4xl font-display text-3xl font-semibold leading-tight text-white sm:text-4xl">
         {title}
       </h1>
-      <p className="text-ink-soft dark:text-parchment-100/75 mt-4 max-w-2xl text-lg">{lead}</p>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-parchment-100/65">{lead}</p>
     </div>
   );
 }
