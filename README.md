@@ -18,7 +18,7 @@ community agent network, and reforestation, built on the Celo ecosystem.
 
 ## **Live Demo**
 
-### **[👉 Deploy Live for Investors (2 min) →](DEPLOY.md)**
+### **[Deployment and production readiness →](DEPLOY.md)**
 
 ### **Direct Access (For Investors)**
 
@@ -38,7 +38,7 @@ Explore these features:
 - ✅ **Governance** - Vote on sample proposals
 - ✅ **Impact** - Track reforestation metrics
 
-> **Transparency:** All flows are clearly labeled **"Demo mode"** using realistic sample data with no false blockchain claims.
+> **Transparency:** Wallet reads and signed CELO/ERC-20 transfers use the connected wallet. CeloHT-specific contracts, indexing, persistent records, and USDm remain unavailable until the required addresses and services are configured. See [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md).
 
 **See [DEPLOY.md](DEPLOY.md) for full deployment options and troubleshooting.**
 
@@ -76,6 +76,16 @@ celoht-dapp/
 ```
 
 See [`docs/architecture.md`](docs/architecture.md) for the full breakdown.
+
+## Production boundary
+
+The current deployment is a static Next.js application on GitHub Pages. It can
+connect to Celo RPC and request wallet signatures, but GitHub Pages cannot host
+the server-side API, PostgreSQL database, blockchain indexer, or admin
+authorization required for production operations. Review
+[PRODUCTION_READINESS.md](PRODUCTION_READINESS.md), [DATABASE.md](DATABASE.md),
+[INDEXER.md](INDEXER.md), and [SMART_CONTRACTS.md](SMART_CONTRACTS.md) before
+enabling those flows.
 
 ## Technology
 
