@@ -33,7 +33,7 @@ export default function WalletPage() {
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
   const wrongNetwork = isConnected && !supportedChainIds.has(chainId);
   const usdmAddress = getUsdmAddress(chainId);
-  const { data: usdmBalance, isLoading: usdmLoading } = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const { data: usdmBalance, isLoading: usdmLoading, error: usdmBalanceError } = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
   const recipientValid = isAddress(recipient) && recipient.toLowerCase() !== "0x0000000000000000000000000000000000000000";
   const selectedBalance = asset === "CELO" ? balance : usdmBalance;
   const selectedDecimals = selectedBalance?.decimals ?? 18;
@@ -79,7 +79,7 @@ export default function WalletPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>CELO</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{balanceLoading ? "Loading..." : balance ? formatTokenAmount(balance.value, balance.decimals) : "Unavailable"}</p><CardDescription className="mt-2">Live native balance from {chain?.name ?? "Celo"}</CardDescription></Card>
             <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Account</CardTitle></CardHeader><p className="break-all font-mono text-sm">{address}</p><CardDescription className="mt-2">Connected through your wallet provider</CardDescription></Card>
-            <Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>USDm</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{usdmAddress ? usdmLoading ? "Loading..." : usdmBalance ? formatTokenAmount(usdmBalance.value, usdmBalance.decimals) : "Unavailable" : "Not configured"}</p><CardDescription className="mt-2">{usdmAddress ? "Live token balance on Celo Mainnet" : "A verified USDm address is required before reading this token."}</CardDescription></Card>
+            <Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>USDm</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{usdmLoading ? "Loading..." : usdmBalance ? formatTokenAmount(usdmBalance.value, usdmBalance.decimals) : "Unavailable"}</p><CardDescription className="mt-2">Live USDm balance from {chain?.name ?? "Celo"}</CardDescription></Card>
           </div>
         )}
       </Section>
@@ -91,10 +91,10 @@ export default function WalletPage() {
       <Section eyebrow="Send" title="Transfer funds">
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <Card><div className="space-y-4">
-            <div><label htmlFor="asset" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Asset</label><select id="asset" value={asset} onChange={(event) => setAsset(event.target.value as "CELO" | "USDm")} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"><option value="CELO">CELO</option><option value="USDm" disabled={!usdmAddress}>USDm{!usdmAddress ? " (not configured)" : ""}</option></select></div>
+            <div><label htmlFor="asset" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Asset</label><select id="asset" value={asset} onChange={(event) => setAsset(event.target.value as "CELO" | "USDm")} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"><option value="CELO">CELO</option><option value="USDm">USDm</option></select></div>
             <div><label htmlFor="recipient" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Recipient address</label><input id="recipient" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="0x..." aria-invalid={recipient !== "" && !recipientValid} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" />{recipient !== "" && !recipientValid && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">Enter a valid non-zero EVM address.</p>}</div>
             <div><div className="flex items-center justify-between"><label htmlFor="amount" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Amount in {asset}</label><span className="text-xs text-ink-soft/70 dark:text-parchment-100/50">Available: {selectedBalance ? formatTokenAmount(selectedBalance.value, selectedBalance.decimals) : "Unavailable"}</span></div><input id="amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" aria-invalid={Boolean(amountError)} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" />{amountError && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">{amountError}</p>}</div>
-            {asset === "USDm" && !usdmAddress && <p className="text-sm text-amber-800 dark:text-amber-200">USDm transfers are unavailable until the verified Celo token address is configured.</p>}
+            {asset === "USDm" && usdmBalanceError && <p className="text-sm text-amber-200">USDm balance is temporarily unavailable. Verify the wallet network and try again.</p>}
             <Button onClick={handleSend} className="w-full" disabled={!canSubmit}><Send size={16} aria-hidden="true" />{isSending ? "Confirm in wallet" : `Send ${asset}`}</Button>
             {!isConnected && <p className="text-sm text-ink-soft dark:text-parchment-100/65">Connect a wallet before preparing a transaction.</p>}
             {sendError && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">Transaction failed or was rejected: {sendError.message}</p>}

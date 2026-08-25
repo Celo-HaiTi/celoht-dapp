@@ -45,7 +45,7 @@ export function BalanceDisplay({ usdmAddress }: { usdmAddress?: `0x${string}` })
         </dt>
         {!usdmAddress ? (
           <dd className="text-ink-soft dark:text-parchment-100/60 mt-1 text-sm">
-            Not configured for this network
+            USDm unavailable on this network
           </dd>
         ) : usdmBalance.isLoading ? (
           <Skeleton className="mt-2 h-7 w-24" />

@@ -10,8 +10,8 @@ import { isAddress } from "viem";
  */
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 const configuredUsdmAddresses: Partial<Record<number, string>> = {
-  [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS ?? "0x765DE816845861e75A25fCA122bb6898b8b1282a",
-  [celoSepolia.id]: process.env.NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS ?? "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b",
+  [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS?.trim() || "0x765DE816845861e75A25fCA122bb6898b8b1282a",
+  [celoSepolia.id]: process.env.NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS?.trim() || "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b",
 };
 
 export type ContractName =
