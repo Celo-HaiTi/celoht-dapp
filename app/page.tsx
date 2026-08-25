@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, Copy, ExternalLink, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, BookOpen, ExternalLink, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
 import { useAccount, useBalance, useChainId } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { getUsdmAddress } from "@/lib/contracts";
@@ -40,7 +40,7 @@ export default function HomePage() {
 
       </div>
 
-      <section className="dashboard-reveal dashboard-reveal-delay-2 mt-8" aria-labelledby="quick-actions-heading"><div className="mb-3 flex items-center justify-between"><h2 id="quick-actions-heading" className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment-100/55">Quick actions</h2><span className="text-xs text-parchment-100/40">Move with purpose</span></div><div className="grid grid-cols-2 gap-3 sm:grid-cols-5"><Action href="/wallet/send" icon={<Send />} label="Send" /><Action href="/wallet/receive" icon={<Copy />} label="Receive" /><Action href="/learn" icon={<GraduationCap />} label="Learn" /><Action href="/agents" icon={<Users />} label="Agents" /><Action href="/impact" icon={<Sprout />} label="Impact" /></div></section>
+      <section className="dashboard-reveal dashboard-reveal-delay-2 mt-8" aria-labelledby="quick-actions-heading"><div className="mb-3 flex items-center justify-between"><h2 id="quick-actions-heading" className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment-100/55">Quick actions</h2><span className="text-xs text-parchment-100/40">Move with purpose</span></div><div className="grid grid-cols-2 gap-3 sm:grid-cols-3"><Action href="/learn" icon={<GraduationCap />} label="Learn" /><Action href="/agents" icon={<Users />} label="Agents" /><Action href="/impact" icon={<Sprout />} label="Impact" /></div></section>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]"><section className="rounded-2xl border border-white/10 bg-white/[0.06] p-6"><div className="flex items-center gap-3"><ShieldCheck className="text-cyan-300" size={20} aria-hidden="true" /><h2 className="font-display font-semibold text-white">Recent Activity</h2></div><p className="mt-4 text-sm leading-6 text-parchment-100/65">{isConnected ? "CeloHT-specific activity will appear here when the indexer is connected. Your full wallet history is available on CeloScan." : "No activity yet. Connect your wallet to view on-chain activity."}</p><Link href="/wallet/activity" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-gold-300">View all activity <ExternalLink size={14} aria-hidden="true" /></Link></section><section className="rounded-2xl border border-white/10 bg-white/[0.06] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-parchment-100/55">Learn and participate</p><div className="mt-5 grid grid-cols-2 gap-4"><MiniMetric icon={<BookOpen />} value={`${courses.length + 2}`} label="Academy courses" /><MiniMetric icon={<CheckCircle2 />} value="—" label="Verified trees" /></div><p className="mt-5 text-xs text-parchment-100/40">Learning is available now. Impact totals appear after verified registry data is connected.</p></section></div>
       </div>
