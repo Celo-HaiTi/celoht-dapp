@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, ExternalLink, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
 import { useAccount, useBalance, useChainId } from "wagmi";
-import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { getUsdmAddress } from "@/lib/contracts";
 import { formatTokenAmount } from "@/lib/utils";
 import { courses } from "@/lib/data/courses";
@@ -25,7 +24,6 @@ export default function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">CeloHT · Built on Celo</p>
           <h1 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">Digital Finance for Everyone</h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-parchment-100/65">Send, receive, learn, and create impact with blockchain technology powered by Celo.</p>
-          <div className="mt-6 flex flex-wrap gap-3"><ConnectWalletButton /></div>
         </div>
       </div>
 
