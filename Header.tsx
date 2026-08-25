@@ -8,6 +8,7 @@ import { useAccount } from "wagmi";
 import { celo } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
 import { Button } from "@/components/ui/Button";
+import { LayoutDashboard, WalletCards, ReceiptText, Users, GraduationCap, Sprout, MoreHorizontal } from "lucide-react";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,11 +29,34 @@ export function Header() {
         ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
         : "bg-navy-700/10 text-ink-soft dark:bg-parchment-100/10 dark:text-parchment-100/70";
 
+  const iconFor = (label: string) => {
+    const icons = { Overview: LayoutDashboard, Wallet: WalletCards, Transactions: ReceiptText, Education: GraduationCap, Agents: Users, Reforestation: Sprout, Settings: MoreHorizontal };
+    const Icon = icons[label as keyof typeof icons] ?? MoreHorizontal;
+    return <Icon size={17} aria-hidden="true" />;
+  };
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/85 backdrop-blur-xl">
+    <>
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-white/10 bg-navy-950 px-4 py-5 lg:flex">
+      <Link href="/" className="flex items-center gap-3 rounded-lg px-2 py-2 text-white">
+        <Image src={logoSrc} alt="CeloHT" width={30} height={30} priority />
+        <span><span className="block font-display text-lg font-semibold tracking-tight">CeloHT</span><span className="block text-[10px] uppercase tracking-[0.16em] text-parchment-100/40">Human finance, on-chain</span></span>
+      </Link>
+      <p className="mb-2 mt-9 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-parchment-100/35">Workspace</p>
+      <nav aria-label="Primary" className="flex-1">
+        <ul className="space-y-1">
+          {primaryNav.map((item) => {
+            const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${active ? "bg-gold-500/15 text-gold-300" : "text-parchment-100/60 hover:bg-white/5 hover:text-white"}`}>{iconFor(item.label)}<span>{item.label}</span></Link></li>;
+          })}
+        </ul>
+      </nav>
+      <div className="border-t border-white/10 pt-4"><p className="px-2 text-[10px] uppercase tracking-[0.16em] text-parchment-100/35">Network</p><div className="mt-2 flex items-center gap-2 px-2 text-xs text-parchment-100/60"><span className={`h-2 w-2 rounded-full ${networkStatus === "Connected" ? "bg-emerald-400" : "bg-amber-400"}`} />{networkStatus === "Connected" ? chain?.name : "Wallet not connected"}</div></div>
+    </aside>
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/85 backdrop-blur-xl lg:ml-64">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md">
+          <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md lg:hidden">
             <Image src={logoSrc} alt="CeloHT" width={28} height={28} priority />
             <span className="font-display text-lg font-semibold tracking-tight text-white">CeloHT</span>
           </Link>
@@ -41,7 +65,7 @@ export function Header() {
           </span>
         </div>
 
-        <nav aria-label="Primary" className="hidden flex-1 justify-center lg:flex">
+        <nav aria-label="Primary" className="hidden flex-1 justify-center lg:hidden">
           <ul className="flex items-center gap-1">
             {primaryNav.map((item) => {
               const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -111,5 +135,14 @@ export function Header() {
         </nav>
       )}
     </header>
+    <nav aria-label="Mobile primary" className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-navy-950/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
+      <ul className="mx-auto grid max-w-lg grid-cols-5 gap-1">
+        {[primaryNav[0], primaryNav[1], primaryNav[2], primaryNav[3], primaryNav[4]].map((item) => {
+          const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg text-[10px] ${active ? "text-gold-300" : "text-parchment-100/55"}`}>{iconFor(item.label)}<span>{item.label}</span></Link></li>;
+        })}
+      </ul>
+    </nav>
+    </>
   );
 }

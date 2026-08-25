@@ -1,13 +1,13 @@
 export type NavItem = { label: string; href: string };
 
 export const primaryNav: NavItem[] = [
-  { label: "Dashboard", href: "/" },
+  { label: "Overview", href: "/" },
   { label: "Wallet", href: "/wallet" },
-  { label: "Activity", href: "/transactions" },
-  { label: "Learn", href: "/education" },
+  { label: "Transactions", href: "/transactions" },
   { label: "Agents", href: "/agents" },
   { label: "Reforestation", href: "/reforestation" },
-  { label: "Impact", href: "/impact" },
+  { label: "Education", href: "/education" },
+  { label: "Settings", href: "/settings" },
 ];
 
 export const footerNav: { heading: string; items: NavItem[] }[] = [

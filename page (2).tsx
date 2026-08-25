@@ -24,10 +24,10 @@ export default function AgentsPage() {
       <PageHero
         eyebrow="Pillar 02 · Agent Network"
         title="Trained people, not just an app"
-        lead="Every agent listed here has completed CeloHT's education program and been approved by a network coordinator on-chain."
+        lead="Browse the current directory and verify each agent's status before requesting a service. Directory entries are sample data until an indexer and profile service are configured."
       />
 
-      <Section eyebrow={`${agents.length} agents`} title="Directory">
+      <Section eyebrow={`${agents.length} directory entries · SAMPLE`} title="Directory">
         <Button asChild variant="secondary" className="mb-6">
           <Link href="/agents/map">View on map</Link>
         </Button>

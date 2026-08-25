@@ -68,7 +68,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main id="main-content">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
-            <Footer />
+            <div className="lg:ml-64"><Footer /></div>
           </ToastProvider>
         </Web3Gate>
       </body>
