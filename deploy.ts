@@ -62,6 +62,18 @@ async function main() {
   const impactRegistry = await ImpactRegistry.deploy(admin);
   await impactRegistry.waitForDeployment();
 
+  const reforestationProjectId = ethers.keccak256(ethers.toUtf8Bytes("reforest-leogane-01"));
+  if (deployer.address.toLowerCase() === admin.toLowerCase()) {
+    await impactRegistry.createProject(
+      reforestationProjectId,
+      "project:reforest-leogane-01",
+    );
+  } else {
+    console.log(
+      "Create project reforest-leogane-01 from the configured ADMIN_ADDRESS multisig before recording impact.",
+    );
+  }
+
   const DonationManager = await ethers.getContractFactory("DonationManager");
   const donationManager = await DonationManager.deploy(
     admin,
@@ -71,7 +83,7 @@ async function main() {
   await donationManager.waitForDeployment();
   if (deployer.address.toLowerCase() === admin.toLowerCase()) {
     await donationManager.registerProject(
-      ethers.keccak256(ethers.toUtf8Bytes("reforest-leogane-01")),
+      reforestationProjectId,
       donationRecipient,
       "project:reforest-leogane-01",
     );
