@@ -73,3 +73,10 @@ export const courses: Course[] = [
     level: "Intermediate",
   },
 ];
+
+export const academyAdditionalCourses = 2;
+export const academyAdditionalModules = 6;
+
+export const academyCourseCount = courses.length + academyAdditionalCourses;
+export const academyModuleCount =
+  courses.reduce((total, course) => total + course.modules.length, 0) + academyAdditionalModules;

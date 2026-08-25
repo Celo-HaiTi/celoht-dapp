@@ -3,7 +3,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { StatGrid } from "@/components/StatGrid";
-import { courses } from "@/lib/data/courses";
+import { academyCourseCount, academyModuleCount } from "@/lib/data/courses";
 import { agents } from "@/lib/data/agents";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -28,8 +28,8 @@ export default function ImpactPage() {
       <Section eyebrow="Education" title="">
         <StatGrid
           stats={[
-            { value: String(courses.length), label: "Courses available" },
-            { value: "4", label: "Modules per core course" },
+            { value: String(academyCourseCount), label: "Courses available" },
+            { value: String(academyModuleCount), label: "Modules available" },
             { value: "Creole-first", label: "Curriculum language" },
           ]}
         />
