@@ -1,27 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, Copy, ExternalLink, Network, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, BookOpen, Copy, ExternalLink, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
 import { useAccount, useBalance, useChainId } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { getUsdmAddress } from "@/lib/contracts";
 import { formatTokenAmount } from "@/lib/utils";
 import { courses } from "@/lib/data/courses";
 
-function StatusDot({ tone = "muted" }: { tone?: "good" | "muted" | "warn" }) {
-  return <span aria-hidden="true" className={`inline-block h-2 w-2 rounded-full ${tone === "good" ? "bg-emerald-500" : tone === "warn" ? "bg-amber-500" : "bg-slate-400"}`} />;
-}
-
 export default function HomePage() {
-  const { address, isConnected, chain } = useAccount();
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmAddress = getUsdmAddress(chainId);
   const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
-  const networkReady = chain?.id === 42220 || chain?.id === 11142220;
   const celoAmount = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : "—";
   const usdmAmount = usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : "—";
-  const networkLabel = !isConnected ? "Network available" : networkReady ? "Celo Mainnet" : "Wrong network";
 
   return (
     <div className="app-shell dashboard-grid min-h-[calc(100vh-65px)] px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:py-12 lg:pb-16">
@@ -29,14 +23,13 @@ export default function HomePage() {
       <div className="dashboard-reveal mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-end lg:mb-10">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">CeloHT · Built on Celo</p>
-          <h1 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">Digital Finance for Haiti</h1>
+          <h1 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">Digital Finance for Everyone</h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-parchment-100/65">Send, receive, learn, and create impact with blockchain technology powered by Celo.</p>
-          <div className="mt-6 flex flex-wrap gap-3"><ConnectWalletButton /><Link href="/learn" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-gold-400/60 hover:bg-white/5">Explore CeloHT</Link></div>
+          <div className="mt-6 flex flex-wrap gap-3"><ConnectWalletButton /></div>
         </div>
-        <div className="hidden shrink-0 items-center gap-2 text-xs text-parchment-100/45 sm:flex"><StatusDot tone={isConnected && networkReady ? "good" : "muted"} /> Celo Network</div>
       </div>
 
-      <div className="dashboard-reveal dashboard-reveal-delay grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
+      <div className="dashboard-reveal dashboard-reveal-delay">
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-navy-800 to-[#123b38] p-6 text-white shadow-2xl shadow-black/20 sm:p-8" aria-labelledby="balance-heading">
           <div className="flex items-start justify-between gap-4"><div><p className="text-sm text-white/60">Total balance <span className="ml-2 rounded-full bg-gold-300/15 px-2 py-1 text-[10px] text-gold-200">ON-CHAIN</span></p><h2 id="balance-heading" className="mt-3 font-display text-4xl font-semibold tracking-tight">{!isConnected ? "$0.00" : celoBalance.isLoading || usdmBalance.isLoading ? "Loading balance" : celoBalance.error && usdmBalance.error ? "Balance error" : "$0.00"}</h2></div><div className="rounded-xl border border-white/10 bg-white/5 p-3"><WalletCards size={22} className="text-gold-300" aria-hidden="true" /></div></div>
           {!isConnected && <p className="mt-3 text-sm text-white/60">Connect your wallet to view live assets.</p>}
@@ -45,7 +38,6 @@ export default function HomePage() {
           <div className="mt-6 flex flex-wrap gap-2"><ActionButton href="/wallet/send" icon={<Send size={15} />} label="Send" /><ActionButton href="/wallet/receive" icon={<ArrowDownLeft size={15} />} label="Receive" /></div>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-5" aria-labelledby="network-heading"><div className="flex items-center justify-between"><div className="flex items-center gap-2"><StatusDot tone={isConnected && networkReady ? "good" : isConnected ? "warn" : "muted"} /><h2 id="network-heading" className="font-display text-lg font-semibold text-white">{networkLabel}</h2></div><Network size={19} className="text-gold-300" aria-hidden="true" /></div><p className="mt-3 text-sm text-parchment-100/65">{!isConnected ? "Connect your wallet to continue." : networkReady ? "Connected and ready." : "Switch to Celo Mainnet."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs"><span className="text-parchment-100/45">Network</span><span className="font-medium text-white">Celo</span><span className="text-parchment-100/45">{isConnected ? `Chain ${chainId}` : "Ready to connect"}</span></div></section>
       </div>
 
       <section className="dashboard-reveal dashboard-reveal-delay-2 mt-8" aria-labelledby="quick-actions-heading"><div className="mb-3 flex items-center justify-between"><h2 id="quick-actions-heading" className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment-100/55">Quick actions</h2><span className="text-xs text-parchment-100/40">Move with purpose</span></div><div className="grid grid-cols-2 gap-3 sm:grid-cols-5"><Action href="/wallet/send" icon={<Send />} label="Send" /><Action href="/wallet/receive" icon={<Copy />} label="Receive" /><Action href="/learn" icon={<GraduationCap />} label="Learn" /><Action href="/agents" icon={<Users />} label="Agents" /><Action href="/impact" icon={<Sprout />} label="Impact" /></div></section>
