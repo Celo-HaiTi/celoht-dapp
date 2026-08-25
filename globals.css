@@ -70,6 +70,32 @@ body {
   color: #f4f7fa;
 }
 
+main {
+  min-height: calc(100dvh - 64px);
+}
+
+input,
+select {
+  color: #f4f7fa;
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.045);
+}
+
+select option {
+  background: #101a30;
+  color: #f4f7fa;
+}
+
+input::placeholder {
+  color: rgba(238, 242, 246, 0.42);
+}
+
+@media (max-width: 1023px) {
+  main {
+    padding-bottom: 5.5rem;
+  }
+}
+
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 
 :focus-visible {
