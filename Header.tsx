@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
 import { celo } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 
 export function Header() {
@@ -30,12 +29,12 @@ export function Header() {
         : "bg-navy-700/10 text-ink-soft dark:bg-parchment-100/10 dark:text-parchment-100/70";
 
   return (
-    <header className="border-navy-700/10 bg-parchment/90 dark:border-parchment-100/10 dark:bg-navy-950/90 sticky top-0 z-40 border-b backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/85 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md">
             <Image src={logoSrc} alt="CeloHT" width={28} height={28} priority />
-            <span className="font-display text-lg font-semibold tracking-tight">CeloHT</span>
+            <span className="font-display text-lg font-semibold tracking-tight text-white">CeloHT</span>
           </Link>
           <span className={`hidden rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.18em] sm:inline ${statusStyle}`}>
             {networkStatus}
@@ -53,8 +52,8 @@ export function Header() {
                     aria-current={active ? "page" : undefined}
                     className={`rounded-full px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-gold-500/10 text-gold-800 dark:text-gold-300"
-                        : "text-ink-soft hover:text-ink dark:text-parchment-100/70 dark:hover:text-parchment-100"
+                        ? "bg-gold-500/15 text-gold-300"
+                        : "text-parchment-100/65 hover:bg-white/5 hover:text-white"
                     }`}
                   >
                     {item.label}
@@ -66,19 +65,14 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <span className="hidden rounded-full border border-navy-700/15 bg-white/60 px-2.5 py-1.5 text-[11px] font-medium text-ink-soft dark:border-parchment-100/10 dark:bg-navy-900/80 dark:text-parchment-100/75 md:inline-flex">
-            CELO $1.22
-          </span>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/wallet">Launch CeloHT</Link>
-          </Button>
-          <ThemeToggle />
+          <span className="hidden items-center gap-2 rounded-full border border-white/10 px-2.5 py-1.5 text-[11px] font-medium text-parchment-100/70 md:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Celo Mainnet</span>
+          <Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/wallet">Open wallet</Link></Button>
           <button
             type="button"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
             onClick={() => setMenuOpen((v) => !v)}
-            className="border-navy-700/20 dark:border-parchment-100/20 inline-flex h-10 w-10 items-center justify-center rounded-full border lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white lg:hidden"
           >
             <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -99,7 +93,7 @@ export function Header() {
         <nav
           id="mobile-nav"
           aria-label="Mobile"
-          className="border-navy-700/10 dark:border-parchment-100/10 border-t px-4 pb-4 lg:hidden"
+          className="border-t border-white/10 px-4 pb-4 lg:hidden"
         >
           <ul className="flex flex-col gap-1 pt-2">
             {primaryNav.map((item) => (
@@ -107,7 +101,7 @@ export function Header() {
                 <Link
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="text-ink-soft hover:bg-navy-700/5 hover:text-ink dark:text-parchment-100/70 dark:hover:bg-parchment-100/5 dark:hover:text-parchment-100 block rounded-md px-3 py-2 text-sm"
+                  className="block rounded-md px-3 py-2 text-sm text-parchment-100/70 hover:bg-white/5 hover:text-white"
                 >
                   {item.label}
                 </Link>

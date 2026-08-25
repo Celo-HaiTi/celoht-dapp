@@ -3,8 +3,8 @@
 /* CeloHT design tokens — shared palette with the flagship repo and
    marketing website, so the dApp feels like the same product. */
 @theme {
-  --font-display: "Trebuchet MS", "Segoe UI", sans-serif;
-  --font-body: "Segoe UI", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Avenir Next", sans-serif;
+  --font-body: "DM Sans", "Avenir Next", sans-serif;
   --font-mono:
     ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 
@@ -45,7 +45,7 @@
 
 html {
   scroll-behavior: smooth;
-  background: #f4f7fa;
+  background: #070c18;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -66,7 +66,8 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 85% -15%, rgba(245, 200, 66, 0.13), transparent 32rem), #f4f7fa;
+  background: radial-gradient(circle at 78% -10%, rgba(245, 200, 66, 0.12), transparent 30rem), #070c18;
+  color: #f4f7fa;
 }
 
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
@@ -80,6 +81,30 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 ::selection {
   background: var(--color-gold-500);
   color: var(--color-navy-950);
+}
+
+.app-shell {
+  background: linear-gradient(145deg, #070c18 0%, #0b1426 58%, #102b2a 140%);
+}
+
+.dashboard-grid {
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@keyframes celoht-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-reveal { animation: celoht-rise 500ms ease-out both; }
+.dashboard-reveal-delay { animation-delay: 100ms; }
+.dashboard-reveal-delay-2 { animation-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-reveal,
+  .dashboard-reveal-delay,
+  .dashboard-reveal-delay-2 { animation: none; }
 }
 
 /* Minimal animation utilities (avoids an extra Tailwind plugin dependency) */
