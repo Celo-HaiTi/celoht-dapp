@@ -1,3 +1,5 @@
+import { keccak256, toBytes } from "viem";
+
 export type ReforestationProject = {
   id: string;
   name: string;
@@ -31,3 +33,7 @@ export const donationProjects = projects.map((project) => ({
   name: project.name,
   summary: project.summary,
 }));
+
+export function getProjectId(projectId: string): `0x${string}` {
+  return keccak256(toBytes(projectId));
+}

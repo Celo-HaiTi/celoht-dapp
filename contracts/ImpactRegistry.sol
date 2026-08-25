@@ -20,6 +20,7 @@ contract ImpactRegistry is IImpactRegistry, AccessControl, Pausable {
     PlantingRecord[] private _records;
 
     constructor(address admin) {
+        require(admin != address(0), "ImpactRegistry: zero admin");
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(Roles.ADMIN_ROLE, admin);
         _grantRole(Roles.VERIFIER_ROLE, admin);

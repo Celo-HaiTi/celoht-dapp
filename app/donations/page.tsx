@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, ExternalLink, LoaderCircle, ShieldAlert, Sprout, Wallet } from "lucide-react";
-import { keccak256, parseUnits, toBytes, type Address } from "viem";
+import { parseUnits, type Address } from "viem";
 import { useAccount, useBalance, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
@@ -10,7 +10,7 @@ import { Section } from "@/components/Section";
 import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { abis, erc20Abi, getContractAddress, getUsdmAddress } from "@/lib/contracts";
-import { donationProjects } from "@/lib/data/projects";
+import { donationProjects, getProjectId } from "@/lib/data/projects";
 import { celo, celoSepolia } from "wagmi/chains";
 
 const supportedChainIds = new Set([celo.id, celoSepolia.id]);
@@ -32,7 +32,7 @@ export default function DonationsPage() {
 	const managerAddress = getContractAddress(chainId, "DonationManager");
 	const usdmAddress = getUsdmAddress(chainId);
 	const project = donationProjects[0];
-	const projectId = keccak256(toBytes(project.id));
+	const projectId = getProjectId(project.id);
 	const tokenResult = useReadContract({ address: managerAddress, abi: abis.DonationManager, functionName: "donationToken", query: { enabled: Boolean(managerAddress) } });
 	const tokenAddress = tokenResult.data as Address | undefined;
 	const nativeBalance = useBalance({ address, query: { enabled: Boolean(address) } });
@@ -88,6 +88,13 @@ export default function DonationsPage() {
 		}
 	}
 
+	function resetDonation() {
+		setApprovalHash(undefined);
+		setApprovedAmount(undefined);
+		setDonationHash(undefined);
+		setActionError(undefined);
+	}
+
 	const unavailable = !managerAddress;
 
 	return (
@@ -106,7 +113,7 @@ export default function DonationsPage() {
 				) : (
 					<div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
 						<Card><CardHeader><Sprout size={18} aria-hidden="true" /><CardTitle>{project.name}</CardTitle></CardHeader><CardDescription>{project.summary}</CardDescription><label htmlFor="donation-asset" className="mt-6 block text-sm font-medium">Asset</label><select id="donation-asset" value={asset} onChange={(event) => { setAsset(event.target.value as "CELO" | "USDm"); setAmount(""); }} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-3 text-sm dark:border-parchment-100/10"><option value="CELO">CELO</option><option value="USDm">USDm</option></select><label htmlFor="donation-amount" className="mt-4 block text-sm font-medium">Donation amount in {asset}</label><input id="donation-amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={Boolean(approvalHash || donationHash)} placeholder="0.00" className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-3 text-sm disabled:opacity-60 dark:border-parchment-100/10" /><p className="mt-2 text-xs text-ink-soft/70 dark:text-parchment-100/50">Available: {selectedBalance.data ? `${selectedBalance.data.formatted} ${asset}` : "Connect wallet"}</p>{amount && !amountValid && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">Enter an amount greater than zero.</p>}{amountValid && !hasSufficientBalance && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">Your {asset} balance is not enough for this donation.</p>}{asset === "USDm" && !configuredForUsdM && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">USDm is not the token configured by this donation contract.</p>}<Button className="mt-5 w-full" onClick={submitDonation} disabled={!canSubmit}>{isWriting ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" />Confirm in wallet</> : `Donate ${asset}`}</Button>{actionError && <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">{actionError}</p>}</Card>
-						<Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>Donation status</CardTitle></CardHeader>{!approvalHash && !donationHash && <CardDescription>{asset === "USDm" && !allowanceSufficient ? "Your wallet will first approve USDm for this donation, then submit the donation itself." : "Your wallet will review this donation before it is submitted to Celo."}</CardDescription>}{approvalHash && !approvalReceipt.isSuccess && <CardDescription>USDm approval pending. Confirm it in your wallet and wait for Celo.</CardDescription>}{approvalReceipt.isSuccess && !donationHash && <CardDescription>Approval confirmed. Submitting the donation now.</CardDescription>}{donationHash && !donationReceipt.isSuccess && <CardDescription>Donation submitted. Waiting for blockchain confirmation.</CardDescription>}{donationReceipt.isSuccess && donationHash && <div className="space-y-3 text-sm"><p className="font-semibold text-forest-600">Donation confirmed on-chain.</p><p>{amount} {asset} to {project.name}</p><a className="inline-flex items-center gap-1 underline" href={explorerUrl(chainId, donationHash)} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div>}</Card>
+						<Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>Donation status</CardTitle></CardHeader>{!approvalHash && !donationHash && <CardDescription>{asset === "USDm" && !allowanceSufficient ? "Your wallet will first approve USDm for this donation, then submit the donation itself." : "Your wallet will review this donation before it is submitted to Celo."}</CardDescription>}{approvalHash && approvalReceipt.isError && <><CardDescription>USDm approval failed. No donation was made.</CardDescription><Button className="mt-4" onClick={resetDonation}>Review donation again</Button></>}{approvalHash && !approvalReceipt.isSuccess && !approvalReceipt.isError && <CardDescription>USDm approval pending. Confirm it in your wallet and wait for Celo.</CardDescription>}{approvalReceipt.isSuccess && !donationHash && <CardDescription>Approval confirmed. Submitting the donation now.</CardDescription>}{donationHash && donationReceipt.isError && <><CardDescription>The donation transaction reverted or could not be confirmed. No confirmed donation is recorded.</CardDescription><Button className="mt-4" onClick={resetDonation}>Review donation again</Button></>}{donationHash && !donationReceipt.isSuccess && !donationReceipt.isError && <CardDescription>Donation submitted. Waiting for blockchain confirmation.</CardDescription>}{donationReceipt.isSuccess && donationHash && <div className="space-y-3 text-sm"><p className="font-semibold text-forest-600">Donation confirmed on-chain.</p><p>{amount} {asset} to {project.name}</p><a className="inline-flex items-center gap-1 underline" href={explorerUrl(chainId, donationHash)} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div>}</Card>
 					</div>
 				)}
 			</Section>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useChainId, useReadContract } from "wagmi";
-import { stringToHex } from "viem";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -9,12 +8,12 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/Ca
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
 import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
-import { projects } from "@/lib/data/projects";
+import { getProjectId, projects } from "@/lib/data/projects";
 
 function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   const chainId = useChainId();
   const deployed = isContractDeployed(chainId, "ImpactRegistry");
-  const projectIdHex = stringToHex(project.id, { size: 32 });
+  const projectIdHex = getProjectId(project.id);
 
   const onChainTrees = useReadContract({
     address: getContractAddress(chainId, "ImpactRegistry"),
@@ -24,9 +23,8 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
     query: { enabled: deployed },
   });
 
-  const treesPlanted =
-    deployed && onChainTrees.data !== undefined ? Number(onChainTrees.data) : project.treesPlanted;
-  const progressPct = Math.min(100, (treesPlanted / project.treesGoal) * 100);
+  const treesPlanted = deployed && onChainTrees.data !== undefined ? Number(onChainTrees.data) : undefined;
+  const progressPct = treesPlanted === undefined ? 0 : Math.min(100, (treesPlanted / project.treesGoal) * 100);
 
   return (
     <Card>
@@ -38,7 +36,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
       <div className="mt-4">
         <div className="text-ink-soft dark:text-parchment-100/50 mb-1.5 flex justify-between text-xs">
           <span>
-            {treesPlanted.toLocaleString()} / {project.treesGoal.toLocaleString()} trees
+            {treesPlanted === undefined ? "Verified count unavailable" : `${treesPlanted.toLocaleString()} verified trees`}
           </span>
           <span>{progressPct.toFixed(0)}%</span>
         </div>
@@ -46,7 +44,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
       </div>
       {!deployed && (
         <p className="text-ink-soft dark:text-parchment-100/50 mt-3 text-xs">
-          Showing sample data — ImpactRegistry isn&rsquo;t deployed on this network yet.
+          Verified planting data is unavailable until ImpactRegistry is deployed on this network.
         </p>
       )}
     </Card>

@@ -28,7 +28,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install --include=optional
+        run: npm ci --include=optional
 
       - name: Lint
         run: npm run lint
@@ -41,6 +41,9 @@ jobs:
 
       - name: Test contracts and application
         run: npm test
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high || true
 
       - name: Build static app
         env:

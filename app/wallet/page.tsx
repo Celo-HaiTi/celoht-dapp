@@ -16,6 +16,11 @@ import { erc20Abi, getUsdmAddress } from "@/lib/contracts";
 
 const supportedChainIds = new Set([celo.id, celoSepolia.id]);
 
+function explorerUrl(chainId: number, hash: string) {
+  const host = chainId === celoSepolia.id ? "https://sepolia.celoscan.io" : "https://celoscan.io";
+  return `${host}/tx/${hash}`;
+}
+
 export default function WalletPage() {
   const { address, isConnected, chain } = useAccount();
   const chainId = useChainId();
@@ -108,7 +113,7 @@ export default function WalletPage() {
             {sendError && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">{describeTransactionError()}</p>}
           </div></Card>
           <Card><CardHeader><Send size={18} aria-hidden="true" /><CardTitle>Transaction status</CardTitle></CardHeader>
-            {!submitted ? <CardDescription>No transaction submitted.</CardDescription> : isSending ? <CardDescription>Waiting for wallet approval.</CardDescription> : isConfirming ? <CardDescription>Transaction submitted. Waiting for Celo confirmation.</CardDescription> : isConfirmed && hash ? <div className="space-y-3 text-sm"><p className="flex items-center gap-2 text-forest-600"><CheckCircle2 size={16} aria-hidden="true" />Confirmed on-chain</p><a className="inline-flex items-center gap-1 underline" href={`https://celoscan.io/tx/${hash}`} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div> : hash ? <CardDescription>Transaction submitted. Check your wallet or explorer for its status.</CardDescription> : <CardDescription>Waiting for a wallet response.</CardDescription>}
+            {!submitted ? <CardDescription>No transaction submitted.</CardDescription> : isSending ? <CardDescription>Waiting for wallet approval.</CardDescription> : isConfirming ? <CardDescription>Transaction submitted. Waiting for Celo confirmation.</CardDescription> : isConfirmed && hash ? <div className="space-y-3 text-sm"><p className="flex items-center gap-2 text-forest-600"><CheckCircle2 size={16} aria-hidden="true" />Confirmed on-chain</p><a className="inline-flex items-center gap-1 underline" href={explorerUrl(chainId, hash)} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div> : hash ? <CardDescription>Transaction submitted. Check your wallet or explorer for its status.</CardDescription> : <CardDescription>Waiting for a wallet response.</CardDescription>}
           </Card>
         </div>
       </Section>

@@ -7,6 +7,13 @@ const { ethers } = hre;
 describe("ImpactRegistry", function () {
   const PROJECT_A = ethers.encodeBytes32String("reforest-leogane-01");
 
+  it("rejects a zero admin", async function () {
+    const ImpactRegistry = await ethers.getContractFactory("ImpactRegistry");
+    await expect(ImpactRegistry.deploy(ethers.ZeroAddress)).to.be.revertedWith(
+      "ImpactRegistry: zero admin",
+    );
+  });
+
   async function deployFixture() {
     const [admin, verifier, stranger] = await ethers.getSigners();
     const ImpactRegistry = await ethers.getContractFactory("ImpactRegistry");
