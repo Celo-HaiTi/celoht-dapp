@@ -13,7 +13,10 @@ import { isAddress } from "viem";
  * doesn't exist.
  */
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
-const configuredUsdmAddress = process.env.NEXT_PUBLIC_USDM_ADDRESS;
+const configuredUsdmAddresses: Partial<Record<number, string | undefined>> = {
+  [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS ?? process.env.NEXT_PUBLIC_USDM_ADDRESS,
+  [celoAlfajores.id]: process.env.NEXT_PUBLIC_USDM_ALFAJORES_ADDRESS,
+};
 
 export type ContractName =
   | "AgentRegistry"
@@ -51,8 +54,9 @@ export function isContractDeployed(chainId: number, contract: ContractName): boo
 }
 
 export function getUsdmAddress(chainId: number): Address | undefined {
-  if (chainId !== celo.id || !configuredUsdmAddress || !isAddress(configuredUsdmAddress)) {
+  const configuredAddress = configuredUsdmAddresses[chainId];
+  if (!configuredAddress || !isAddress(configuredAddress)) {
     return undefined;
   }
-  return configuredUsdmAddress;
+  return configuredAddress;
 }

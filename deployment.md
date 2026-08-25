@@ -59,7 +59,8 @@ variables.
 ## Activation Checklist
 
 - Deploy and verify the five contracts on the intended network.
-- Configure `NEXT_PUBLIC_USDM_ADDRESS` with the official USDm address for Celo Mainnet.
+- Configure `NEXT_PUBLIC_USDM_MAINNET_ADDRESS` and, if needed, `NEXT_PUBLIC_USDM_ALFAJORES_ADDRESS`
+    with the official USDm addresses for their respective networks. Never reuse an address across networks.
 - Copy reviewed contract addresses into `addresses.ts`.
 - Configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for QR/mobile wallet connections.
 - Add an indexer or backend service before displaying CeloHT-specific transaction history.
