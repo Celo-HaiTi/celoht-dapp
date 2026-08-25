@@ -3,14 +3,27 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "node:url";
 
+async function deploymentRecord(contract: {
+  getAddress(): Promise<string>;
+  deploymentTransaction(): { hash: string; wait(): Promise<{ blockNumber: number } | null> } | null;
+}) {
+  const transaction = contract.deploymentTransaction();
+  const receipt = transaction ? await transaction.wait() : null;
+  return {
+    address: await contract.getAddress(),
+    deploymentTransaction: transaction?.hash ?? null,
+    deploymentBlock: receipt?.blockNumber ?? null,
+  };
+}
+
 /**
  * Deploys the full CeloHT contract suite in dependency order and writes
  * the resulting addresses to `deployments/<network>.json`, which
  * `scripts/sync-abis.mjs` (at the repo root) reads to wire the frontend.
  *
  * On Celo mainnet, pass the real USDm address via USDM_ADDRESS. On
- * Celo Sepolia or a local network, this script deploys a MockERC20 to stand
- * in for USDm so the full flow can be exercised end to end.
+ * A local network without USDM_ADDRESS may use MockERC20 for isolated tests;
+ * Celo Sepolia and Celo Mainnet always require the real USDm address.
  */
 async function main() {
   const { ethers, network } = hre;
@@ -63,11 +76,11 @@ async function main() {
     deployer: deployer.address,
     donationToken: donationTokenAddress,
     contracts: {
-      AgentRegistry: await agentRegistry.getAddress(),
-      CertificateRegistry: await certificateRegistry.getAddress(),
-      ImpactRegistry: await impactRegistry.getAddress(),
-      DonationManager: await donationManager.getAddress(),
-      GovernanceVoting: await governanceVoting.getAddress(),
+      AgentRegistry: await deploymentRecord(agentRegistry),
+      CertificateRegistry: await deploymentRecord(certificateRegistry),
+      ImpactRegistry: await deploymentRecord(impactRegistry),
+      DonationManager: await deploymentRecord(donationManager),
+      GovernanceVoting: await deploymentRecord(governanceVoting),
     },
     deployedAt: new Date().toISOString(),
   };

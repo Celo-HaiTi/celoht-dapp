@@ -70,7 +70,7 @@ No production database, backend, indexer, authentication service, or admin servi
 ## Ordered production checklist
 
 - [x] Phase 0 repository audit recorded.
-- [x] Phase 1 deployment preparation and deterministic scripts. Local deployment was executed successfully; manifests write inside the repository and contain real local addresses only during the test run.
+- [x] Phase 1 deployment preparation and deterministic scripts. Local deployment was executed successfully; manifests write inside the repository and record address, deployment transaction, and block metadata. Local generated addresses are not committed.
 - [ ] Phase 2 deploy required CeloHT contracts to Celo Sepolia.
 - [ ] Phase 3 verify deployed contracts on the explorer.
 - [ ] Phase 4 provision PostgreSQL/Supabase and run migrations.

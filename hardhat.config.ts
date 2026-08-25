@@ -4,10 +4,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const DEPLOYER_PRIVATE_KEY =
-  process.env.DEPLOYER_PRIVATE_KEY ??
-  // Well-known Hardhat default test key — funded only on local networks.
+const LOCAL_TEST_PRIVATE_KEY =
+  // Well-known Hardhat default test key — never use on public networks.
   "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+const remoteAccounts = process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [];
 
 const config: HardhatUserConfig = {
   paths: {
@@ -33,17 +33,18 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY ?? LOCAL_TEST_PRIVATE_KEY],
     },
     celoSepolia: {
       // Celo Sepolia testnet, chain ID 11142220.
       url: process.env.CELO_SEPOLIA_RPC_URL ?? "https://forno.celo-sepolia.celo-testnet.org",
-      accounts: [DEPLOYER_PRIVATE_KEY],
+      accounts: remoteAccounts,
       chainId: 11142220,
     },
     celo: {
       // Celo mainnet — production deployment only, see docs/DEPLOYMENT.md
       url: process.env.CELO_RPC_URL ?? "https://forno.celo.org",
-      accounts: [DEPLOYER_PRIVATE_KEY],
+      accounts: remoteAccounts,
       chainId: 42220,
     },
   },

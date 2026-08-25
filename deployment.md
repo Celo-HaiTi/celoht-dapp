@@ -26,10 +26,9 @@ npm run deploy:sepolia
 
 This runs [`deploy.ts`](deploy.ts),
 which deploys all five contracts in dependency order and writes addresses
-to `deployments/<network>.json`. For Celo Sepolia or a
-local network without `USDM_ADDRESS` set, it deploys a `MockERC20` to
-stand in for USDm — **never use this on mainnet**; mainnet deployment
-requires the real USDm contract address, or the script throws.
+to `deployments/<network>.json`. A local network without `USDM_ADDRESS` set
+may deploy a `MockERC20` for isolated tests. Celo Sepolia and Mainnet require
+the real USDm contract address, or the script throws.
 
 After deploying, sync the addresses into the frontend:
 
