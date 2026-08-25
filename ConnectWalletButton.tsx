@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAccount, useBalance, useChainId, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { Wallet, LogOut, ShieldAlert, Copy, ExternalLink, Check, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
-import { isWalletConnectConfigured } from "@/lib/web3/config";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { getUsdmAddress } from "@/lib/contracts";
 import { celo, celoSepolia } from "wagmi/chains";
@@ -13,7 +12,7 @@ import { celo, celoSepolia } from "wagmi/chains";
 export function ConnectWalletButton() {
   const { address, isConnected, chain, connector } = useAccount();
   const chainId = useChainId();
-  const { connect, connectors, isPending, error } = useConnect();
+  const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: isSwitching, error: switchError } = useSwitchChain();
   const [open, setOpen] = useState(false);
@@ -21,19 +20,37 @@ export function ConnectWalletButton() {
   const isMiniPay =
     typeof window !== "undefined" &&
     (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum?.isMiniPay === true;
+  const [connectorError, setConnectorError] = useState<string | null>(null);
   const usdmAddress = getUsdmAddress(chainId);
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
 
-  useEffect(() => {
-    const ethereum = (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum;
-    const detected = ethereum?.isMiniPay === true;
-
-    if (detected && !isConnected) {
-      const injectedConnector = connectors.find((connector) => connector.id === "injected");
-      if (injectedConnector) connect({ connector: injectedConnector });
+  function describeConnectionError(message: string, connectorName: string) {
+    const normalized = message.toLowerCase();
+    if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
+      return `${connectorName} connection was cancelled.`;
     }
-  }, [connect, connectors, isConnected]);
+    if (normalized.includes("provider not found") || normalized.includes("provider unavailable")) {
+      return connectorName === "Browser wallet" || connectorName === "MiniPay"
+        ? "This browser does not have an injected wallet available."
+        : `Unable to connect to ${connectorName}. Please try again.`;
+    }
+    return `Unable to connect to ${connectorName}. Please try again.`;
+  }
+
+  function connectWallet(connector: (typeof connectors)[number], connectorName: string) {
+    setConnectorError(null);
+    connect(
+      { connector },
+      {
+        onSuccess: () => {
+          setConnectorError(null);
+          setOpen(false);
+        },
+        onError: (connectionError) => setConnectorError(describeConnectionError(connectionError.message, connectorName)),
+      },
+    );
+  }
 
   async function copyAddress() {
     if (!address) return;
@@ -57,7 +74,7 @@ export function ConnectWalletButton() {
     return (
       <Button size="sm" disabled={isPending} onClick={() => {
         const injectedConnector = connectors.find((connector) => connector.id === "injected");
-        if (injectedConnector) connect({ connector: injectedConnector });
+        if (injectedConnector) connectWallet(injectedConnector, "MiniPay");
       }}>
         <Smartphone size={16} aria-hidden="true" />
         {isPending ? "Connecting to MiniPay" : "Connect MiniPay"}
@@ -83,37 +100,26 @@ export function ConnectWalletButton() {
           </DialogDescription>
 
           <div className="mt-6 flex flex-col gap-2">
-            {connectors.length > 0 ? connectors.map((connector) => (
+            {connectors.length > 0 ? connectors.map((connector) => {
+              const connectorName = connector.id === "walletConnect" ? "Valora / WalletConnect" : isMiniPay && connector.id === "injected" ? "MiniPay" : "Browser wallet";
+              return (
               <Button
                 key={connector.uid}
                 variant="secondary"
                 className="justify-start"
                 disabled={isPending}
-                onClick={() => {
-                  connect(
-                    { connector },
-                    {
-                      onSuccess: () => setOpen(false),
-                    },
-                  );
-                }}
+                onClick={() => connectWallet(connector, connectorName)}
               >
-                {connector.id === "walletConnect" ? "Valora / WalletConnect" : connector.name === "Injected" ? "Browser wallet" : connector.name}
+                {connectorName}
               </Button>
-            )) : <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800">Wallet connection unavailable. Please install or enable a supported wallet.</p>}
+              );
+            }) : <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-100">Choose a compatible wallet to connect.</p>}
           </div>
 
-          {!isWalletConnectConfigured && (
-            <p className="text-ink-soft dark:text-parchment-100/60 mt-4 text-xs">
-              WalletConnect is not configured in this environment, so mobile wallet QR flows are
-              temporarily unavailable in this environment.
-            </p>
-          )}
-
-          {error && (
+          {connectorError && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-700 dark:text-red-300">
               <ShieldAlert size={14} aria-hidden="true" className="mt-0.5" />
-              <p role="alert">{error.message}</p>
+              <p role="alert">{connectorError}</p>
             </div>
           )}
         </DialogContent>

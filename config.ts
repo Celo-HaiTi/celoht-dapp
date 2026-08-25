@@ -9,13 +9,13 @@ import { injected, walletConnect } from "wagmi/connectors";
  * desktop browser via QR code) is disabled and only browser-injected
  * wallets are offered. See docs/DEVELOPMENT.md and .env.example.
  */
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim();
 const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || undefined;
 const celoSepoliaRpcUrl = process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || undefined;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
 const connectors = [
-  injected(),
+  injected({ shimDisconnect: true }),
   ...(walletConnectProjectId
     ? [
         walletConnect({
