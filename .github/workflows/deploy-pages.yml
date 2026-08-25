@@ -53,6 +53,10 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://celo-haiti.github.io/celoht-dapp/
           NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: "02d9a7daa098b201a99a7da3769392b2"
           NEXT_PUBLIC_DONATION_RECIPIENT_ADDRESS: "0x7c5730e7fcf3adfbdf1c203e1f2491629310cead"
+          COMMUNITY_GITHUB_URL: "https://github.com/Celo-HaiTi"
+          COMMUNITY_DISCORD_URL: "https://discord.gg/Xcx6c9bBD2"
+          COMMUNITY_TELEGRAM_URL: "https://t.me/celoht_celoht_haiti"
+          COMMUNITY_LINKEDIN_URL: "https://www.linkedin.com/company/celoht/"
           NEXT_PUBLIC_USDM_MAINNET_ADDRESS: "0x765DE816845861e75A25fCA122bb6898b8b1282a"
           NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS: "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b"
         run: npm run build
