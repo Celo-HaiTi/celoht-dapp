@@ -1,6 +1,7 @@
-import { ethers, network } from "hardhat";
+import hre from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Deploys the full CeloHT contract suite in dependency order and writes
@@ -12,6 +13,7 @@ import * as path from "path";
  * in for USDm so the full flow can be exercised end to end.
  */
 async function main() {
+  const { ethers, network } = hre;
   const [deployer] = await ethers.getSigners();
   console.log(`Deploying to network "${network.name}" as ${deployer.address}`);
 
@@ -70,7 +72,8 @@ async function main() {
     deployedAt: new Date().toISOString(),
   };
 
-  const outDir = path.join(__dirname, "..", "deployments");
+  const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+  const outDir = path.join(projectRoot, "deployments");
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, `${network.name}.json`);
   fs.writeFileSync(outFile, JSON.stringify(addresses, null, 2));

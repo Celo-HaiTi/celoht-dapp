@@ -32,6 +32,7 @@ const config: HardhatUserConfig = {
     },
     localhost: {
       url: "http://127.0.0.1:8545",
+      chainId: 31337,
     },
     celoSepolia: {
       // Celo Sepolia testnet, chain ID 11142220.

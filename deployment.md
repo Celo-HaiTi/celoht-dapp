@@ -43,6 +43,20 @@ the deployment output into `addresses.ts` — this step is manual and
 reviewed in a Pull Request deliberately, so a compromised deploy script
 can't silently redirect the frontend to an attacker's contract.
 
+### Deployment order and parameters
+
+The deterministic order is:
+
+1. `AgentRegistry(admin)`
+2. `CertificateRegistry(admin)`
+3. `ImpactRegistry(admin)`
+4. `DonationManager(admin, USDM_ADDRESS, FEE_RECIPIENT_ADDRESS)`
+5. `GovernanceVoting(admin)`
+
+`admin` is the deployer account in the current script. Before a production
+deployment, transfer operational roles to an organization-controlled multisig
+and record that change in the deployment runbook.
+
 ## Verifying Contracts
 
 ```bash
