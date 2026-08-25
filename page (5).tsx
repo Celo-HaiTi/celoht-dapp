@@ -25,8 +25,9 @@ export default function EducationPage() {
       <Section eyebrow="Curriculum" title={`${courses.length} modules available`}>
         <div className="grid gap-4 sm:grid-cols-2">
           {courses.map((course) => (
-            <div
+            <Link
               key={course.id}
+              href={`/learn/${course.id}`}
               className="border-gold-500/30 dark:border-gold-500/20 rounded-2xl border p-6"
             >
               <h3 className="font-display text-xl font-semibold">{course.title}</h3>
@@ -36,7 +37,7 @@ export default function EducationPage() {
               <p className="text-ink-soft dark:text-parchment-100/50 mt-4 font-mono text-xs tracking-wide uppercase">
                 {course.durationMinutes} min · {course.level} · {course.language}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
         <Button asChild className="mt-8">

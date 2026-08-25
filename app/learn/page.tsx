@@ -11,6 +11,8 @@ const extraCourses = [
 	{ id: "web3-safety", title: "Web3 safety", summary: "Protect your wallet, identity, and assets online.", modules: ["Scam signals", "Safe approvals", "Getting help"] },
 ];
 
+const progressCache = new Map<string, { raw: string; value: string[] }>();
+
 export default function LearnPage() {
 	const { address } = useAccount();
 	const completed = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
@@ -25,11 +27,24 @@ function progressKey(address?: string) {
 }
 
 function readProgress(address?: string): string[] {
-	try { return JSON.parse(localStorage.getItem(progressKey(address)) ?? "[]") as string[]; } catch { return []; }
+	const key = progressKey(address);
+	const raw = localStorage.getItem(key) ?? "[]";
+	const cached = progressCache.get(key);
+	if (cached?.raw === raw) return cached.value;
+	try {
+		const value: unknown = JSON.parse(raw);
+		const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+		progressCache.set(key, { raw, value: result });
+		return result;
+	} catch {
+		progressCache.set(key, { raw, value: [] });
+		return [];
+	}
 }
 
 function subscribeProgress(onChange: () => void) {
-	window.addEventListener("storage", onChange);
-	window.addEventListener("celoht-progress", onChange);
-	return () => { window.removeEventListener("storage", onChange); window.removeEventListener("celoht-progress", onChange); };
+	const notify = () => { progressCache.clear(); onChange(); };
+	window.addEventListener("storage", notify);
+	window.addEventListener("celoht-progress", notify);
+	return () => { window.removeEventListener("storage", notify); window.removeEventListener("celoht-progress", notify); };
 }
