@@ -5,7 +5,7 @@ import { Check, CheckCircle2, ExternalLink, QrCode, Send, ShieldAlert, Wallet } 
 import { QRCodeSVG } from "qrcode.react";
 import { isAddress, parseEther, parseUnits } from "viem";
 import { useAccount, useBalance, useChainId, useSendTransaction, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoSepolia } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -14,7 +14,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Ca
 import { formatTokenAmount } from "@/lib/utils";
 import { erc20Abi, getUsdmAddress } from "@/lib/contracts";
 
-const supportedChainIds = new Set([celo.id, celoAlfajores.id]);
+const supportedChainIds = new Set([celo.id, celoSepolia.id]);
 
 export default function WalletPage() {
   const { address, isConnected, chain } = useAccount();
@@ -74,7 +74,7 @@ export default function WalletPage() {
         {!isConnected ? (
           <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>Connect your wallet</CardTitle></CardHeader><CardDescription>Use the Connect Wallet button above to load live account data from Celo.</CardDescription></Card>
         ) : wrongNetwork ? (
-          <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Unsupported network</CardTitle></CardHeader><CardDescription>Switch your wallet to Celo Mainnet or Alfajores before sending funds.</CardDescription></Card>
+              <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Unsupported network</CardTitle></CardHeader><CardDescription>Switch your wallet to Celo Mainnet or Celo Sepolia before sending funds.</CardDescription></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>CELO</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{balanceLoading ? "Loading..." : balance ? formatTokenAmount(balance.value, balance.decimals) : "Unavailable"}</p><CardDescription className="mt-2">Live native balance from {chain?.name ?? "Celo"}</CardDescription></Card>

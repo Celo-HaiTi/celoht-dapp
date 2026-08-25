@@ -18,7 +18,7 @@ export default function HomePage() {
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmAddress = getUsdmAddress(chainId);
   const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
-  const networkReady = chain?.id === 42220 || chain?.id === 44787;
+  const networkReady = chain?.id === 42220 || chain?.id === 11142220;
   const celoAmount = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : "Unavailable";
   const usdmAmount = usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : "Unavailable";
 

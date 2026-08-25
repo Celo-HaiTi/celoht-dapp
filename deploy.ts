@@ -8,7 +8,7 @@ import * as path from "path";
  * `scripts/sync-abis.mjs` (at the repo root) reads to wire the frontend.
  *
  * On Celo mainnet, pass the real USDm address via USDM_ADDRESS. On
- * Alfajores or a local network, this script deploys a MockERC20 to stand
+ * Celo Sepolia or a local network, this script deploys a MockERC20 to stand
  * in for USDm so the full flow can be exercised end to end.
  */
 async function main() {
@@ -18,8 +18,8 @@ async function main() {
   // --- Donation asset (USDm) ---------------------------------------
   let donationTokenAddress = process.env.USDM_ADDRESS;
   if (!donationTokenAddress) {
-    if (network.name === "celo") {
-      throw new Error("USDM_ADDRESS must be set for a mainnet deployment. See docs/DEPLOYMENT.md.");
+    if (network.name === "celo" || network.name === "celoSepolia") {
+      throw new Error("USDM_ADDRESS must be set for Celo Mainnet or Celo Sepolia deployment. See deployment.md.");
     }
     console.log("No USDM_ADDRESS set — deploying MockERC20 to stand in for USDm (test only).");
     const MockERC20 = await ethers.getContractFactory("MockERC20");

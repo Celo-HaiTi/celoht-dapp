@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
-import { celo } from "wagmi/chains";
+import { celo, celoSepolia } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { LayoutDashboard, WalletCards, ReceiptText, Users, GraduationCap, Sprout, MoreHorizontal, Menu, X, Settings } from "lucide-react";
@@ -18,7 +18,7 @@ export function Header() {
 
   const networkStatus = !isConnected
     ? "Demo mode"
-    : chain?.id === celo.id
+    : chain?.id === celo.id || chain?.id === celoSepolia.id
       ? "Connected"
       : "Wrong network";
 

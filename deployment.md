@@ -4,9 +4,14 @@
 
 | Component                | Status                         |
 | ------------------------ | ------------------------------ |
-| Contracts (Alfajores)    | Not yet deployed               |
+| Contracts (Celo Sepolia)  | Not yet deployed               |
 | Contracts (Celo mainnet) | Not yet deployed               |
 | Frontend                 | GitHub Pages deployment from `main` |
+
+USDm is configured from verified token addresses: Celo Mainnet
+`0x765DE816845861e75A25fCA122bb6898b8b1282a` and Celo Sepolia
+`0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b`. Both contracts report symbol
+`USDm` and 18 decimals via public Celo RPC reads.
 
 `addresses.ts` intentionally holds the zero
 address for every contract on every network until real deployments
@@ -16,12 +21,12 @@ happen, so the frontend never silently points at a nonexistent contract.
 
 ```bash
 cp .env.example .env    # fill in DEPLOYER_PRIVATE_KEY, etc.
-npm run deploy:alfajores
+npm run deploy:sepolia
 ```
 
 This runs [`deploy.ts`](deploy.ts),
 which deploys all five contracts in dependency order and writes addresses
-to `packages/contracts/deployments/<network>.json`. For Alfajores or a
+to `deployments/<network>.json`. For Celo Sepolia or a
 local network without `USDM_ADDRESS` set, it deploys a `MockERC20` to
 stand in for USDm — **never use this on mainnet**; mainnet deployment
 requires the real USDm contract address, or the script throws.
@@ -42,7 +47,7 @@ can't silently redirect the frontend to an attacker's contract.
 
 ```bash
 cd packages/contracts
-npx hardhat verify --network alfajores <address> <constructor arg 1> ...
+npx hardhat verify --network celoSepolia <address> <constructor arg 1> ...
 ```
 
 Requires `CELOSCAN_API_KEY` in `.env` — see
@@ -59,8 +64,8 @@ variables.
 ## Activation Checklist
 
 - Deploy and verify the five contracts on the intended network.
-- Configure `NEXT_PUBLIC_USDM_MAINNET_ADDRESS` and, if needed, `NEXT_PUBLIC_USDM_ALFAJORES_ADDRESS`
-    with the official USDm addresses for their respective networks. Never reuse an address across networks.
+- Configure the verified `NEXT_PUBLIC_USDM_MAINNET_ADDRESS` and `NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS`
+    values. Never reuse an address across networks. Contract deployment also requires `USDM_ADDRESS`.
 - Copy reviewed contract addresses into `addresses.ts`.
 - Configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for QR/mobile wallet connections.
 - Add an indexer or backend service before displaying CeloHT-specific transaction history.

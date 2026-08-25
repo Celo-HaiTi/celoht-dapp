@@ -1,21 +1,17 @@
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoSepolia } from "wagmi/chains";
 import type { Address } from "viem";
 import { isAddress } from "viem";
 
 /**
  * Deployed contract addresses per chain.
  *
- * Alfajores and Celo mainnet addresses are intentionally left as the zero
- * address until the contracts in packages/contracts are actually deployed
- * there (see docs/DEPLOYMENT.md and packages/contracts/scripts/deploy.ts).
- * Shipping a placeholder here — rather than a fabricated-looking real
- * address — avoids the frontend silently pointing at a contract that
- * doesn't exist.
+ * CeloHT contracts remain undefined until they are actually deployed. USDm
+ * uses the verified addresses supplied for Celo Mainnet and Celo Sepolia.
  */
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
-const configuredUsdmAddresses: Partial<Record<number, string | undefined>> = {
-  [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS ?? process.env.NEXT_PUBLIC_USDM_ADDRESS,
-  [celoAlfajores.id]: process.env.NEXT_PUBLIC_USDM_ALFAJORES_ADDRESS,
+const configuredUsdmAddresses: Partial<Record<number, string>> = {
+  [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS ?? "0x765DE816845861e75A25fCA122bb6898b8b1282a",
+  [celoSepolia.id]: process.env.NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS ?? "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b",
 };
 
 export type ContractName =
@@ -28,7 +24,7 @@ export type ContractName =
 type AddressBook = Record<ContractName, Address>;
 
 export const contractAddresses: Record<number, AddressBook> = {
-  [celoAlfajores.id]: {
+  [celoSepolia.id]: {
     AgentRegistry: ZERO_ADDRESS,
     CertificateRegistry: ZERO_ADDRESS,
     DonationManager: ZERO_ADDRESS,

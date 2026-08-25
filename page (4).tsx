@@ -13,7 +13,7 @@ export default function TransactionsPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const explorerBase =
-    chainId === celo.id ? "https://celoscan.io" : "https://alfajores.celoscan.io";
+    chainId === celo.id ? "https://celoscan.io" : "https://sepolia.celoscan.io";
 
   return (
     <>

@@ -14,8 +14,8 @@
     "compile": "hardhat compile",
     "test": "hardhat test AgentRegistry.test.ts CertificateRegistry.test.ts DonationManager.test.ts GovernanceVoting.test.ts ImpactRegistry.test.ts",
     "coverage": "hardhat coverage",
-    "deploy:alfajores": "hardhat run scripts/deploy.ts --network alfajores",
-    "deploy:localhost": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:sepolia": "hardhat run deploy.ts --network celoSepolia",
+    "deploy:localhost": "hardhat run deploy.ts --network localhost",
     "clean": "hardhat clean"
   },
   "dependencies": {

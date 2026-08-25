@@ -1,5 +1,5 @@
 import { http, createConfig } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoSepolia } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
 
 /**
@@ -11,7 +11,7 @@ import { injected, walletConnect } from "wagmi/connectors";
  */
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || undefined;
-const alfajoresRpcUrl = process.env.NEXT_PUBLIC_ALFAJORES_RPC_URL || undefined;
+const celoSepoliaRpcUrl = process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || undefined;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
 const connectors = [
@@ -33,11 +33,11 @@ const connectors = [
 ];
 
 export const wagmiConfig = createConfig({
-  chains: [celo, celoAlfajores],
+  chains: [celo, celoSepolia],
   connectors,
   transports: {
     [celo.id]: http(celoRpcUrl),
-    [celoAlfajores.id]: http(alfajoresRpcUrl),
+    [celoSepolia.id]: http(celoSepoliaRpcUrl),
   },
   ssr: true,
 });

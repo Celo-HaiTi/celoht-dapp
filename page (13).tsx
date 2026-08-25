@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoSepolia } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -81,7 +81,7 @@ export default function SettingsPage() {
         <Card className="max-w-md">
           <CardTitle>{isConnected ? (chain?.name ?? "Unknown") : "Not connected"}</CardTitle>
           <CardDescription className="mt-2">
-            CeloHT supports Celo mainnet and the Alfajores testnet.
+            CeloHT supports Celo Mainnet and Celo Sepolia.
           </CardDescription>
           {isConnected && (
             <div className="mt-4 flex gap-2">
@@ -95,9 +95,9 @@ export default function SettingsPage() {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={() => switchChain({ chainId: celoAlfajores.id })}
+                onClick={() => switchChain({ chainId: celoSepolia.id })}
               >
-                Switch to Alfajores
+                Switch to Celo Sepolia
               </Button>
             </div>
           )}
