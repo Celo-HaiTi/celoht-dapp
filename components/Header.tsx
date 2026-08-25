@@ -10,7 +10,7 @@ import { celo, celoSepolia } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 
-const visiblePaths = ["/", "/wallet", "/education", "/reforestation"];
+const visiblePaths = ["/", "/wallet", "/learn", "/impact", "/agents"];
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,8 +33,7 @@ export function Header() {
           <ul className="flex items-center gap-1">
             {visibleNav.map((item) => {
               const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
-              const label = item.label === "Reforestation" ? "Impact" : item.label;
-              return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} className={`rounded-lg px-3 py-2 text-sm transition-colors ${active ? "bg-gold-500/15 font-semibold text-gold-300" : "text-parchment-100/65 hover:bg-white/5 hover:text-white"}`}>{label}</Link></li>;
+              return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} className={`rounded-lg px-3 py-2 text-sm transition-colors ${active ? "bg-gold-500/15 font-semibold text-gold-300" : "text-parchment-100/65 hover:bg-white/5 hover:text-white"}`}>{item.label}</Link></li>;
             })}
           </ul>
         </nav>
@@ -46,7 +45,7 @@ export function Header() {
         </div>
       </div>
 
-      {menuOpen && <nav id="mobile-menu" aria-label="Mobile navigation" className="border-t border-white/10 bg-navy-950 px-4 pb-4 lg:hidden"><div className="pt-3 sm:hidden"><ConnectWalletButton /></div><ul className="mt-3 space-y-1">{visibleNav.concat(menuNav).map((item) => { const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`); return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`block rounded-lg px-3 py-3 text-sm ${active ? "bg-gold-500/15 text-gold-300" : "text-parchment-100/70 hover:bg-white/5 hover:text-white"}`}>{item.label === "Reforestation" ? "Impact" : item.label}</Link></li>; })}</ul></nav>}
+      {menuOpen && <nav id="mobile-menu" aria-label="Menu" className="border-t border-white/10 bg-navy-950 px-4 pb-4 lg:hidden"><div className="pt-3 sm:hidden"><ConnectWalletButton /></div><ul className="mt-3 space-y-1">{visibleNav.concat(menuNav).map((item) => { const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`); return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`block rounded-lg px-3 py-3 text-sm ${active ? "bg-gold-500/15 text-gold-300" : "text-parchment-100/70 hover:bg-white/5 hover:text-white"}`}>{item.label}</Link></li>; })}</ul></nav>}
     </header>
   );
 }
