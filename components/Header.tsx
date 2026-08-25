@@ -10,7 +10,7 @@ import { celo, celoSepolia } from "wagmi/chains";
 import { primaryNav } from "@/lib/nav";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 
-const visiblePaths = ["/", "/wallet", "/learn", "/impact", "/agents"];
+const visiblePaths = ["/", "/learn", "/impact", "/agents"];
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);

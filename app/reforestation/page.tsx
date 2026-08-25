@@ -1,1 +1,1 @@
-export { default } from "../impact/page";
+export { default } from "../../page (11)";

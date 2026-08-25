@@ -6,6 +6,8 @@ import { StatGrid } from "@/components/StatGrid";
 import { courses } from "@/lib/data/courses";
 import { agents } from "@/lib/data/agents";
 import { projects } from "@/lib/data/projects";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Impact",
@@ -54,6 +56,7 @@ export default function ImpactPage() {
             { value: String(projects.length), label: "Registered projects" },
           ]}
         />
+        <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/5 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-display text-xl font-semibold text-white">Help plant more trees</h2><p className="mt-1 max-w-xl text-sm leading-6 text-parchment-100/65">Support a registered reforestation project with a real USDm donation through your connected wallet.</p></div><Button asChild><Link href="/donations">Donate now</Link></Button></div>
       </Section>
     </>
   );
