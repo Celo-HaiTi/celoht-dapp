@@ -40,13 +40,12 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <span className={`hidden items-center gap-2 rounded-full border px-2.5 py-1.5 text-[10px] font-medium md:inline-flex ${networkReady ? "border-emerald-400/20 text-emerald-200" : "border-white/10 text-parchment-100/55"}`}><span className={`h-1.5 w-1.5 rounded-full ${networkReady ? "bg-emerald-400" : "bg-amber-400"}`} />{isConnected && networkReady ? chain?.name : "Celo Network"}</span>
-          <div className="sm:hidden"><ConnectWalletButton /></div>
-          <div className="hidden sm:block"><ConnectWalletButton /></div>
+          <div className="shrink-0"><ConnectWalletButton /></div>
           <button type="button" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen((value) => !value)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"><span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>{menuOpen ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}</button>
         </div>
       </div>
 
-      {menuOpen && <nav id="mobile-menu" aria-label="Menu" className="border-t border-white/10 bg-navy-950 px-4 pb-4 lg:hidden"><div className="pt-3 sm:hidden"><ConnectWalletButton /></div><ul className="mt-3 space-y-1">{visibleNav.concat(menuNav).map((item) => { const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`); return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`block rounded-lg px-3 py-3 text-sm ${active ? "bg-gold-500/15 text-gold-300" : "text-parchment-100/70 hover:bg-white/5 hover:text-white"}`}>{item.label}</Link></li>; })}</ul></nav>}
+      {menuOpen && <nav id="mobile-menu" aria-label="Menu" className="border-t border-white/10 bg-navy-950 px-4 pb-4 lg:hidden"><ul className="mt-3 space-y-1">{visibleNav.concat(menuNav).map((item) => { const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`); return <li key={item.href}><Link href={item.href} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)} className={`block rounded-lg px-3 py-3 text-sm ${active ? "bg-gold-500/15 text-gold-300" : "text-parchment-100/70 hover:bg-white/5 hover:text-white"}`}>{item.label}</Link></li>; })}</ul></nav>}
     </header>
   );
 }

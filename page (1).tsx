@@ -11,24 +11,19 @@ export const metadata: Metadata = {
 
 const paths = [
   {
-    title: "Join a discussion",
-    detail: "Ask questions and share ideas in the flagship repository's Discussions.",
-    href: "https://github.com/celo-ht/celoht/discussions",
+    title: "LinkedIn",
+    detail: "Follow CeloHT's professional updates and community news.",
+    href: process.env.NEXT_PUBLIC_LINKEDIN_URL,
+  },
+  {
+    title: "Discord",
+    detail: "Join the CeloHT community for conversations and collaboration.",
+    href: process.env.NEXT_PUBLIC_DISCORD_URL,
   },
   {
     title: "Volunteer locally",
     detail: "Support an education session or a reforestation planting day in your region.",
-    href: "https://github.com/celo-ht/celoht/blob/main/docs/agent-network.md",
-  },
-  {
-    title: "Contribute to the dApp",
-    detail: "This app is open source — see the contributing guide for how to help.",
-    href: "https://github.com/celo-ht/dapp/blob/main/CONTRIBUTING.md",
-  },
-  {
-    title: "Follow announcements",
-    detail: "News and updates are posted to the flagship repository and social channels.",
-    href: "https://twitter.com/CeloHtOfficial",
+    href: "https://celoht.com",
   },
 ];
 
@@ -44,14 +39,15 @@ export default function CommunityPage() {
 
       <Section>
         <div className="grid gap-4 sm:grid-cols-2">
-          {paths.map((path) => (
-            <a key={path.title} href={path.href} target="_blank" rel="noreferrer">
+          {paths.map((path) => path.href ? <a key={path.title} href={path.href} target="_blank" rel="noreferrer">
               <Card className="hover:border-gold-500/50 h-full transition-colors">
                 <CardTitle>{path.title}</CardTitle>
                 <CardDescription className="mt-2">{path.detail}</CardDescription>
               </Card>
-            </a>
-          ))}
+            </a> : <Card key={path.title} className="h-full opacity-75">
+              <CardTitle>{path.title}</CardTitle>
+              <CardDescription className="mt-2">{path.detail} Add the official link in the production configuration.</CardDescription>
+            </Card>)}
         </div>
       </Section>
     </>
