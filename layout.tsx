@@ -6,7 +6,6 @@ import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
-import { Footer } from "@/Footer";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
@@ -69,7 +68,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main id="main-content">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
-            <Footer />
             <BottomNav />
           </ToastProvider>
         </Web3Gate>
