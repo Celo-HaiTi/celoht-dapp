@@ -3,7 +3,6 @@ import "./globals.css";
 import { Web3Gate } from "@/components/Web3Gate";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { SkipLink } from "@/components/SkipLink";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -68,7 +67,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main id="main-content">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
-            <div className="lg:ml-64"><Footer /></div>
           </ToastProvider>
         </Web3Gate>
       </body>
