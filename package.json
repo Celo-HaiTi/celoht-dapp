@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "compile": "hardhat compile",
+    "contracts:sync-abis": "node sync-abis.mjs",
     "test": "hardhat test AgentRegistry.test.ts CertificateRegistry.test.ts DonationManager.test.ts GovernanceVoting.test.ts ImpactRegistry.test.ts",
     "coverage": "hardhat coverage",
     "deploy:sepolia": "hardhat run deploy.ts --network celoSepolia",

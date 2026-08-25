@@ -49,12 +49,15 @@ The deterministic order is:
 1. `AgentRegistry(admin)`
 2. `CertificateRegistry(admin)`
 3. `ImpactRegistry(admin)`
-4. `DonationManager(admin, USDM_ADDRESS, FEE_RECIPIENT_ADDRESS)`
+4. `DonationManager(admin, USDM_ADDRESS, FEE_RECIPIENT_ADDRESS)`, followed by
+    registration of `reforest-leogane-01` with `DONATION_RECIPIENT_ADDRESS` by
+    the admin multisig when the deployer is a separate account
 5. `GovernanceVoting(admin)`
 
-`admin` is the deployer account in the current script. Before a production
-deployment, transfer operational roles to an organization-controlled multisig
-and record that change in the deployment runbook.
+`admin` must be an organization-controlled multisig. The deployer only pays for
+deployment transactions; the script refuses to use the deployer as an implicit
+admin or fee recipient. The project recipient is explicit and enforced by
+DonationManager for withdrawals.
 
 ## Verifying Contracts
 

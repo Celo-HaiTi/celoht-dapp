@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 /**
  * Copies the ABI of each CeloHT contract from the Hardhat build artifacts
- * in packages/contracts into apps/web/src/lib/contracts/abis, so the
+ * in artifacts/contracts into abis, so the
  * frontend always uses the exact ABI produced by the contracts that were
  * actually compiled and tested — never a hand-typed copy that could drift.
  *
- * Run after `npm run contracts:compile`. Wired as `npm run contracts:sync-abis`
- * at the repo root.
+ * Run after `npm run compile`.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = __dirname;
 
 const CONTRACTS = [
   "AgentRegistry",
@@ -23,8 +22,8 @@ const CONTRACTS = [
   "GovernanceVoting",
 ];
 
-const artifactsDir = path.join(repoRoot, "packages/contracts/artifacts/contracts");
-const outDir = path.join(repoRoot, "apps/web/src/lib/contracts/abis");
+const artifactsDir = path.join(repoRoot, "artifacts/contracts");
+const outDir = path.join(repoRoot, "abis");
 
 mkdirSync(outDir, { recursive: true });
 

@@ -22,19 +22,19 @@ describe("DonationManager", function () {
       feeRecipient.address,
     );
 
-    await manager.connect(admin).registerProject(PROJECT_A, "ipfs://project-a");
+    await manager.connect(admin).registerProject(PROJECT_A, beneficiary.address, "ipfs://project-a");
 
     return { manager, token, admin, feeRecipient, donor1, donor2, beneficiary };
   }
 
   it("accepts a donation with zero platform fee by default", async function () {
-    const { manager, token, donor1 } = await loadFixture(deployFixture);
+    const { manager, token, donor1, beneficiary } = await loadFixture(deployFixture);
     const amount = ethers.parseEther("100");
 
     await token.connect(donor1).approve(await manager.getAddress(), amount);
     await expect(manager.connect(donor1).donate(PROJECT_A, amount, "ipfs://memo"))
       .to.emit(manager, "Donated")
-      .withArgs(donor1.address, PROJECT_A, amount, 0n, "ipfs://memo");
+      .withArgs(donor1.address, PROJECT_A, await token.getAddress(), amount, 0n, beneficiary.address, "ipfs://memo");
 
     expect(await manager.totalDonatedTo(PROJECT_A)).to.equal(amount);
     expect(await manager.availableBalance(PROJECT_A)).to.equal(amount);
@@ -71,6 +71,52 @@ describe("DonationManager", function () {
     ).to.be.revertedWith("DonationManager: unknown project");
   });
 
+  it("accepts CELO donations and accounts for the project recipient", async function () {
+    const { manager, donor1, beneficiary } = await loadFixture(deployFixture);
+    const amount = ethers.parseEther("2");
+
+    await expect(manager.connect(donor1).donateCelo(PROJECT_A, "ce-lo" , { value: amount }))
+      .to.emit(manager, "Donated")
+      .withArgs(donor1.address, PROJECT_A, ethers.ZeroAddress, amount, 0n, beneficiary.address, "ce-lo");
+
+    expect(await manager.availableCeloBalance(PROJECT_A)).to.equal(amount);
+    expect(await manager.totalCeloDonatedTo(PROJECT_A)).to.equal(amount);
+    expect(await manager.totalCeloDonatedBy(donor1.address)).to.equal(amount);
+    expect(await manager.projectRecipient(PROJECT_A)).to.equal(beneficiary.address);
+  });
+
+  it("only permits the configured project recipient to receive withdrawals", async function () {
+    const { manager, token, admin, donor1, donor2, beneficiary } = await loadFixture(deployFixture);
+    const amount = ethers.parseEther("5");
+    await token.connect(donor1).approve(await manager.getAddress(), amount);
+    await manager.connect(donor1).donate(PROJECT_A, amount, "");
+
+    await expect(manager.connect(admin).withdraw(PROJECT_A, donor2.address, amount)).to.be.revertedWith(
+      "DonationManager: invalid recipient",
+    );
+    await expect(manager.connect(admin).setProjectRecipient(PROJECT_A, donor2.address))
+      .to.emit(manager, "ProjectRecipientUpdated")
+      .withArgs(PROJECT_A, beneficiary.address, donor2.address);
+  });
+
+  it("rejects unauthorized administration", async function () {
+    const { manager, donor1, beneficiary } = await loadFixture(deployFixture);
+    await expect(manager.connect(donor1).setProjectRecipient(PROJECT_A, beneficiary.address)).to.be.reverted;
+    await expect(manager.connect(donor1).withdrawCelo(PROJECT_A, 1n)).to.be.reverted;
+  });
+
+  it("forwards CELO only to the configured recipient", async function () {
+    const { manager, donor1, admin, beneficiary } = await loadFixture(deployFixture);
+    const amount = ethers.parseEther("1");
+    await manager.connect(donor1).donateCelo(PROJECT_A, "forward", { value: amount });
+    const before = await ethers.provider.getBalance(beneficiary.address);
+    await expect(manager.connect(admin).withdrawCelo(PROJECT_A, amount))
+      .to.emit(manager, "Withdrawn")
+      .withArgs(PROJECT_A, ethers.ZeroAddress, beneficiary.address, amount);
+    expect(await ethers.provider.getBalance(beneficiary.address)).to.equal(before + amount);
+    expect(await manager.availableCeloBalance(PROJECT_A)).to.equal(0n);
+  });
+
   it("lets a withdrawer move available funds to a beneficiary", async function () {
     const { manager, token, admin, donor1, beneficiary } = await loadFixture(deployFixture);
     const amount = ethers.parseEther("50");
@@ -79,7 +125,7 @@ describe("DonationManager", function () {
 
     await expect(manager.connect(admin).withdraw(PROJECT_A, beneficiary.address, amount))
       .to.emit(manager, "Withdrawn")
-      .withArgs(PROJECT_A, beneficiary.address, amount);
+      .withArgs(PROJECT_A, await token.getAddress(), beneficiary.address, amount);
 
     expect(await token.balanceOf(beneficiary.address)).to.equal(amount);
     expect(await manager.availableBalance(PROJECT_A)).to.equal(0n);

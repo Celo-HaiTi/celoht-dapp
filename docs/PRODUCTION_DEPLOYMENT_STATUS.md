@@ -10,7 +10,7 @@ This report records the repository audit performed before deployment work. It in
 - **Wallet:** wagmi + viem with injected wallets and optional WalletConnect. Connected wallet signs transactions client-side.
 - **Networks:** Celo Mainnet (42220) and Celo Sepolia (11142220).
 - **Token:** Official USDm configuration is centralized in `addresses.ts`; Mainnet and Sepolia addresses are configured separately.
-- **Contracts:** Solidity contracts in `contracts/`, ABIs in `abis/`, Hardhat compilation/tests in the repository root.
+- **Contracts:** Solidity contracts in `contracts/`, ABIs in `abis`, and Hardhat compilation/tests in the repository root. DonationManager supports native CELO and the configured USDm token, with project-recipient enforcement.
 - **Data:** Local typed course, agent, project, proposal, and partner fixtures exist for UI/content surfaces. There is no production database connection.
 - **Deployment:** GitHub Pages workflow builds the static frontend. No backend, worker, indexer, or admin service is deployed from this repository.
 

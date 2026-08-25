@@ -14,7 +14,7 @@ The local Hardhat suite currently passes 30 tests. The contracts are not deploye
 
 - Review access-control and treasury roles with the operating organization.
 - Use a multisig for critical administrative and withdrawal roles.
-- Deploy to Alfajores first and verify every address and event.
+- Deploy to Celo Sepolia first and verify every address and event.
 - Verify source code on the appropriate Celo explorer.
 - Record reviewed addresses in `addresses.ts`.
 - Run contract tests and security analysis against the exact deployed bytecode.

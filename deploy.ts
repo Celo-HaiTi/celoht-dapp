@@ -28,7 +28,13 @@ async function deploymentRecord(contract: {
 async function main() {
   const { ethers, network } = hre;
   const [deployer] = await ethers.getSigners();
-  console.log(`Deploying to network "${network.name}" as ${deployer.address}`);
+  const admin = process.env.ADMIN_ADDRESS;
+  const feeRecipient = process.env.FEE_RECIPIENT_ADDRESS;
+  const donationRecipient = process.env.DONATION_RECIPIENT_ADDRESS;
+  if (!admin || !ethers.isAddress(admin)) throw new Error("ADMIN_ADDRESS must be an organization-controlled multisig address.");
+  if (!feeRecipient || !ethers.isAddress(feeRecipient)) throw new Error("FEE_RECIPIENT_ADDRESS must be an explicit organization-controlled address.");
+  if (!donationRecipient || !ethers.isAddress(donationRecipient)) throw new Error("DONATION_RECIPIENT_ADDRESS must be an explicit project recipient.");
+  console.log(`Deploying to network "${network.name}" as ${deployer.address}; admin ${admin}`);
 
   // --- Donation asset (USDm) ---------------------------------------
   let donationTokenAddress = process.env.USDM_ADDRESS;
@@ -43,31 +49,40 @@ async function main() {
     donationTokenAddress = await mock.getAddress();
   }
 
-  const feeRecipient = process.env.FEE_RECIPIENT_ADDRESS ?? deployer.address;
-
   // --- Core registries -----------------------------------------------
   const AgentRegistry = await ethers.getContractFactory("AgentRegistry");
-  const agentRegistry = await AgentRegistry.deploy(deployer.address);
+  const agentRegistry = await AgentRegistry.deploy(admin);
   await agentRegistry.waitForDeployment();
 
   const CertificateRegistry = await ethers.getContractFactory("CertificateRegistry");
-  const certificateRegistry = await CertificateRegistry.deploy(deployer.address);
+  const certificateRegistry = await CertificateRegistry.deploy(admin);
   await certificateRegistry.waitForDeployment();
 
   const ImpactRegistry = await ethers.getContractFactory("ImpactRegistry");
-  const impactRegistry = await ImpactRegistry.deploy(deployer.address);
+  const impactRegistry = await ImpactRegistry.deploy(admin);
   await impactRegistry.waitForDeployment();
 
   const DonationManager = await ethers.getContractFactory("DonationManager");
   const donationManager = await DonationManager.deploy(
-    deployer.address,
+    admin,
     donationTokenAddress,
     feeRecipient,
   );
   await donationManager.waitForDeployment();
+  if (deployer.address.toLowerCase() === admin.toLowerCase()) {
+    await donationManager.registerProject(
+      ethers.keccak256(ethers.toUtf8Bytes("reforest-leogane-01")),
+      donationRecipient,
+      "project:reforest-leogane-01",
+    );
+  } else {
+    console.log(
+      "Register project reforest-leogane-01 from the configured ADMIN_ADDRESS multisig before accepting donations.",
+    );
+  }
 
   const GovernanceVoting = await ethers.getContractFactory("GovernanceVoting");
-  const governanceVoting = await GovernanceVoting.deploy(deployer.address);
+  const governanceVoting = await GovernanceVoting.deploy(admin);
   await governanceVoting.waitForDeployment();
 
   const addresses = {
