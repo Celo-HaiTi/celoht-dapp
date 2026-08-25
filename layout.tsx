@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
+import { Footer } from "@/Footer";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
@@ -13,11 +14,11 @@ const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("gith
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-  default: "CeloHT dApp — Celo Web3 & Impact",
+  default: "CeloHT — Digital Finance for Haiti",
     template: "%s | CeloHT",
   },
   description:
-    "Use the CeloHT dApp to interact with the Celo ecosystem, manage supported assets, learn Web3 and participate in CeloHT's real-world impact initiatives.",
+    "CeloHT is a Web3 financial, education, and impact platform powered by the Celo ecosystem.",
   keywords: ["CeloHT", "Celo", "USDm", "financial inclusion", "Web3 education", "reforestation"],
   openGraph: {
     title: "CeloHT dApp — Celo Web3 & Impact",
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main id="main-content">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
+            <Footer />
             <BottomNav />
           </ToastProvider>
         </Web3Gate>
