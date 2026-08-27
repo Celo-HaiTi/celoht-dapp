@@ -7,6 +7,7 @@ export const primaryNav: NavItem[] = [
   { label: "Agents", href: "/agents" },
   { label: "Reforest", href: "/reforestation" },
   { label: "Activity", href: "/wallet/activity" },
+  { label: "Profile", href: "/profile" },
   { label: "Settings", href: "/settings" },
   { label: "Trust Center", href: "/trust" },
 ];

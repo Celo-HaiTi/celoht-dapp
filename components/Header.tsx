@@ -18,6 +18,7 @@ const workspaceNav = [
 ];
 const secondaryNav = [
   { label: "Activity", href: "/wallet/activity", icon: Activity },
+  { label: "Profile", href: "/profile", icon: Settings },
   { label: "Settings", href: "/settings", icon: Settings },
   { label: "Trust Center", href: "/trust", icon: ShieldCheck },
 ];

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import {
   Activity,
   ArrowDownLeft,
@@ -29,6 +30,7 @@ const modules = [
 
 export default function HomePage() {
   const { address, isConnected } = useAccount();
+  const completedCourses = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
   const chainId = useChainId();
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmAddress = getUsdmAddress(chainId);
@@ -72,7 +74,7 @@ export default function HomePage() {
             {!isConnected ? <div className="mt-7 flex flex-col items-start gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 shrink-0 text-cyan-300" size={18} aria-hidden="true" /><p className="max-w-md text-sm leading-6 text-parchment-100/62">Your wallet stays in your control. CeloHT never asks for private keys or recovery phrases.</p></div><ConnectWalletButton /></div> : <><div className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-5"><BalanceItem label="CELO" value={celoBalance.isLoading ? "Loading" : celoBalance.error ? "Unavailable" : celoAmount} /><BalanceItem label="USDm" value={usdmBalance.isLoading ? "Loading" : usdmBalance.error ? "Unavailable" : usdmAmount} /></div>{celoBalance.error && <p className="mt-4 text-xs text-amber-200" role="alert">CELO balance could not be loaded. Check your RPC connection and retry.</p>}<div className="mt-6 flex flex-wrap gap-2"><ActionButton href="/wallet/send" icon={<Send size={15} />} label="Send" /><ActionButton href="/wallet/receive" icon={<ArrowDownLeft size={15} />} label="Receive" /><Link href="/wallet/activity" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/12 px-4 py-2 text-sm font-semibold text-parchment-100/75 transition hover:border-gold-300/50 hover:text-white"><Activity size={15} aria-hidden="true" /> Activity</Link></div></>}
           </section>
 
-          <section className="workspace-panel" aria-labelledby="progress-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Learn</p><h2 id="progress-heading" className="mt-1 font-display text-xl font-semibold text-white">Keep moving</h2></div><BookOpen className="text-gold-300" size={22} aria-hidden="true" /></div><p className="mt-4 text-sm leading-6 text-parchment-100/60">{courses.length} practical courses are available in the CeloHT Academy.</p><div className="mt-6 border-t border-white/10 pt-5"><div className="flex items-center justify-between gap-4"><span className="text-xs text-parchment-100/48">Your local progress</span><span className="font-mono text-xs text-parchment-100/65">Start a lesson</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full w-1/12 rounded-full bg-gold-500" /></div><Link href="/learn" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">Open Learn <ArrowUpRight size={15} aria-hidden="true" /></Link></div></section>
+          <section className="workspace-panel" aria-labelledby="progress-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Learn</p><h2 id="progress-heading" className="mt-1 font-display text-xl font-semibold text-white">Keep moving</h2></div><BookOpen className="text-gold-300" size={22} aria-hidden="true" /></div><p className="mt-4 text-sm leading-6 text-parchment-100/60">{courses.length} practical courses are available in the CeloHT Academy.</p><div className="mt-6 border-t border-white/10 pt-5"><div className="flex items-center justify-between gap-4"><span className="text-xs text-parchment-100/48">Local progress</span><span className="font-mono text-xs text-parchment-100/65">{completedCourses.length} / {courses.length} complete</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gold-500 transition-[width]" style={{ width: `${courses.length ? completedCourses.filter((courseId) => courses.some((course) => course.id === courseId)).length / courses.length * 100 : 0}%` }} /></div><Link href="/learn" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">Open Learn <ArrowUpRight size={15} aria-hidden="true" /></Link></div></section>
         </div>
 
         <section className="workspace-panel mt-5" aria-labelledby="activity-heading"><div className="flex items-start justify-between gap-4"><div><p className="section-kicker">Activity</p><h2 id="activity-heading" className="mt-1 font-display text-xl font-semibold text-white">Your recent activity</h2></div><Link href="/wallet/activity" className="text-xs font-semibold text-gold-300">View all</Link></div><div className="mt-5 flex flex-col items-start gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-parchment-100/45"><Activity size={18} aria-hidden="true" /></div><div><p className="text-sm font-medium text-parchment-100/75">No activity to show yet</p><p className="mt-1 text-xs leading-5 text-parchment-100/45">Completed lessons and confirmed wallet events will appear here when they exist.</p></div></div></section>
@@ -89,4 +91,27 @@ function BalanceItem({ label, value }: { label: string; value: string }) {
 
 function ActionButton({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return <Link href={href} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-gold-500 px-4 py-2 text-sm font-semibold text-navy-950 transition hover:bg-gold-300"><span aria-hidden="true">{icon}</span>{label}</Link>;
+}
+
+function progressKey(address?: string) {
+  return `celoht-academy-progress:${address?.toLowerCase() ?? "guest"}`;
+}
+
+function readProgress(address?: string): string[] {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(progressKey(address)) ?? "[]");
+    return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function subscribeProgress(onChange: () => void) {
+  const notify = () => onChange();
+  window.addEventListener("storage", notify);
+  window.addEventListener("celoht-progress", notify);
+  return () => {
+    window.removeEventListener("storage", notify);
+    window.removeEventListener("celoht-progress", notify);
+  };
 }
