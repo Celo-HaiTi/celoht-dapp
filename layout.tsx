@@ -4,7 +4,6 @@ import { Web3Gate } from "@/components/Web3Gate";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
@@ -66,7 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SkipLink />
             <Header />
             <main id="main-content" className="lg:ml-64">
-              <ErrorBoundary>{children}</ErrorBoundary>
+              {children}
             </main>
             <BottomNav />
           </ToastProvider>
