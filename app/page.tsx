@@ -30,6 +30,8 @@ const modules = [
   { label: "Reforest", eyebrow: "Impact", description: "Explore projects and support registered work when available.", href: "/reforestation", icon: Leaf, action: "Explore projects", tone: "green" },
 ] as const;
 
+const progressCache = new Map<string, { raw: string; value: string[] }>();
+
 export default function HomePage() {
   const { address, isConnected } = useAccount();
   const completedCourses = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
@@ -104,16 +106,26 @@ function progressKey(address?: string) {
 }
 
 function readProgress(address?: string): string[] {
+  const key = progressKey(address);
+  const raw = localStorage.getItem(key) ?? "[]";
+  const cached = progressCache.get(key);
+  if (cached?.raw === raw) return cached.value;
   try {
-    const value: unknown = JSON.parse(localStorage.getItem(progressKey(address)) ?? "[]");
-    return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+    const value: unknown = JSON.parse(raw);
+    const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+    progressCache.set(key, { raw, value: result });
+    return result;
   } catch {
-    return [];
+    progressCache.set(key, { raw, value: [] });
+    return progressCache.get(key)?.value ?? [];
   }
 }
 
 function subscribeProgress(onChange: () => void) {
-  const notify = () => onChange();
+  const notify = () => {
+    progressCache.clear();
+    onChange();
+  };
   window.addEventListener("storage", notify);
   window.addEventListener("celoht-progress", notify);
   return () => {
