@@ -1,50 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, ShieldCheck } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { useAccount } from "wagmi";
+import { ArrowRight, Award, BookOpenCheck, CheckCircle2, Clock3, Leaf, LockKeyhole, Users, WalletCards } from "lucide-react";
 import { courses } from "@/lib/data/courses";
 
-const extraCourses = [
-	{ id: "digital-payments", title: "Digital payments", summary: "Make everyday payments with clarity and confidence.", modules: ["Payment basics", "Fees and confirmation", "Keeping records"] },
-	{ id: "web3-safety", title: "Web3 safety", summary: "Protect your wallet, identity, and assets online.", modules: ["Scam signals", "Safe approvals", "Getting help"] },
-];
-
+const levels = ["Beginner", "Intermediate", "Advanced"] as const;
 const progressCache = new Map<string, { raw: string; value: string[] }>();
 
 export default function LearnPage() {
-	const { address } = useAccount();
-	const completed = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
-	const catalog = [...courses, ...extraCourses];
-	const completedCount = catalog.filter((course) => completed.includes(course.id)).length;
+  const completed = useSyncExternalStore(subscribeProgress, readProgress, () => []);
+  const completedCourses = courses.filter((course) => completed.includes(course.id));
+  const currentCourse = courses.find((course) => !completed.includes(course.id));
+  const totalLessons = courses.reduce((sum, course) => sum + course.modules.length, 0);
+  const completedLessons = completedCourses.reduce((sum, course) => sum + course.modules.length, 0);
+  const percent = totalLessons ? Math.round(completedLessons / totalLessons * 100) : 0;
 
-	return <div className="app-shell min-h-[calc(100dvh-64px)] px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:py-12"><div className="mx-auto max-w-5xl"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">CeloHT Academy</p><h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">Learn. Practice. Understand.</h1><p className="mt-4 max-w-2xl text-sm leading-6 text-parchment-100/65">Short, practical lessons for using digital value responsibly on Celo.</p><div className="mt-8 flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.05] p-4"><BookOpenCheck className="text-gold-300" size={22} aria-hidden="true" /><div className="flex-1"><div className="flex justify-between gap-4 text-sm"><span className="font-semibold text-white">Your progress</span><span className="font-mono text-parchment-100/60">{completedCount} / {catalog.length}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gold-500 transition-all" style={{ width: `${catalog.length ? completedCount / catalog.length * 100 : 0}%` }} /></div></div></div><div className="mt-8 grid gap-4 sm:grid-cols-2">{catalog.map((course, index) => { const done = completed.includes(course.id); return <Link key={course.id} href={`/learn/${course.id}`} className="group rounded-2xl border border-white/10 bg-white/[0.05] p-5 transition hover:-translate-y-0.5 hover:border-gold-500/50"><div className="flex items-start justify-between"><span className="font-mono text-xs text-gold-300">{String(index + 1).padStart(2, "0")}</span>{done && <ShieldCheck size={18} className="text-emerald-300" aria-label="Completed" />}</div><h2 className="mt-8 font-display text-xl font-semibold text-white">{course.title}</h2><p className="mt-2 text-sm leading-6 text-parchment-100/60">{course.summary}</p><span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">{done ? "Review lesson" : "Start lesson"}<ArrowRight size={15} aria-hidden="true" /></span></Link>; })}</div></div></div>;
+  return <div className="learn-shell min-h-[calc(100dvh-64px)] px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8"><div className="mx-auto max-w-7xl">
+    <header className="learn-header"><div><p className="section-kicker">CeloHT Academy · Learning workspace</p><h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Learn with purpose</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-parchment-100/62">Understand the tools before you use them. Progress is stored locally on this device until a learning backend is connected.</p></div><Link href="/certificates" className="learn-header-link"><Award size={16} aria-hidden="true" /> Certificates</Link></header>
+    <section className="learning-progress mt-7" aria-labelledby="progress-heading"><div className="progress-orbit"><BookOpenCheck size={23} aria-hidden="true" /></div><div className="min-w-0 flex-1"><p className="section-kicker">Your learning path</p><h2 id="progress-heading" className="mt-1 font-display text-xl font-semibold text-white">{percent}% complete</h2><p className="mt-1 text-sm text-parchment-100/55">{completedLessons} of {totalLessons} lessons completed</p><div className="learning-progress-track" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={`Learning progress: ${percent}%`}><span style={{ width: `${percent}%` }} /></div></div>{currentCourse ? <Link href={`/learn/${currentCourse.id}`} className="learn-primary-action">{completedLessons ? "Continue learning" : "Start learning"}<ArrowRight size={16} aria-hidden="true" /></Link> : <span className="completion-badge"><CheckCircle2 size={16} aria-hidden="true" /> Path complete</span>}</section>
+    <div className="learn-layout mt-7"><main><div className="flex items-end justify-between gap-4"><div><p className="section-kicker">Course catalog</p><h2 className="mt-1 font-display text-2xl font-semibold text-white">Choose your next lesson</h2></div><span className="hidden text-xs text-parchment-100/42 sm:block">{courses.length} courses · {totalLessons} lessons</span></div><div className="mt-5 space-y-8">{levels.map((level) => { const levelCourses = courses.filter((course) => course.level === level); return levelCourses.length ? <section key={level} aria-labelledby={`level-${level}`}><div className="flex items-center gap-3"><span className="level-marker">{level === "Beginner" ? "01" : level === "Intermediate" ? "02" : "03"}</span><h3 id={`level-${level}`} className="font-display text-lg font-semibold text-white">{level}</h3><span className="text-xs text-parchment-100/42">{levelCourses.length} {levelCourses.length === 1 ? "course" : "courses"}</span></div><div className="mt-3 grid gap-3 sm:grid-cols-2">{levelCourses.map((course) => <CourseCard key={course.id} course={course} complete={completed.includes(course.id)} />)}</div></section> : null; })}</div></main><aside className="learn-aside"><p className="section-kicker">Ecosystem path</p><h2 className="mt-1 font-display text-xl font-semibold text-white">Learn, then act</h2><p className="mt-3 text-sm leading-6 text-parchment-100/58">Move into the CeloHT modules when you are ready.</p><div className="mt-5 space-y-3"><PathLink href="/wallet" icon={<WalletCards size={17} />} label="Finance" detail="Practice wallet safety" /><PathLink href="/agents" icon={<Users size={17} />} label="Agents" detail="Explore community support" /><PathLink href="/reforestation" icon={<Leaf size={17} />} label="Reforest" detail="Follow verified impact" /></div><div className="mt-6 border-t border-white/10 pt-5"><div className="flex items-start gap-3"><LockKeyhole size={17} className="mt-0.5 text-cyan-300" aria-hidden="true" /><p className="text-xs leading-5 text-parchment-100/48">Learning activities never open your wallet or move funds.</p></div></div></aside></div>
+    {completedCourses.length > 0 && <section className="completed-strip mt-6" aria-labelledby="completed-heading"><div><p className="section-kicker">Milestones</p><h2 id="completed-heading" className="mt-1 font-display text-lg font-semibold text-white">Completed courses</h2></div><div className="flex flex-wrap gap-2">{completedCourses.map((course) => <Link key={course.id} href={`/learn/${course.id}`} className="completed-course"><CheckCircle2 size={14} aria-hidden="true" />{course.title}</Link>)}</div></section>}
+  </div></div>;
 }
 
-function progressKey(address?: string) {
-		return `celoht-academy-progress:${address?.toLowerCase() ?? "guest"}`;
-}
-
-function readProgress(address?: string): string[] {
-	const key = progressKey(address);
-	const raw = localStorage.getItem(key) ?? "[]";
-	const cached = progressCache.get(key);
-	if (cached?.raw === raw) return cached.value;
-	try {
-		const value: unknown = JSON.parse(raw);
-		const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-		progressCache.set(key, { raw, value: result });
-		return result;
-	} catch {
-		progressCache.set(key, { raw, value: [] });
-		return [];
-	}
-}
-
-function subscribeProgress(onChange: () => void) {
-	const notify = () => { progressCache.clear(); onChange(); };
-	window.addEventListener("storage", notify);
-	window.addEventListener("celoht-progress", notify);
-	return () => { window.removeEventListener("storage", notify); window.removeEventListener("celoht-progress", notify); };
-}
+function CourseCard({ course, complete }: { course: (typeof courses)[number]; complete: boolean }) { return <Link href={`/learn/${course.id}`} className={`course-card ${complete ? "course-card-complete" : ""}`}><div className="flex items-start justify-between gap-3"><span className="course-level">{course.level}</span>{complete ? <CheckCircle2 size={18} className="text-emerald-300" aria-label="Completed" /> : <ArrowRight size={17} className="text-parchment-100/35" aria-hidden="true" />}</div><h4 className="mt-6 font-display text-lg font-semibold text-white">{course.title}</h4><p className="mt-2 min-h-10 text-sm leading-5 text-parchment-100/58">{course.summary}</p><div className="mt-5 flex items-center gap-4 text-xs text-parchment-100/45"><span className="inline-flex items-center gap-1"><BookOpenCheck size={14} aria-hidden="true" />{course.modules.length} lessons</span><span className="inline-flex items-center gap-1"><Clock3 size={14} aria-hidden="true" />{course.durationMinutes} min</span></div><span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">{complete ? "Review course" : "Open course"}<ArrowRight size={15} aria-hidden="true" /></span></Link>; }
+function PathLink({ href, icon, label, detail }: { href: string; icon: React.ReactNode; label: string; detail: string }) { return <Link href={href} className="path-link"><span>{icon}</span><span><strong>{label}</strong><small>{detail}</small></span><ArrowRight size={14} aria-hidden="true" /></Link>; }
+function readProgress() { const key = "celoht-academy-progress:guest"; const raw = localStorage.getItem(key) ?? "[]"; const cached = progressCache.get(key); if (cached?.raw === raw) return cached.value; try { const value: unknown = JSON.parse(raw); const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []; progressCache.set(key, { raw, value: result }); return result; } catch { return []; } }
+function subscribeProgress(onChange: () => void) { const notify = () => { progressCache.clear(); onChange(); }; window.addEventListener("storage", notify); window.addEventListener("celoht-progress", notify); return () => { window.removeEventListener("storage", notify); window.removeEventListener("celoht-progress", notify); }; }

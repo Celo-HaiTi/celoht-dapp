@@ -290,6 +290,33 @@ body {
 .empty-wallet { display: flex; align-items: center; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; color: rgba(238, 242, 246, 0.52); font-size: 0.8rem; }
 .empty-wallet .wallet-secondary { margin-left: auto; }
 
+.learn-shell { background: radial-gradient(circle at 78% 0%, rgba(74, 190, 201, 0.06), transparent 27rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.learn-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
+.learn-header-link { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.65rem; padding: 0.65rem 0.85rem; color: rgba(238, 242, 246, 0.7); font-size: 0.75rem; font-weight: 700; transition: border-color 200ms ease, color 200ms ease, transform 200ms ease; }
+.learn-header-link:hover { border-color: rgba(248, 220, 143, 0.5); color: white; transform: translateY(-1px); }
+.learning-progress { display: flex; align-items: center; gap: 1rem; border: 1px solid rgba(248, 220, 143, 0.2); border-radius: 0.9rem; background: linear-gradient(120deg, rgba(245, 200, 66, 0.09), rgba(255, 255, 255, 0.035)); padding: 1.25rem; }
+.progress-orbit { display: flex; height: 2.75rem; width: 2.75rem; flex-shrink: 0; align-items: center; justify-content: center; border: 1px solid rgba(248, 220, 143, 0.35); border-radius: 50%; color: #f8dc8f; }
+.learning-progress-track { height: 0.4rem; overflow: hidden; margin-top: 0.8rem; border-radius: 999px; background: rgba(255, 255, 255, 0.1); }
+.learning-progress-track span { display: block; height: 100%; border-radius: inherit; background: #f5c842; transition: width 350ms ease; }
+.learn-primary-action { display: inline-flex; min-height: 2.75rem; flex-shrink: 0; align-items: center; gap: 0.5rem; border-radius: 0.65rem; background: #f5c842; padding: 0.7rem 0.9rem; color: #0b1120; font-size: 0.75rem; font-weight: 700; transition: transform 200ms ease, background-color 200ms ease; }
+.learn-primary-action:hover { background: #f8dc8f; transform: translateY(-2px); }
+.completion-badge { display: inline-flex; flex-shrink: 0; align-items: center; gap: 0.4rem; color: #9bd6b5; font-size: 0.75rem; font-weight: 700; }
+.learn-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr); gap: 2rem; }
+.course-card { display: block; min-height: 17rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.85rem; background: rgba(255, 255, 255, 0.045); padding: 1.2rem; transition: transform 250ms ease, border-color 250ms ease, background-color 250ms ease, box-shadow 250ms ease; }
+.course-card:hover { border-color: rgba(248, 220, 143, 0.42); background: rgba(245, 200, 66, 0.06); box-shadow: 0 16px 34px rgba(0, 0, 0, 0.16); transform: translateY(-4px); }
+.course-card-complete { border-color: rgba(108, 194, 146, 0.25); }
+.course-level { color: rgba(248, 220, 143, 0.75); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.level-marker { display: inline-flex; height: 1.6rem; width: 1.6rem; align-items: center; justify-content: center; border: 1px solid rgba(248, 220, 143, 0.3); border-radius: 50%; color: #f8dc8f; font-family: ui-monospace, monospace; font-size: 0.6rem; }
+.learn-aside { align-self: start; border-left: 1px solid rgba(255, 255, 255, 0.1); padding-left: 1.5rem; }
+.path-link { display: flex; align-items: center; gap: 0.7rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 0.8rem 0; color: rgba(238, 242, 246, 0.75); transition: color 200ms ease, transform 200ms ease; }
+.path-link:hover { color: white; transform: translateX(3px); }
+.path-link > span:first-child { color: #f8dc8f; }
+.path-link > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 0.2rem; }
+.path-link strong { font-size: 0.8rem; }
+.path-link small { color: rgba(238, 242, 246, 0.42); font-size: 0.7rem; }
+.completed-strip { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; }
+.completed-course { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid rgba(108, 194, 146, 0.25); border-radius: 999px; padding: 0.45rem 0.65rem; color: #9bd6b5; font-size: 0.7rem; }
+
 .agents-shell { background: radial-gradient(circle at 82% 0%, rgba(74, 190, 201, 0.07), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
 .agents-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
 .agent-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.035); }
@@ -318,6 +345,14 @@ body {
 .agent-trust { display: flex; align-items: flex-start; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 1.25rem 0; }
 
 @media (max-width: 639px) {
+  .learn-header { align-items: flex-start; flex-direction: column; }
+  .learning-progress { align-items: flex-start; flex-wrap: wrap; }
+  .learning-progress > div:nth-child(2) { width: calc(100% - 3.75rem); }
+  .learn-primary-action { width: 100%; justify-content: center; }
+  .learn-layout { display: block; }
+  .learn-aside { margin-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); border-left: 0; padding-top: 1.5rem; padding-left: 0; }
+  .course-card { min-height: 15.5rem; }
+  .completed-strip { align-items: flex-start; flex-direction: column; }
   .agents-header { align-items: flex-start; flex-direction: column; }
   .agent-metrics { grid-template-columns: repeat(2, 1fr); }
   .agent-metric:nth-child(2) { border-right: 0; }
