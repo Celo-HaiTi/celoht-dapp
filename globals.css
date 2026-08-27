@@ -290,6 +290,47 @@ body {
 .empty-wallet { display: flex; align-items: center; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; color: rgba(238, 242, 246, 0.52); font-size: 0.8rem; }
 .empty-wallet .wallet-secondary { margin-left: auto; }
 
+.activity-shell { background: radial-gradient(circle at 82% 0%, rgba(74, 190, 201, 0.06), transparent 27rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.activity-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
+.activity-refresh, .activity-secondary, .activity-close { display: inline-flex; min-height: 2.6rem; align-items: center; justify-content: center; gap: 0.45rem; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.6rem; padding: 0.6rem 0.8rem; color: rgba(238, 242, 246, 0.7); font-size: 0.75rem; font-weight: 700; transition: transform 200ms ease, border-color 200ms ease, color 200ms ease; }
+.activity-refresh:hover, .activity-secondary:hover, .activity-close:hover { border-color: rgba(248, 220, 143, 0.5); color: white; transform: translateY(-1px); }
+.activity-alert { display: flex; align-items: center; gap: 0.8rem; margin-top: 1.25rem; border: 1px solid rgba(231, 184, 59, 0.3); border-radius: 0.75rem; background: rgba(231, 184, 59, 0.06); padding: 1rem; color: #f4d887; }
+.activity-alert > div { flex: 1; }
+.activity-overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.85rem; background: rgba(255, 255, 255, 0.035); }
+.overview-item { display: flex; align-items: center; gap: 0.7rem; border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 1rem; }
+.overview-item:last-child { border-right: 0; }
+.overview-item > span { color: #f8dc8f; }
+.overview-item p { color: rgba(238, 242, 246, 0.42); font-size: 0.7rem; }
+.overview-item strong { display: block; margin-top: 0.2rem; color: rgba(238, 242, 246, 0.8); font-family: ui-monospace, monospace; font-size: 0.75rem; }
+.activity-controls { display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.9rem; }
+.activity-filters { display: flex; max-width: 100%; gap: 0.35rem; overflow-x: auto; scrollbar-width: none; }
+.activity-filters::-webkit-scrollbar { display: none; }
+.activity-filter { flex-shrink: 0; border-radius: 999px; padding: 0.5rem 0.7rem; color: rgba(238, 242, 246, 0.48); font-size: 0.7rem; font-weight: 700; transition: background-color 180ms ease, color 180ms ease; }
+.activity-filter:hover, .activity-filter-active { background: rgba(245, 200, 66, 0.12); color: #f8dc8f; }
+.activity-search { margin-left: auto; min-width: 10rem; }
+.activity-search input { width: 100%; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.55rem; background: rgba(255, 255, 255, 0.04); padding: 0.6rem 0.7rem; color: white; font-size: 0.72rem; outline: 0; }
+.activity-search input:focus { border-color: rgba(248, 220, 143, 0.55); }
+.activity-empty { display: flex; align-items: flex-start; gap: 0.8rem; margin-top: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.85rem; background: rgba(255, 255, 255, 0.035); padding: 1.4rem; }
+.activity-empty-icon { display: inline-flex; color: #f8dc8f; }
+.activity-list { display: grid; gap: 0.5rem; margin-top: 1.25rem; }
+.activity-card { display: flex; width: 100%; align-items: center; gap: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.75rem; background: rgba(255, 255, 255, 0.035); padding: 0.9rem; text-align: left; transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease; }
+.activity-card:hover, .activity-card:focus-visible { border-color: rgba(248, 220, 143, 0.4); background: rgba(245, 200, 66, 0.05); transform: translateY(-1px); }
+.activity-type-icon { display: inline-flex; height: 2.3rem; width: 2.3rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 50%; color: #f8dc8f; background: rgba(245, 200, 66, 0.1); }
+.activity-card-main { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 0.3rem; }
+.activity-card-main strong, .activity-card-amount strong { color: rgba(238, 242, 246, 0.82); font-size: 0.8rem; }
+.activity-card-main small, .activity-card-amount small { color: rgba(238, 242, 246, 0.42); font-size: 0.68rem; }
+.activity-card-amount { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+.activity-status { border-radius: 999px; padding: 0.2rem 0.45rem; font-weight: 700; text-transform: capitalize; }
+.activity-status-confirmed { color: #9bd6b5 !important; background: rgba(108, 194, 146, 0.1); }
+.activity-status-pending { color: #f4d887 !important; background: rgba(231, 184, 59, 0.1); }
+.activity-status-failed { color: #f3b1b1 !important; background: rgba(220, 116, 116, 0.1); }
+.activity-drawer-backdrop { position: fixed; inset: 0; z-index: 60; display: flex; justify-content: flex-end; background: rgba(1, 5, 12, 0.64); }
+.activity-drawer { width: min(100%, 28rem); overflow-y: auto; border-left: 1px solid rgba(255, 255, 255, 0.12); background: #0b1120; padding: 1.5rem; animation: activity-drawer-in 220ms ease-out both; }
+.activity-close { min-height: 2rem; width: 2rem; padding: 0; font-size: 1.2rem; }
+.detail-line { display: flex; justify-content: space-between; gap: 1rem; color: rgba(238, 242, 246, 0.45); font-size: 0.75rem; }
+.detail-line strong { color: rgba(238, 242, 246, 0.8); font-weight: 500; }
+@keyframes activity-drawer-in { from { opacity: 0; transform: translateX(1.5rem); } to { opacity: 1; transform: translateX(0); } }
+
 .learn-shell { background: radial-gradient(circle at 78% 0%, rgba(74, 190, 201, 0.06), transparent 27rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
 .learn-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
 .learn-header-link { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.65rem; padding: 0.65rem 0.85rem; color: rgba(238, 242, 246, 0.7); font-size: 0.75rem; font-weight: 700; transition: border-color 200ms ease, color 200ms ease, transform 200ms ease; }
@@ -345,6 +386,19 @@ body {
 .agent-trust { display: flex; align-items: flex-start; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 1.25rem 0; }
 
 @media (max-width: 639px) {
+  .activity-header { align-items: flex-start; flex-direction: column; }
+  .activity-overview { grid-template-columns: 1fr; }
+  .overview-item { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .overview-item:last-child { border-bottom: 0; }
+  .activity-controls { align-items: flex-start; flex-direction: column; gap: 0.6rem; }
+  .activity-filters { width: 100%; }
+  .activity-search { width: 100%; margin-left: 0; }
+  .activity-card { align-items: flex-start; }
+  .activity-card-amount { margin-left: auto; }
+  .activity-empty { padding: 1.1rem; }
+  .activity-drawer { width: 100%; border-left: 0; padding: 1.25rem; animation-name: activity-sheet-in; }
+  .activity-drawer-backdrop { align-items: flex-end; }
+  @keyframes activity-sheet-in { from { opacity: 0; transform: translateY(1.5rem); } to { opacity: 1; transform: translateY(0); } }
   .learn-header { align-items: flex-start; flex-direction: column; }
   .learning-progress { align-items: flex-start; flex-wrap: wrap; }
   .learning-progress > div:nth-child(2) { width: calc(100% - 3.75rem); }
