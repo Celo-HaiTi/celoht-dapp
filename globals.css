@@ -289,6 +289,36 @@ body {
 .qr-frame { border-radius: 0.7rem; background: white; padding: 0.6rem; }
 .empty-wallet { display: flex; align-items: center; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; color: rgba(238, 242, 246, 0.52); font-size: 0.8rem; }
 .empty-wallet .wallet-secondary { margin-left: auto; }
+.profile-shell { background: radial-gradient(circle at 80% 0%, rgba(245, 200, 66, 0.06), transparent 26rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.profile-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
+.profile-connect, .identity-panel, .profile-panel, .security-panel { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.045); padding: 1.25rem; }
+.profile-connect { display: flex; align-items: center; gap: 1rem; }
+.profile-connect > div { flex: 1; }
+.identity-panel { display: flex; align-items: center; gap: 1rem; background: linear-gradient(120deg, rgba(245, 200, 66, 0.1), rgba(255, 255, 255, 0.035)); }
+.identicon { display: flex; height: 3.5rem; width: 3.5rem; flex-shrink: 0; align-items: center; justify-content: center; border: 1px solid rgba(248, 220, 143, 0.45); border-radius: 40% 60% 55% 45%; color: #f8dc8f; font-family: ui-monospace, monospace; font-weight: 700; background: rgba(245, 200, 66, 0.1); transform: rotate(-8deg); }
+.identity-state { min-width: 7rem; color: #9bd6b5; font-size: 0.75rem; font-weight: 700; text-align: right; }
+.identity-state p { margin-top: 0.35rem; color: rgba(238, 242, 246, 0.45); font-size: 0.68rem; font-weight: 400; }
+.profile-icon-button { display: inline-flex; height: 1.8rem; width: 1.8rem; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.45rem; color: rgba(238, 242, 246, 0.7); transition: border-color 180ms ease, color 180ms ease; }
+.profile-icon-button:hover { border-color: rgba(248, 220, 143, 0.5); color: white; }
+.profile-copy-state { color: rgba(238, 242, 246, 0.38); font-size: 0.68rem; }
+.profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.profile-assets { display: grid; gap: 0.5rem; margin-top: 1.25rem; }
+.profile-asset { display: flex; align-items: center; gap: 0.7rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 0.75rem 0; }
+.profile-asset > div { display: flex; flex-direction: column; gap: 0.2rem; }
+.profile-asset strong { color: rgba(238, 242, 246, 0.8); font-size: 0.8rem; }
+.profile-asset small { color: rgba(238, 242, 246, 0.4); font-size: 0.68rem; }
+.profile-asset b { margin-left: auto; color: white; font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 500; }
+.profile-muted { color: rgba(238, 242, 246, 0.42); font-size: 0.72rem; line-height: 1.45; }
+.profile-detail { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.07); padding: 0.65rem 0; color: rgba(238, 242, 246, 0.42); font-size: 0.72rem; }
+.profile-detail strong { color: rgba(238, 242, 246, 0.78); font-weight: 500; text-align: right; }
+.profile-action { display: inline-flex; min-height: 2.5rem; align-items: center; justify-content: center; border-radius: 0.6rem; background: #f5c842; padding: 0.6rem 0.85rem; color: #0b1120; font-size: 0.75rem; font-weight: 700; }
+.profile-link { display: inline-flex; align-items: center; gap: 0.45rem; color: #f8dc8f; font-size: 0.75rem; font-weight: 700; transition: color 180ms ease, transform 180ms ease; }
+.profile-link:hover { color: white; transform: translateX(2px); }
+.security-panel { display: flex; align-items: flex-start; gap: 0.75rem; }
+.security-panel > div { flex: 1; }
+.profile-shortcuts { display: flex; gap: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; }
+.profile-shortcuts a { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 0.45rem; min-height: 2.6rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.6rem; color: rgba(238, 242, 246, 0.65); font-size: 0.72rem; font-weight: 700; transition: border-color 180ms ease, color 180ms ease; }
+.profile-shortcuts a:hover { border-color: rgba(248, 220, 143, 0.45); color: white; }
 
 .activity-shell { background: radial-gradient(circle at 82% 0%, rgba(74, 190, 201, 0.06), transparent 27rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
 .activity-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
@@ -399,6 +429,16 @@ body {
   .activity-drawer { width: 100%; border-left: 0; padding: 1.25rem; animation-name: activity-sheet-in; }
   .activity-drawer-backdrop { align-items: flex-end; }
   @keyframes activity-sheet-in { from { opacity: 0; transform: translateY(1.5rem); } to { opacity: 1; transform: translateY(0); } }
+  .profile-header { align-items: flex-start; flex-direction: column; }
+  .profile-connect { align-items: flex-start; flex-wrap: wrap; }
+  .profile-connect > .inline-flex { width: 100%; justify-content: center; }
+  .identity-panel { align-items: flex-start; flex-wrap: wrap; }
+  .identity-state { margin-left: 4.5rem; min-width: 0; text-align: left; }
+  .profile-grid { display: block; }
+  .profile-panel + .profile-panel { margin-top: 1.25rem; }
+  .security-panel { flex-wrap: wrap; }
+  .security-panel .profile-link { width: 100%; }
+  .profile-shortcuts a { flex-direction: column; }
   .learn-header { align-items: flex-start; flex-direction: column; }
   .learning-progress { align-items: flex-start; flex-wrap: wrap; }
   .learning-progress > div:nth-child(2) { width: calc(100% - 3.75rem); }
