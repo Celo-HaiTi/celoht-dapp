@@ -70,6 +70,77 @@ body {
   color: #f4f7fa;
 }
 
+.workspace-bg {
+  background: radial-gradient(circle at 82% 0%, rgba(245, 200, 66, 0.08), transparent 28rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%);
+}
+
+.app-sidebar {
+  background: linear-gradient(180deg, #0b1120 0%, #0a101d 100%);
+}
+
+.brand-logo {
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(245, 200, 66, 0.16));
+}
+
+.section-kicker {
+  color: rgba(248, 220, 143, 0.78);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.workspace-panel,
+.module-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
+}
+
+.workspace-panel {
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+}
+
+.module-card {
+  display: block;
+  min-height: 18rem;
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+  transition: transform 280ms ease, border-color 280ms ease, background-color 280ms ease, box-shadow 280ms ease;
+  animation: workspace-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.module-card-gold { background: linear-gradient(145deg, rgba(245, 200, 66, 0.11), rgba(255, 255, 255, 0.035) 62%); }
+.module-card-cyan { background: linear-gradient(145deg, rgba(74, 190, 201, 0.11), rgba(255, 255, 255, 0.035) 62%); }
+.module-card-green { background: linear-gradient(145deg, rgba(76, 146, 113, 0.12), rgba(255, 255, 255, 0.035) 62%); }
+
+.module-card:hover {
+  border-color: rgba(248, 220, 143, 0.42);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.2), 0 0 22px rgba(245, 200, 66, 0.06);
+  transform: translateY(-4px);
+}
+
+.module-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8dc8f;
+}
+
+.module-card-cyan .module-icon { color: #8ce1e7; }
+.module-card-green .module-icon { color: #78c49b; }
+.reveal-delay-1 { animation-delay: 80ms; }
+.reveal-delay-2 { animation-delay: 160ms; }
+.reveal-delay-3 { animation-delay: 240ms; }
+
+@keyframes workspace-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 main {
   min-height: calc(100dvh - 64px);
 }
@@ -94,6 +165,11 @@ input::placeholder {
   main {
     padding-bottom: 5.5rem;
   }
+}
+
+@media (max-width: 639px) {
+  .workspace-panel { padding: 1rem; }
+  .module-card { min-height: 16rem; }
 }
 
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
@@ -216,6 +292,8 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .dashboard-reveal-delay-2 { animation-delay: 180ms; }
 
 @media (prefers-reduced-motion: reduce) {
+  .module-card { animation: none; transition: none; }
+
   .hero-logo,
   .premium-card,
   .card-action:nth-child(1) .action-icon,

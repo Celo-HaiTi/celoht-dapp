@@ -65,7 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ToastProvider>
             <SkipLink />
             <Header />
-            <main id="main-content">
+            <main id="main-content" className="lg:ml-64">
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
             <BottomNav />

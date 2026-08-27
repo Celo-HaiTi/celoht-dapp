@@ -1,12 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight, BookOpen, ExternalLink, Send, ShieldCheck, WalletCards, Users, Sprout, ArrowDownLeft, GraduationCap, CheckCircle2 } from "lucide-react";
+import {
+  Activity,
+  ArrowDownLeft,
+  ArrowUpRight,
+  BookOpen,
+  GraduationCap,
+  Leaf,
+  MapPin,
+  Send,
+  ShieldCheck,
+  Users,
+  WalletCards,
+} from "lucide-react";
 import { useAccount, useBalance, useChainId } from "wagmi";
-import { getUsdmAddress } from "@/lib/contracts";
-import { formatTokenAmount } from "@/lib/utils";
+import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { courses } from "@/lib/data/courses";
+import { getUsdmAddress } from "@/lib/contracts";
+import { formatTokenAmount, shortenAddress } from "@/lib/utils";
+
+const modules = [
+  { label: "Learn", eyebrow: "Education", description: "Build practical confidence with short, focused lessons.", href: "/learn", icon: GraduationCap, action: "Continue learning", tone: "gold" },
+  { label: "Finance", eyebrow: "Wallet", description: "Connect a wallet to send, receive, and view live assets.", href: "/wallet", icon: WalletCards, action: "Open finance", tone: "cyan" },
+  { label: "Agents", eyebrow: "Community", description: "Find local support or review the path to become an agent.", href: "/agents", icon: Users, action: "Find an agent", tone: "green" },
+  { label: "Reforest", eyebrow: "Impact", description: "Explore projects and support registered work when available.", href: "/reforestation", icon: Leaf, action: "Explore projects", tone: "green" },
+] as const;
 
 export default function HomePage() {
   const { address, isConnected } = useAccount();
@@ -18,46 +37,56 @@ export default function HomePage() {
   const usdmAmount = usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : "—";
 
   return (
-    <div className="app-shell dashboard-grid min-h-[calc(100vh-65px)] overflow-hidden px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:py-12 lg:pb-16">
+    <div className="workspace-bg min-h-[calc(100dvh-64px)] overflow-hidden px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-12">
       <div className="mx-auto max-w-7xl">
-      <div className="hero-panel dashboard-reveal mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-end lg:mb-10">
-        <div className="hero-content">
-          <div className="hero-logo-layer" aria-hidden="true">
-            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/celoht-logo.png`} alt="" className="hero-logo" width={998} height={1000} priority />
+        <header className="workspace-intro flex flex-col justify-between gap-5 border-b border-white/10 pb-7 sm:flex-row sm:items-end">
+          <div>
+            <p className="section-kicker">Application workspace</p>
+            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Overview</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-parchment-100/62">One place to learn, access digital finance, connect with people, and support real-world impact.</p>
           </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">CeloHT · Built on Celo</p>
-          <h1 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">Digital Finance for Everyone</h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-parchment-100/65">Send, receive, learn, and create impact with blockchain technology powered by Celo.</p>
-        </div>
-      </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block"><p className="text-xs text-parchment-100/42">{isConnected ? "Connected wallet" : "Workspace status"}</p><p className="mt-1 font-mono text-xs text-parchment-100/72">{isConnected && address ? shortenAddress(address) : "Wallet not connected"}</p></div>
+            {!isConnected && <ConnectWalletButton />}
+          </div>
+        </header>
 
-      <div className="dashboard-reveal dashboard-reveal-delay">
-        <section className={`premium-card relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-navy-800 to-[#123b38] p-6 text-white shadow-2xl shadow-black/20 sm:p-8 ${isConnected ? "wallet-active" : ""}`} aria-labelledby="balance-heading">
-          <div className="flex items-start justify-between gap-4"><div><p className="text-sm text-white/60">Total balance <span className="ml-2 rounded-full bg-gold-300/15 px-2 py-1 text-[10px] text-gold-200">ON-CHAIN</span></p><h2 id="balance-heading" className="mt-3 font-display text-4xl font-semibold tracking-tight">{!isConnected ? "Connect wallet" : celoBalance.isLoading || usdmBalance.isLoading ? "Loading balance" : celoBalance.error && usdmBalance.error ? "Balance unavailable" : "See assets below"}</h2></div><div className="rounded-xl border border-white/10 bg-white/5 p-3"><WalletCards size={22} className="text-gold-300" aria-hidden="true" /></div></div>
-          {!isConnected && <p className="mt-3 text-sm text-white/60">Connect your wallet to view live assets.</p>}
-          {isConnected && celoBalance.error && <p role="alert" className="mt-3 text-sm text-amber-200">CELO balance could not be loaded. Check your RPC connection and retry.</p>}
-          <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-5"><div><p className="text-xs text-white/50">CELO</p><p className="mt-1 font-mono text-lg">{!isConnected ? "—" : celoBalance.isLoading ? "..." : celoBalance.error ? "Error" : celoAmount}</p></div><div><p className="text-xs text-white/50">USDm</p><p className="mt-1 font-mono text-lg">{!isConnected ? "—" : usdmBalance.isLoading ? "..." : usdmBalance.error ? "Error" : usdmAmount}</p></div></div>
-          <div className="mt-6 flex flex-wrap gap-2"><ActionButton href="/wallet/send" icon={<Send size={15} />} label="Send" /><ActionButton href="/wallet/receive" icon={<ArrowDownLeft size={15} />} label="Receive" /></div>
+        <section className="mt-7" aria-labelledby="actions-heading">
+          <div className="flex items-end justify-between gap-4"><div><p className="section-kicker">Your next move</p><h2 id="actions-heading" className="mt-1 font-display text-xl font-semibold text-white">Explore CeloHT</h2></div><span className="hidden text-xs text-parchment-100/40 sm:block">Four connected areas</span></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {modules.map(({ label, eyebrow, description, href, icon: Icon, action, tone }, index) => (
+              <Link key={href} href={href} className={`module-card module-card-${tone} reveal-delay-${index} group`}>
+                <div className="flex items-start justify-between"><span className="module-icon"><Icon size={21} aria-hidden="true" /></span><ArrowUpRight size={17} className="text-parchment-100/35 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" /></div>
+                <p className="mt-7 text-[10px] font-semibold uppercase tracking-[0.18em] text-parchment-100/42">{eyebrow}</p>
+                <h3 className="mt-1 font-display text-xl font-semibold text-white">{label}</h3>
+                <p className="mt-2 min-h-12 text-sm leading-5 text-parchment-100/60">{description}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-gold-300">{action}<ArrowUpRight size={14} aria-hidden="true" /></span>
+              </Link>
+            ))}
+          </div>
         </section>
 
-      </div>
+        <div className="mt-7 grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+          <section className="workspace-panel" aria-labelledby="finance-heading">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div><p className="section-kicker">Finance</p><h2 id="finance-heading" className="mt-1 font-display text-xl font-semibold text-white">Wallet snapshot</h2><p className="mt-1 text-sm text-parchment-100/52">{isConnected ? "Live balances from your connected wallet." : "Connect a wallet to access live financial actions."}</p></div><WalletCards className="text-gold-300" size={22} aria-hidden="true" /></div>
+            {!isConnected ? <div className="mt-7 flex flex-col items-start gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 shrink-0 text-cyan-300" size={18} aria-hidden="true" /><p className="max-w-md text-sm leading-6 text-parchment-100/62">Your wallet stays in your control. CeloHT never asks for private keys or recovery phrases.</p></div><ConnectWalletButton /></div> : <><div className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-5"><BalanceItem label="CELO" value={celoBalance.isLoading ? "Loading" : celoBalance.error ? "Unavailable" : celoAmount} /><BalanceItem label="USDm" value={usdmBalance.isLoading ? "Loading" : usdmBalance.error ? "Unavailable" : usdmAmount} /></div>{celoBalance.error && <p className="mt-4 text-xs text-amber-200" role="alert">CELO balance could not be loaded. Check your RPC connection and retry.</p>}<div className="mt-6 flex flex-wrap gap-2"><ActionButton href="/wallet/send" icon={<Send size={15} />} label="Send" /><ActionButton href="/wallet/receive" icon={<ArrowDownLeft size={15} />} label="Receive" /><Link href="/wallet/activity" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/12 px-4 py-2 text-sm font-semibold text-parchment-100/75 transition hover:border-gold-300/50 hover:text-white"><Activity size={15} aria-hidden="true" /> Activity</Link></div></>}
+          </section>
 
-      <section className="dashboard-reveal dashboard-reveal-delay-2 mt-8" aria-labelledby="quick-actions-heading"><div className="mb-3 flex items-center justify-between"><h2 id="quick-actions-heading" className="text-xs font-semibold uppercase tracking-[0.18em] text-parchment-100/55">Quick actions</h2><span className="text-xs text-parchment-100/40">Move with purpose</span></div><div className="grid grid-cols-2 gap-3 sm:grid-cols-3"><Action href="/learn" icon={<GraduationCap />} label="Learn" /><Action href="/agents" icon={<Users />} label="Agents" /><Action href="/impact" icon={<Sprout />} label="Impact" /></div></section>
+          <section className="workspace-panel" aria-labelledby="progress-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Learn</p><h2 id="progress-heading" className="mt-1 font-display text-xl font-semibold text-white">Keep moving</h2></div><BookOpen className="text-gold-300" size={22} aria-hidden="true" /></div><p className="mt-4 text-sm leading-6 text-parchment-100/60">{courses.length} practical courses are available in the CeloHT Academy.</p><div className="mt-6 border-t border-white/10 pt-5"><div className="flex items-center justify-between gap-4"><span className="text-xs text-parchment-100/48">Your local progress</span><span className="font-mono text-xs text-parchment-100/65">Start a lesson</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full w-1/12 rounded-full bg-gold-500" /></div><Link href="/learn" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">Open Learn <ArrowUpRight size={15} aria-hidden="true" /></Link></div></section>
+        </div>
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]"><section className="premium-card rounded-2xl border border-white/10 bg-white/[0.06] p-6"><div className="flex items-center gap-3"><ShieldCheck className="text-cyan-300" size={20} aria-hidden="true" /><h2 className="font-display font-semibold text-white">Recent Activity</h2></div><p className="mt-4 text-sm leading-6 text-parchment-100/65">{isConnected ? "CeloHT-specific activity will appear here when the indexer is connected. Your full wallet history is available on CeloScan." : "No activity yet. Connect your wallet to view on-chain activity."}</p><Link href="/wallet/activity" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-gold-300">View all activity <ExternalLink size={14} aria-hidden="true" /></Link></section><section className="premium-card rounded-2xl border border-white/10 bg-white/[0.06] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-parchment-100/55">Learn and participate</p><div className="mt-5 grid grid-cols-2 gap-4"><MiniMetric icon={<BookOpen />} value={`${courses.length + 2}`} label="Academy courses" /><MiniMetric icon={<CheckCircle2 />} value="—" label="Verified trees" /></div><p className="mt-5 text-xs text-parchment-100/40">Learning is available now. Impact totals appear after verified registry data is connected.</p></section></div>
+        <section className="workspace-panel mt-5" aria-labelledby="activity-heading"><div className="flex items-start justify-between gap-4"><div><p className="section-kicker">Activity</p><h2 id="activity-heading" className="mt-1 font-display text-xl font-semibold text-white">Your recent activity</h2></div><Link href="/wallet/activity" className="text-xs font-semibold text-gold-300">View all</Link></div><div className="mt-5 flex flex-col items-start gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-parchment-100/45"><Activity size={18} aria-hidden="true" /></div><div><p className="text-sm font-medium text-parchment-100/75">No activity to show yet</p><p className="mt-1 text-xs leading-5 text-parchment-100/45">Completed lessons and confirmed wallet events will appear here when they exist.</p></div></div></section>
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-parchment-100/40"><span className="inline-flex items-center gap-2"><MapPin size={14} aria-hidden="true" /> Community-first infrastructure</span><Link href="/trust" className="inline-flex items-center gap-2 transition hover:text-gold-300"><ShieldCheck size={14} aria-hidden="true" /> Trust Center</Link></div>
       </div>
     </div>
   );
 }
 
-function Action({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return <Link href={href} className="premium-card card-action group rounded-xl border border-white/10 bg-white/[0.06] p-4 text-white"><span className="action-icon text-gold-300">{icon}</span><span className="mt-6 block text-sm font-semibold">{label}</span><ArrowUpRight className="mt-1 text-parchment-100/50" size={15} aria-hidden="true" /></Link>;
+function BalanceItem({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-lg border border-white/10 bg-black/10 p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-parchment-100/42">{label}</p><p className="mt-2 font-mono text-xl text-white">{value}</p></div>;
 }
 
 function ActionButton({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return <Link href={href} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-gold-500 px-4 py-2 text-sm font-semibold text-navy-950 transition hover:bg-gold-300"><span aria-hidden="true">{icon}</span>{label}</Link>;
-}
-
-function MiniMetric({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return <div className="rounded-xl border border-white/10 bg-black/10 p-4"><span className="text-forest-400">{icon}</span><p className="mt-3 font-display text-2xl font-semibold text-white">{value}</p><p className="mt-1 text-xs text-parchment-100/50">{label}</p></div>;
 }

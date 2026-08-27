@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { ArrowUpRight, BookOpen, FileCode2, Landmark, LockKeyhole, Scale, ShieldCheck } from "lucide-react";
+
+const trustAreas = [
+  { title: "Network information", description: "Review the Celo networks supported by the wallet flows and the current connection state.", href: "/settings", icon: Landmark, action: "Open settings" },
+  { title: "Smart contracts", description: "Inspect the registry and donation contracts, their interfaces, and deployment notes in the project documentation.", href: "/help", icon: FileCode2, action: "View technical docs" },
+  { title: "Security", description: "CeloHT never takes custody of funds or asks for private keys and recovery phrases.", href: "/privacy", icon: LockKeyhole, action: "Read privacy and safety" },
+  { title: "Governance", description: "Understand role-based voting and the proposal workflow used by the open-source contracts.", href: "/governance", icon: Scale, action: "Open governance" },
+  { title: "Technical documentation", description: "Read the architecture, deployment, and API notes that explain how the application works.", href: "/help", icon: BookOpen, action: "Open documentation" },
+];
+
+export default function TrustCenterPage() {
+  return <div className="workspace-bg min-h-[calc(100dvh-64px)] px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8"><div className="mx-auto max-w-5xl"><div className="border-b border-white/10 pb-7"><p className="section-kicker">Application assurance</p><h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Trust Center</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-parchment-100/62">The technical and operational information behind CeloHT, kept close to the product.</p></div><div className="mt-7 grid gap-3 sm:grid-cols-2">{trustAreas.map(({ title, description, href, icon: Icon, action }) => <section key={title} className="workspace-panel"><Icon size={21} className="text-gold-300" aria-hidden="true" /><h2 className="mt-5 font-display text-lg font-semibold text-white">{title}</h2><p className="mt-2 text-sm leading-6 text-parchment-100/60">{description}</p><Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold-300">{action}<ArrowUpRight size={15} aria-hidden="true" /></Link></section>)}</div><div className="mt-5 flex items-start gap-3 border-t border-white/10 pt-5 text-xs leading-5 text-parchment-100/45"><ShieldCheck className="mt-0.5 shrink-0 text-cyan-300" size={16} aria-hidden="true" /><p>Where a live registry or indexer is not configured, CeloHT says so explicitly instead of presenting sample data as confirmed activity.</p></div></div></div>;
+}
