@@ -1,1 +1,59 @@
-export { default } from "../../page (2)";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, CircleAlert, Map, Search, ShieldCheck, UserRound, Users } from "lucide-react";
+import { useAccount, useChainId, useReadContract, useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import type { Address } from "viem";
+import { ConnectWalletButton } from "@/ConnectWalletButton";
+import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
+import { shortenAddress } from "@/lib/utils";
+
+const pageSize = 12;
+const statusLabels = ["Unregistered", "Pending review", "Verified", "Suspended"] as const;
+
+type ReadResult = { result?: unknown };
+
+export default function AgentsPage() {
+  const chainId = useChainId();
+  const { address, isConnected } = useAccount();
+  const [search, setSearch] = useState("");
+  const [metadataURI, setMetadataURI] = useState("");
+  const registryDeployed = isContractDeployed(chainId, "AgentRegistry");
+  const registryAddress = getContractAddress(chainId, "AgentRegistry");
+  const totalAgents = useReadContract({ address: registryAddress, abi: abis.AgentRegistry, functionName: "totalAgents", query: { enabled: registryDeployed } });
+  const agentPage = useReadContract({ address: registryAddress, abi: abis.AgentRegistry, functionName: "agentsPage", args: [0n, BigInt(pageSize)], query: { enabled: registryDeployed } });
+  const walletRecord = useReadContract({ address: registryAddress, abi: abis.AgentRegistry, functionName: "getAgent", args: address ? [address] : undefined, query: { enabled: registryDeployed && Boolean(address) } });
+  const agentAddresses = (agentPage.data as readonly Address[] | undefined) ?? [];
+  const agentRecords = useReadContracts({ contracts: agentAddresses.map((agentAddress) => ({ address: registryAddress, abi: abis.AgentRegistry, functionName: "getAgent" as const, args: [agentAddress] })), query: { enabled: registryDeployed && agentAddresses.length > 0 } });
+  const { writeContract, isPending, data: registrationHash, error: registrationError } = useWriteContract();
+  const registrationReceipt = useWaitForTransactionReceipt({ hash: registrationHash });
+  const walletStatus = readStatus(walletRecord.data);
+  const filteredAddresses = agentAddresses.filter((agentAddress) => agentAddress.toLowerCase().includes(search.trim().toLowerCase()));
+  const verifiedCount = agentRecords.data?.filter((record) => readStatus(record.result) === 2).length;
+
+  function register() {
+    if (!registryAddress || !metadataURI.trim() || !isConnected) return;
+    writeContract({ address: registryAddress, abi: abis.AgentRegistry, functionName: "registerAgent", args: [metadataURI.trim()] });
+  }
+
+  return <div className="agents-shell min-h-[calc(100dvh-64px)] px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8"><div className="mx-auto max-w-7xl">
+    <header className="agents-header"><div><p className="section-kicker">CeloHT · Network operations</p><h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Agent Network</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-parchment-100/62">Find community support, inspect registry status, or begin the on-chain path to become an agent.</p></div><div className="flex items-center gap-3"><div className="hidden text-right sm:block"><p className="text-xs text-parchment-100/42">Network status</p><p className="mt-1 text-xs font-medium text-parchment-100/72">{registryDeployed ? "Registry connected" : "Registry unavailable"}</p></div>{!isConnected && <ConnectWalletButton />}</div></header>
+    <section className="agent-metrics" aria-label="Agent network status"><Metric label="Registered agents" value={registryDeployed && totalAgents.data !== undefined ? String(totalAgents.data) : "Unavailable"} detail={registryDeployed ? "AgentRegistry" : "Contract not configured"} /><Metric label="Verified in view" value={verifiedCount === undefined ? "Unavailable" : String(verifiedCount)} detail={registryDeployed ? "Current registry page" : "Registry not configured"} /><Metric label="Transaction volume" value="Unavailable" detail="No volume contract" /><Metric label="Network status" value={registryDeployed ? "Connected" : "Not configured"} detail="On-chain registry" /></section>
+    <div className="agents-grid mt-7"><section aria-labelledby="directory-heading"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="section-kicker">Discovery</p><h2 id="directory-heading" className="mt-1 font-display text-2xl font-semibold text-white">Find an agent</h2></div><Link href="/agents/map" className="inline-flex items-center gap-2 text-sm font-semibold text-gold-300">Open network map <Map size={15} aria-hidden="true" /></Link></div><div className="agent-search mt-5"><Search size={17} aria-hidden="true" /><label htmlFor="agent-search" className="sr-only">Search registered agent wallet</label><input id="agent-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search wallet address" /></div>{!registryDeployed ? <Unavailable title="Agent discovery is not live yet" description="AgentRegistry is not deployed on this network. Directory names, locations, and verification states are not shown because no registry source is available." /> : agentPage.isLoading ? <div className="agent-list-status" role="status">Loading registered agents...</div> : agentPage.error ? <Unavailable title="Registry could not be read" description="The agent registry did not respond. Check your network connection and try again." /> : filteredAddresses.length === 0 ? <Unavailable title="No registered agents found" description={search ? "Try another wallet address." : "No agent wallets are registered in the current registry page."} /> : <div className="agent-list">{filteredAddresses.map((agentAddress) => <AgentRow key={agentAddress} address={agentAddress} record={agentRecords.data?.find((item) => readWallet(item.result) === agentAddress)} />)}</div>}</section>
+      <aside className="agent-onboarding" aria-labelledby="onboarding-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">For operators</p><h2 id="onboarding-heading" className="mt-1 font-display text-xl font-semibold text-white">Become an Agent</h2></div><UserRound className="text-gold-300" size={22} aria-hidden="true" /></div><p className="mt-3 text-sm leading-6 text-parchment-100/60">Registration creates a pending on-chain record. A coordinator must review and approve it before you are an active agent.</p><div className="onboarding-steps mt-6"><Step number="01" label="Connect wallet" done={isConnected} /><Step number="02" label="Submit metadata URI" done={Boolean(metadataURI.trim())} /><Step number="03" label="Coordinator review" done={walletStatus === 2} /></div>{walletStatus !== undefined && <p className="mt-5 flex items-center gap-2 border-t border-white/10 pt-5 text-sm text-parchment-100/72"><StatusDot status={walletStatus} /> Your registry status: <strong>{statusLabels[walletStatus] ?? "Unknown"}</strong></p>}{!registryDeployed ? <p className="mt-5 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3 text-xs leading-5 text-amber-100/75">Registration is unavailable until AgentRegistry is configured for this network.</p> : !isConnected ? <div className="mt-6"><ConnectWalletButton /></div> : walletStatus !== 0 ? <p className="mt-5 text-xs leading-5 text-parchment-100/52">This wallet already has a registry record. Registration cannot be submitted twice.</p> : <><label htmlFor="metadata-uri" className="mt-6 block text-xs font-semibold uppercase tracking-[0.16em] text-parchment-100/52">Profile metadata URI</label><input id="metadata-uri" value={metadataURI} onChange={(event) => setMetadataURI(event.target.value)} placeholder="ipfs://your-profile" className="mt-2 w-full rounded-lg border border-white/12 bg-white/5 px-3 py-3 text-sm text-white outline-none placeholder:text-parchment-100/30 focus:border-gold-300" /><p className="mt-2 text-xs leading-5 text-parchment-100/45">The contract stores this URI. Profile name, location, services, and availability require a real metadata service.</p><button type="button" onClick={register} disabled={!metadataURI.trim() || isPending} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-navy-950 transition hover:bg-gold-300 disabled:cursor-not-allowed disabled:opacity-50">{isPending ? "Confirm in wallet..." : "Register as pending agent"}<ArrowRight size={16} aria-hidden="true" /></button>{registrationHash && !registrationReceipt.isSuccess && !registrationReceipt.isError && <p className="mt-3 text-xs text-cyan-200" role="status">Registration submitted. Waiting for confirmation.</p>}{registrationReceipt.isSuccess && <p className="mt-3 flex items-center gap-2 text-xs text-emerald-200" role="status"><CheckCircle2 size={15} aria-hidden="true" /> Registration confirmed on-chain.</p>}{registrationError && <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-red-200" role="alert"><CircleAlert size={15} className="mt-0.5 shrink-0" aria-hidden="true" /> The registration was rejected or failed. Check the wallet and network, then retry.</p>}</>}</aside></div>
+    <section className="agent-trust mt-5"><ShieldCheck size={18} className="shrink-0 text-cyan-300" aria-hidden="true" /><div><h2 className="text-sm font-semibold text-white">Trust states are explicit</h2><p className="mt-1 text-xs leading-5 text-parchment-100/52">A connected wallet is not a verified agent. Verification requires a pending registry record and coordinator approval. Cash-in, cash-out, fees, and service requests are unavailable until a backend or contract flow exists for them.</p></div></section>
+  </div></div>;
+}
+
+function AgentRow({ address, record }: { address: Address; record?: ReadResult }) {
+  const status = readStatus(record?.result);
+  return <div className="agent-row"><div className="agent-identity"><span className="agent-avatar"><Users size={17} aria-hidden="true" /></span><div><p className="font-mono text-sm text-white">{shortenAddress(address)}</p><p className="mt-1 text-xs text-parchment-100/45">Registered wallet identifier</p></div></div><div className="agent-status"><StatusDot status={status} /><span>{status === undefined ? "Status unavailable" : statusLabels[status] ?? "Unknown"}</span></div><span className="agent-unavailable">Profile metadata unavailable</span></div>;
+}
+
+function Metric({ label, value, detail }: { label: string; value: string; detail: string }) { return <div className="agent-metric"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-parchment-100/42">{label}</p><p className="mt-2 font-display text-xl font-semibold text-white">{value}</p><p className="mt-1 text-[11px] text-parchment-100/42">{detail}</p></div>; }
+function Step({ number, label, done }: { number: string; label: string; done: boolean }) { return <div className="flex items-center gap-3"><span className={`step-number ${done ? "step-done" : ""}`}>{done ? "✓" : number}</span><span className="text-sm text-parchment-100/65">{label}</span></div>; }
+function StatusDot({ status }: { status?: number }) { return <span className={`status-dot agent-status-${status ?? "unknown"}`} aria-hidden="true" />; }
+function readStatus(record: unknown): number | undefined { if (!Array.isArray(record) || typeof record[2] !== "number") return undefined; return record[2]; }
+function readWallet(record: unknown): Address | undefined { if (!Array.isArray(record) || typeof record[0] !== "string") return undefined; return record[0] as Address; }
+function Unavailable({ title, description }: { title: string; description: string }) { return <div className="agent-empty"><CircleAlert size={19} className="text-gold-300" aria-hidden="true" /><div><h3 className="text-sm font-semibold text-white">{title}</h3><p className="mt-1 text-sm leading-6 text-parchment-100/55">{description}</p></div></div>; }

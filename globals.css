@@ -49,6 +49,10 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .agents-shell *,
+  .agent-row,
+  .agent-onboarding { transition: none; animation: none; }
+
   html {
     scroll-behavior: auto;
   }
@@ -243,6 +247,46 @@ body {
 
 .status-dot { display: inline-block; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: #e7b83b; }
 .status-dot-live { background: #6cc292; box-shadow: 0 0 0.55rem rgba(108, 194, 146, 0.5); }
+
+.agents-shell { background: radial-gradient(circle at 82% 0%, rgba(74, 190, 201, 0.07), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.agents-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
+.agent-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.035); }
+.agent-metric { min-width: 0; padding: 1rem 1.1rem; border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.agent-metric:last-child { border-right: 0; }
+.agents-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr); gap: 2rem; }
+.agent-search { display: flex; align-items: center; gap: 0.7rem; border-bottom: 1px solid rgba(255, 255, 255, 0.16); padding: 0.75rem 0; color: rgba(238, 242, 246, 0.4); }
+.agent-search input { width: 100%; border: 0; background: transparent; outline: 0; color: white; font-size: 0.875rem; }
+.agent-list { margin-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.agent-row { display: grid; grid-template-columns: minmax(11rem, 1.25fr) minmax(8rem, 0.8fr) minmax(9rem, 0.75fr); align-items: center; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 1rem 0.25rem; transition: background-color 200ms ease; }
+.agent-row:hover { background: rgba(255, 255, 255, 0.03); }
+.agent-identity { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
+.agent-avatar { display: inline-flex; height: 2.25rem; width: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; border: 1px solid rgba(248, 220, 143, 0.2); border-radius: 50%; color: #f8dc8f; background: rgba(245, 200, 66, 0.06); }
+.agent-status { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(238, 242, 246, 0.68); font-size: 0.75rem; }
+.agent-status-1 { background: #e7b83b; }
+.agent-status-2 { background: #6cc292; }
+.agent-status-3 { background: #dc7474; }
+.agent-status-unknown { background: rgba(238, 242, 246, 0.35); }
+.agent-unavailable { color: rgba(238, 242, 246, 0.35); font-size: 0.7rem; }
+.agent-list-status, .agent-empty { display: flex; align-items: flex-start; gap: 0.8rem; margin-top: 1rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.8rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.035); }
+.agent-list-status { color: rgba(238, 242, 246, 0.55); font-size: 0.875rem; }
+.agent-onboarding { border: 1px solid rgba(248, 220, 143, 0.2); border-radius: 0.9rem; padding: 1.25rem; background: linear-gradient(145deg, rgba(245, 200, 66, 0.09), rgba(255, 255, 255, 0.035) 62%); }
+.onboarding-steps { display: grid; gap: 0.85rem; }
+.step-number { display: inline-flex; height: 1.75rem; width: 1.75rem; flex-shrink: 0; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; color: rgba(238, 242, 246, 0.5); font-family: ui-monospace, monospace; font-size: 0.65rem; }
+.step-done { border-color: rgba(108, 194, 146, 0.55); color: #9bd6b5; background: rgba(108, 194, 146, 0.1); }
+.agent-trust { display: flex; align-items: flex-start; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 1.25rem 0; }
+
+@media (max-width: 639px) {
+  .agents-header { align-items: flex-start; flex-direction: column; }
+  .agent-metrics { grid-template-columns: repeat(2, 1fr); }
+  .agent-metric:nth-child(2) { border-right: 0; }
+  .agent-metric:nth-child(-n+2) { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .agents-grid { display: block; }
+  .agent-onboarding { margin-top: 2rem; }
+  .agent-row { grid-template-columns: minmax(0, 1fr) auto; gap: 0.65rem; }
+  .agent-unavailable { grid-column: 1 / -1; padding-left: 3rem; }
+  .agent-status { justify-self: end; }
+  .agent-trust { margin-top: 1rem; }
+}
 
 .reforest-shell {
   background: radial-gradient(circle at 84% 8%, rgba(76, 146, 113, 0.13), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%);
