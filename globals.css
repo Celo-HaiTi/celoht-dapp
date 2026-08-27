@@ -118,6 +118,94 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   background-size: 48px 48px;
 }
 
+.hero-panel {
+  position: relative;
+  isolation: isolate;
+  min-height: 13rem;
+  align-items: center;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-logo-layer {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: clamp(7rem, 48vw, 34rem);
+  width: clamp(15rem, 42vw, 28rem);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.hero-logo {
+  display: block;
+  width: 100%;
+  opacity: 0.075;
+  filter: drop-shadow(0 0 2.5rem rgba(245, 200, 66, 0.22));
+  animation: celoht-logo-breathe 12s ease-in-out infinite;
+}
+
+@keyframes celoht-logo-breathe {
+  0%, 100% { opacity: 0.055; transform: translateY(0) scale(1); }
+  50% { opacity: 0.09; transform: translateY(-8px) scale(1.04); }
+}
+
+.premium-card {
+  animation: celoht-card-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease, background-color 300ms ease;
+}
+
+@keyframes celoht-card-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.premium-card:nth-child(2) { animation-delay: 100ms; }
+.premium-card:nth-child(3) { animation-delay: 200ms; }
+.premium-card:nth-child(4) { animation-delay: 300ms; }
+
+@media (hover: hover) and (pointer: fine) {
+  .premium-card:hover {
+    border-color: rgba(248, 220, 143, 0.42);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2), 0 0 24px rgba(245, 200, 66, 0.07);
+    transform: translateY(-5px);
+  }
+
+  .card-action:hover .action-icon { transform: scale(1.08); }
+}
+
+.action-icon {
+  display: inline-flex;
+  transition: transform 300ms ease;
+}
+
+.card-action:nth-child(1) .action-icon,
+.card-action:nth-child(3) .action-icon { animation: celoht-icon-float 5s ease-in-out infinite; }
+.card-action:nth-child(2) .action-icon { animation: celoht-icon-pulse 4s ease-in-out infinite; }
+
+@keyframes celoht-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes celoht-icon-pulse {
+  0%, 100% { opacity: 0.78; }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(248, 220, 143, 0.3)); }
+}
+
+.wallet-active > div:first-child > div:last-child {
+  box-shadow: 0 0 20px rgba(245, 200, 66, 0.13);
+}
+
+@media (max-width: 639px) {
+  .hero-panel { min-height: 11rem; }
+  .hero-logo-layer { left: 72%; width: 13rem; }
+  .hero-logo { opacity: 0.06; }
+}
+
 @keyframes celoht-rise {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -128,6 +216,15 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .dashboard-reveal-delay-2 { animation-delay: 180ms; }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-logo,
+  .premium-card,
+  .card-action:nth-child(1) .action-icon,
+  .card-action:nth-child(2) .action-icon,
+  .card-action:nth-child(3) .action-icon { animation: none; }
+
+  .premium-card,
+  .action-icon { transition: none; }
+
   .dashboard-reveal,
   .dashboard-reveal-delay,
   .dashboard-reveal-delay-2 { animation: none; }
