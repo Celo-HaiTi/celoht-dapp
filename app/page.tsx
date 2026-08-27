@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useAccount, useBalance, useChainId } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
+import { HeroBackground } from "@/components/home/HeroBackground";
+import { PrimaryCTA, SecondaryCTA } from "@/components/home/HomeCTA";
 import { courses } from "@/lib/data/courses";
 import { getUsdmAddress } from "@/lib/contracts";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
@@ -41,16 +43,20 @@ export default function HomePage() {
   return (
     <div className="workspace-bg min-h-[calc(100dvh-64px)] overflow-hidden px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-12">
       <div className="mx-auto max-w-7xl">
-        <header className="workspace-intro flex flex-col justify-between gap-5 border-b border-white/10 pb-7 sm:flex-row sm:items-end">
-          <div>
-            <p className="section-kicker">Application workspace</p>
-            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Overview</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-parchment-100/62">One place to learn, access digital finance, connect with people, and support real-world impact.</p>
+        <section className="cinematic-hero" aria-labelledby="hero-heading">
+          <HeroBackground />
+          <div className="hero-copy">
+            <p className="section-kicker">CeloHT · Celo ecosystem</p>
+            <h1 id="hero-heading" className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">Build. Learn. Connect. Impact.</h1>
+            <p className="mt-5 max-w-xl text-sm leading-6 text-parchment-100/68 sm:text-base">A community-powered digital ecosystem connecting financial access, education, local services, and environmental impact.</p>
+            <div className="mt-7 flex flex-wrap items-center gap-3"><PrimaryCTA /><SecondaryCTA />{!isConnected && <ConnectWalletButton />}</div>
+            <div className="mt-6 flex items-center gap-2 text-xs text-parchment-100/42"><span className={`status-dot ${isConnected ? "status-dot-live" : ""}`} />{isConnected && address ? `Connected · ${shortenAddress(address)}` : "Connect a wallet to unlock live finance actions"}</div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-right sm:block"><p className="text-xs text-parchment-100/42">{isConnected ? "Connected wallet" : "Workspace status"}</p><p className="mt-1 font-mono text-xs text-parchment-100/72">{isConnected && address ? shortenAddress(address) : "Wallet not connected"}</p></div>
-            {!isConnected && <ConnectWalletButton />}
-          </div>
+        </section>
+
+        <header id="workspace" className="workspace-intro mt-2 flex flex-col justify-between gap-5 border-b border-white/10 pb-7 pt-5 sm:flex-row sm:items-end">
+          <div><p className="section-kicker">Application workspace</p><h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Overview</h2><p className="mt-2 max-w-xl text-sm leading-6 text-parchment-100/62">Your operational starting point across the CeloHT ecosystem.</p></div>
+          <div className="hidden text-right sm:block"><p className="text-xs text-parchment-100/42">{isConnected ? "Connected wallet" : "Workspace status"}</p><p className="mt-1 font-mono text-xs text-parchment-100/72">{isConnected && address ? shortenAddress(address) : "Wallet not connected"}</p></div>
         </header>
 
         <section className="mt-7" aria-labelledby="actions-heading">
