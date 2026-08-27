@@ -248,6 +248,48 @@ body {
 .status-dot { display: inline-block; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: #e7b83b; }
 .status-dot-live { background: #6cc292; box-shadow: 0 0 0.55rem rgba(108, 194, 146, 0.5); }
 
+.wallet-shell { background: radial-gradient(circle at 82% 0%, rgba(245, 200, 66, 0.07), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.wallet-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
+.wallet-connection { display: flex; align-items: center; gap: 1rem; }
+.portfolio-panel, .wallet-panel, .quick-actions { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.045); padding: 1.35rem; }
+.portfolio-panel { background: linear-gradient(145deg, rgba(245, 200, 66, 0.1), rgba(255, 255, 255, 0.04) 60%); }
+.network-badge { display: inline-flex; align-items: center; gap: 0.45rem; border: 1px solid rgba(108, 194, 146, 0.25); border-radius: 999px; padding: 0.45rem 0.7rem; color: #9bd6b5; font-size: 0.7rem; white-space: nowrap; }
+.network-badge-warning { border-color: rgba(231, 184, 59, 0.35); color: #f4d887; }
+.portfolio-total { display: flex; min-height: 7.5rem; flex-direction: column; justify-content: center; border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem 0.5rem 0.25rem; }
+.portfolio-total span, .portfolio-total small { color: rgba(238, 242, 246, 0.45); font-size: 0.7rem; }
+.portfolio-total strong { margin-top: 0.5rem; color: white; font-family: var(--font-display); font-size: 1.8rem; }
+.portfolio-total small { margin-top: 0.3rem; }
+.asset-row { display: flex; min-height: 7.5rem; align-items: center; gap: 0.75rem; border-left: 2px solid rgba(248, 220, 143, 0.32); padding: 1rem; }
+.asset-symbol { display: inline-flex; height: 2.2rem; width: 2.2rem; align-items: center; justify-content: center; border-radius: 50%; background: rgba(245, 200, 66, 0.12); color: #f8dc8f; font-weight: 700; }
+.quick-actions { border: 0; padding: 0; background: transparent; }
+.wallet-action { display: flex; min-height: 4.5rem; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.35rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 0.85rem 1rem; color: rgba(238, 242, 246, 0.75); font-size: 0.8rem; font-weight: 700; transition: transform 200ms ease, border-color 200ms ease, background-color 200ms ease; }
+.wallet-action:hover { border-color: rgba(248, 220, 143, 0.45); background: rgba(245, 200, 66, 0.06); color: white; transform: translateY(-2px); }
+.wallet-action span:first-child { color: #f8dc8f; }
+.wallet-action small { color: rgba(238, 242, 246, 0.35); font-size: 0.65rem; font-weight: 500; }
+.wallet-action-disabled { cursor: not-allowed; opacity: 0.55; }
+.wallet-action-disabled:hover { border-color: rgba(255, 255, 255, 0.1); background: transparent; color: rgba(238, 242, 246, 0.75); transform: none; }
+.wallet-input { width: 100%; min-height: 2.85rem; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.045); padding: 0.75rem; color: white; outline: none; }
+.wallet-input:focus { border-color: rgba(248, 220, 143, 0.65); box-shadow: 0 0 0 2px rgba(245, 200, 66, 0.1); }
+.wallet-amount { font-family: ui-monospace, monospace; font-size: 1.15rem; }
+.wallet-primary, .wallet-secondary { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.65rem; padding: 0.7rem 1rem; font-size: 0.8rem; font-weight: 700; transition: transform 200ms ease, border-color 200ms ease, background-color 200ms ease; }
+.wallet-primary { width: 100%; background: #f5c842; color: #0b1120; }
+.wallet-primary:hover { background: #f8dc8f; transform: translateY(-2px); }
+.wallet-primary:disabled { cursor: not-allowed; opacity: 0.45; transform: none; }
+.wallet-secondary { border: 1px solid rgba(255, 255, 255, 0.14); background: transparent; color: rgba(238, 242, 246, 0.75); }
+.wallet-secondary:hover { border-color: rgba(248, 220, 143, 0.5); color: white; transform: translateY(-1px); }
+.wallet-error, .wallet-warning { border-radius: 0.55rem; padding: 0.65rem; font-size: 0.75rem; line-height: 1.35; }
+.wallet-error { border: 1px solid rgba(220, 116, 116, 0.3); background: rgba(220, 116, 116, 0.06); color: #f3b1b1; }
+.wallet-warning { border: 1px solid rgba(231, 184, 59, 0.3); background: rgba(231, 184, 59, 0.06); color: #f4d887; }
+.review-empty { margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; color: rgba(238, 242, 246, 0.52); font-size: 0.85rem; line-height: 1.5; }
+.review-empty span { display: block; margin-top: 0.75rem; color: rgba(248, 220, 143, 0.65); font-size: 0.72rem; }
+.review-details { display: grid; gap: 0.9rem; margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; }
+.review-line { display: flex; justify-content: space-between; gap: 1rem; color: rgba(238, 242, 246, 0.45); font-size: 0.75rem; }
+.review-line strong { color: rgba(238, 242, 246, 0.8); font-weight: 500; }
+.transaction-state { display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(74, 190, 201, 0.2); border-radius: 0.55rem; background: rgba(74, 190, 201, 0.06); padding: 0.7rem; color: #9be4e9; font-size: 0.75rem; }
+.qr-frame { border-radius: 0.7rem; background: white; padding: 0.6rem; }
+.empty-wallet { display: flex; align-items: center; gap: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.25rem; color: rgba(238, 242, 246, 0.52); font-size: 0.8rem; }
+.empty-wallet .wallet-secondary { margin-left: auto; }
+
 .agents-shell { background: radial-gradient(circle at 82% 0%, rgba(74, 190, 201, 0.07), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
 .agents-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
 .agent-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.9rem; background: rgba(255, 255, 255, 0.035); }

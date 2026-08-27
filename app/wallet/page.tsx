@@ -1,122 +1,67 @@
 "use client";
 
 import { useState } from "react";
-import { Check, CheckCircle2, ExternalLink, QrCode, Send, ShieldAlert, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock3, Copy, ExternalLink, History, QrCode, Send, ShieldAlert, WalletCards } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { isAddress, parseEther, parseUnits } from "viem";
-import { useAccount, useBalance, useChainId, useSendTransaction, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { isAddress, parseUnits, type Address } from "viem";
 import { celo, celoSepolia } from "wagmi/chains";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { PageHero } from "@/components/PageHero";
-import { Section } from "@/components/Section";
-import { Button } from "@/components/ui/Button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatTokenAmount } from "@/lib/utils";
+import { useAccount, useBalance, useChainId, useSendTransaction, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { erc20Abi, getUsdmAddress } from "@/lib/contracts";
+import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 
-const supportedChainIds = new Set([celo.id, celoSepolia.id]);
-
-function explorerUrl(chainId: number, hash: string) {
-  const host = chainId === celoSepolia.id ? "https://sepolia.celoscan.io" : "https://celoscan.io";
-  return `${host}/tx/${hash}`;
-}
+const supportedChains = new Set([celo.id, celoSepolia.id]);
+type Asset = "CELO" | "USDm";
 
 export default function WalletPage() {
-  const { address, isConnected, chain } = useAccount();
+  const { address, chain, isConnected } = useAccount();
   const chainId = useChainId();
+  const [asset, setAsset] = useState<Asset>("CELO");
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
-  const [asset, setAsset] = useState<"CELO" | "USDm">("CELO");
   const [copied, setCopied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const { data: balance, isLoading: balanceLoading } = useBalance({ address, query: { enabled: Boolean(address) } });
+  const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
+  const usdmAddress = getUsdmAddress(chainId);
+  const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
   const { data: celoHash, error: celoError, isPending: isSendingCelo, sendTransaction } = useSendTransaction();
   const { data: usdmHash, error: usdmError, isPending: isSendingUsdm, writeContract } = useWriteContract();
-  const { switchChain, isPending: isSwitching } = useSwitchChain();
   const hash = celoHash ?? usdmHash;
   const sendError = celoError ?? usdmError;
-  const isSending = isSendingCelo || isSendingUsdm;
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
-  const wrongNetwork = isConnected && !supportedChainIds.has(chainId);
-  const usdmAddress = getUsdmAddress(chainId);
-  const { data: usdmBalance, isLoading: usdmLoading, error: usdmBalanceError } = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const receipt = useWaitForTransactionReceipt({ hash });
+  const wrongNetwork = isConnected && !supportedChains.has(chainId);
+  const selectedBalance = asset === "CELO" ? celoBalance.data : usdmBalance.data;
+  const decimals = selectedBalance?.decimals ?? 18;
   const recipientValid = isAddress(recipient) && recipient.toLowerCase() !== "0x0000000000000000000000000000000000000000";
-  const selectedBalance = asset === "CELO" ? balance : usdmBalance;
-  const selectedDecimals = selectedBalance?.decimals ?? 18;
-  let parsedAmount;
-  try {
-    parsedAmount = amount === "" ? undefined : parseUnits(amount, selectedDecimals);
-  } catch {
-    parsedAmount = undefined;
-  }
+  let parsedAmount: bigint | undefined;
+  try { parsedAmount = amount ? parseUnits(amount, decimals) : undefined; } catch { parsedAmount = undefined; }
   const amountValid = parsedAmount !== undefined && parsedAmount > 0n;
-  const hasSufficientBalance = parsedAmount !== undefined && selectedBalance?.value !== undefined && parsedAmount <= selectedBalance.value;
-  const canSubmit = isConnected && !wrongNetwork && amountValid && hasSufficientBalance && recipientValid && !isSending && (asset === "CELO" || Boolean(usdmAddress));
-  const amountError = amount !== "" && (!amountValid ? `Enter a valid ${asset} amount.` : !hasSufficientBalance ? `Insufficient ${asset} balance.` : undefined);
-
-  function describeTransactionError() {
-    const message = sendError?.message.toLowerCase() ?? "";
-    if (message.includes("user rejected") || message.includes("user denied")) return "The transaction was cancelled in your wallet. No funds moved.";
-    if (message.includes("insufficient funds")) return "Your wallet does not have enough CELO for this amount and the network fee.";
-    return "The transaction could not be completed. Check your wallet, network, and balance, then try again.";
-  }
+  const enoughBalance = Boolean(parsedAmount !== undefined && selectedBalance && parsedAmount <= selectedBalance.value);
+  const canSend = Boolean(isConnected && !wrongNetwork && recipientValid && amountValid && enoughBalance && !isSendingCelo && !isSendingUsdm && !hash && (asset === "CELO" || usdmAddress));
+  const amountError = amount && (!amountValid ? `Enter a valid ${asset} amount.` : !enoughBalance ? `Insufficient ${asset} balance.` : undefined);
 
   function handleSend() {
-    if (!canSubmit) return;
+    if (!canSend || !parsedAmount) return;
     setSubmitted(true);
-    if (asset === "CELO") {
-      sendTransaction({ to: recipient, value: parseEther(amount) });
-    } else if (usdmAddress) {
-      writeContract({ address: usdmAddress, abi: erc20Abi, functionName: "transfer", args: [recipient, parseUnits(amount, usdmBalance?.decimals ?? 18)] });
-    }
+    if (asset === "CELO") sendTransaction({ to: recipient as Address, value: parsedAmount });
+    else if (usdmAddress) writeContract({ address: usdmAddress, abi: erc20Abi, functionName: "transfer", args: [recipient as Address, parsedAmount] });
   }
+  async function copyAddress() { if (!address) return; await navigator.clipboard.writeText(address); setCopied(true); window.setTimeout(() => setCopied(false), 1600); }
+  function resetSend() { setSubmitted(false); setAmount(""); setRecipient(""); }
 
-  async function copyAddress() {
-    if (!address) return;
-    await navigator.clipboard.writeText(address);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
-  }
-
-  return (
-    <>
-      <Breadcrumbs items={[{ label: "Wallet" }]} />
-      <PageHero eyebrow="Wallet" title="Your Celo account, clearly presented" lead="Connect a wallet to read its live CELO balance and submit transactions directly through your wallet provider. CeloHT never invents balances or transaction results." />
-
-      <Section eyebrow="Portfolio" title="Live account overview">
-        {!isConnected ? (
-          <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>Connect your wallet</CardTitle></CardHeader><CardDescription>Use the Connect Wallet button above to load live account data from Celo.</CardDescription></Card>
-          ) : wrongNetwork ? (
-            <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Unsupported network</CardTitle></CardHeader><CardDescription>Switch your wallet to Celo Mainnet or Celo Sepolia before sending funds.</CardDescription><Button className="mt-4" onClick={() => switchChain({ chainId: celo.id })} disabled={isSwitching}>{isSwitching ? "Switching network" : "Switch to Celo"}</Button></Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>CELO</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{balanceLoading ? "Loading..." : balance ? formatTokenAmount(balance.value, balance.decimals) : "—"}</p><CardDescription className="mt-2">Live native balance from {chain?.name ?? "Celo"}</CardDescription></Card>
-            <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Account</CardTitle></CardHeader><p className="break-all font-mono text-sm">{address}</p><CardDescription className="mt-2">Connected through your wallet provider</CardDescription></Card>
-            <Card><CardHeader><CheckCircle2 size={18} aria-hidden="true" /><CardTitle>USDm</CardTitle></CardHeader><p className="font-display text-3xl font-semibold">{usdmLoading ? "Loading..." : usdmBalance ? formatTokenAmount(usdmBalance.value, usdmBalance.decimals) : "—"}</p><CardDescription className="mt-2">Live USDm balance from {chain?.name ?? "Celo"}</CardDescription></Card>
-          </div>
-        )}
-      </Section>
-
-      <Section eyebrow="Receive" title="Receive funds">
-        <Card><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">{address ? <div className="rounded-xl bg-white p-3"><QRCodeSVG value={address} size={156} includeMargin /></div> : <div className="flex h-[180px] w-[180px] items-center justify-center rounded-xl border border-dashed border-navy-700/20 p-5 text-sm text-ink-soft dark:border-parchment-100/15 dark:text-parchment-100/60">Connect your wallet to create a receive QR code.</div>}<div className="min-w-0"><div className="flex items-center gap-2"><QrCode size={18} aria-hidden="true" /><p className="font-medium">Your wallet address</p></div><p className="mt-2 break-all font-mono text-sm text-ink-soft dark:text-parchment-100/70">{address ?? "Connect your wallet to display an address."}</p>{address && <Button variant="secondary" size="sm" className="mt-4" onClick={copyAddress}>{copied ? <Check size={15} aria-hidden="true" /> : null}{copied ? "Copied" : "Copy address"}</Button>}<p className="mt-3 text-xs text-ink-soft dark:text-parchment-100/60">Only share this public address. Never share a recovery phrase or private key.</p></div></div></Card>
-      </Section>
-
-      <Section eyebrow="Send" title="Transfer funds">
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card><div className="space-y-4">
-            <div><label htmlFor="asset" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Asset</label><select id="asset" value={asset} onChange={(event) => setAsset(event.target.value as "CELO" | "USDm")} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"><option value="CELO">CELO</option><option value="USDm">USDm</option></select></div>
-            <div><label htmlFor="recipient" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Recipient address</label><input id="recipient" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="0x..." aria-invalid={recipient !== "" && !recipientValid} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" />{recipient !== "" && !recipientValid && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">Enter a valid non-zero EVM address.</p>}</div>
-            <div><div className="flex items-center justify-between"><label htmlFor="amount" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">Amount in {asset}</label><span className="text-xs text-ink-soft/70 dark:text-parchment-100/50">Available: {selectedBalance ? formatTokenAmount(selectedBalance.value, selectedBalance.decimals) : "Connect wallet"}</span></div><input id="amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" aria-invalid={Boolean(amountError)} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10" />{amountError && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">{amountError}</p>}</div>
-            {asset === "USDm" && usdmBalanceError && <p className="text-sm text-amber-200">USDm balance is temporarily unavailable. Verify the wallet network and try again.</p>}
-            <Button onClick={handleSend} className="w-full" disabled={!canSubmit}><Send size={16} aria-hidden="true" />{isSending ? "Confirm in wallet" : `Send ${asset}`}</Button>
-            {!isConnected && <p className="text-sm text-ink-soft dark:text-parchment-100/65">Connect a wallet before preparing a transaction.</p>}
-            {sendError && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">{describeTransactionError()}</p>}
-          </div></Card>
-          <Card><CardHeader><Send size={18} aria-hidden="true" /><CardTitle>Transaction status</CardTitle></CardHeader>
-            {!submitted ? <CardDescription>No transaction submitted.</CardDescription> : isSending ? <CardDescription>Waiting for wallet approval.</CardDescription> : isConfirming ? <CardDescription>Transaction submitted. Waiting for Celo confirmation.</CardDescription> : isConfirmed && hash ? <div className="space-y-3 text-sm"><p className="flex items-center gap-2 text-forest-600"><CheckCircle2 size={16} aria-hidden="true" />Confirmed on-chain</p><a className="inline-flex items-center gap-1 underline" href={explorerUrl(chainId, hash)} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></div> : hash ? <CardDescription>Transaction submitted. Check your wallet or explorer for its status.</CardDescription> : <CardDescription>Waiting for a wallet response.</CardDescription>}
-          </Card>
-        </div>
-      </Section>
-    </>
-  );
+  return <div className="wallet-shell min-h-[calc(100dvh-64px)] px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8"><div className="mx-auto max-w-7xl">
+    <header className="wallet-header"><div><p className="section-kicker">CeloHT · Financial terminal</p><h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">Wallet</h1><p className="mt-2 text-sm text-parchment-100/58">Manage live Celo assets, review transfers, and keep every confirmation in your wallet.</p></div><div className="wallet-connection"><div><p className="text-xs text-parchment-100/42">Wallet</p><p className="mt-1 font-mono text-xs text-white">{isConnected && address ? shortenAddress(address) : "Not connected"}</p></div>{!isConnected && <ConnectWalletButton />}</div></header>
+    <section className="portfolio-panel mt-7" aria-labelledby="portfolio-heading"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start"><div><p className="section-kicker">Portfolio</p><h2 id="portfolio-heading" className="mt-1 font-display text-2xl font-semibold text-white">Total portfolio value</h2><p className="mt-2 text-sm text-parchment-100/50">Market valuation is unavailable until a live price source is configured.</p></div><span className={`network-badge ${wrongNetwork ? "network-badge-warning" : ""}`}><span className="status-dot" />{!isConnected ? "Disconnected" : wrongNetwork ? "Unsupported network" : chain?.name ?? "Celo"}</span></div><div className="mt-7 grid gap-3 sm:grid-cols-3"><div className="portfolio-total"><span>Estimated USD value</span><strong>Unavailable</strong><small>Live market data not configured</small></div><AssetRow label="CELO" value={isConnected ? celoBalance.isLoading ? "Loading" : celoBalance.error ? "Unavailable" : formatTokenAmount(celoBalance.data?.value ?? 0n, celoBalance.data?.decimals ?? 18) : "Not connected"} detail="Native asset · gas" /><AssetRow label="USDm" value={isConnected ? usdmBalance.isLoading ? "Loading" : usdmBalance.error ? "Unavailable" : usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : "Unavailable" : "Not connected"} detail="Celo stable asset" /></div></section>
+    <section className="quick-actions mt-5" aria-labelledby="quick-actions-heading"><div><p className="section-kicker">Actions</p><h2 id="quick-actions-heading" className="mt-1 font-display text-xl font-semibold text-white">Move funds</h2></div><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4"><ActionLink href="#send" icon={<Send size={18} />} label="Send" /><ActionLink href="#receive" icon={<ArrowDownLeft size={18} />} label="Receive" /><button type="button" disabled className="wallet-action wallet-action-disabled"><ArrowUpRight size={18} aria-hidden="true" /><span>Swap</span><small>Unavailable</small></button><ActionLink href="#history" icon={<History size={18} />} label="History" /></div></section>
+    <div className="mt-7 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]"><section id="send" className="wallet-panel" aria-labelledby="send-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Transfer</p><h2 id="send-heading" className="mt-1 font-display text-xl font-semibold text-white">Send assets</h2></div><Send size={21} className="text-gold-300" aria-hidden="true" /></div><p className="mt-2 text-sm text-parchment-100/55">Review the recipient, asset, amount, and network before your wallet signs.</p><div className="mt-6 grid gap-4"><FieldLabel htmlFor="asset">Asset</FieldLabel><select id="asset" value={asset} onChange={(event) => { setAsset(event.target.value as Asset); setAmount(""); }} className="wallet-input"><option value="CELO">CELO</option><option value="USDm">USDm</option></select><FieldLabel htmlFor="recipient">Recipient address</FieldLabel><input id="recipient" value={recipient} onChange={(event) => setRecipient(event.target.value)} placeholder="0x..." aria-invalid={Boolean(recipient) && !recipientValid} className="wallet-input" />{recipient && !recipientValid && <p className="wallet-error" role="alert">Enter a valid non-zero EVM address.</p>}<div className="flex items-center justify-between gap-3"><FieldLabel htmlFor="send-amount">Amount</FieldLabel><span className="text-xs text-parchment-100/45">Available: {selectedBalance ? formatTokenAmount(selectedBalance.value, selectedBalance.decimals) : "Not connected"}</span></div><input id="send-amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" aria-invalid={Boolean(amountError)} className="wallet-input wallet-amount" />{amountError && <p className="wallet-error" role="alert">{amountError}</p>}{asset === "USDm" && !usdmAddress && <p className="wallet-warning" role="alert">USDm is unavailable on this network.</p>}<button type="button" onClick={handleSend} disabled={!canSend} className="wallet-primary"><Send size={16} aria-hidden="true" />{isSendingCelo || isSendingUsdm ? "Confirm in wallet" : `Review ${asset} transfer`}</button>{!isConnected && <p className="text-sm text-parchment-100/52">Connect your wallet before preparing a transfer.</p>}{sendError && <p className="wallet-error" role="alert">{sendError.message.toLowerCase().includes("rejected") ? "The transaction was cancelled in your wallet. No funds moved." : "The transaction could not be completed. Check your wallet, network, and balance."}</p>}</div></section><TransactionReview submitted={submitted} recipient={recipient} asset={asset} amount={amount} chain={chain} hash={hash} isSending={isSendingCelo || isSendingUsdm} isConfirming={receipt.isLoading} isConfirmed={receipt.isSuccess} isFailed={receipt.isError} onReset={resetSend} /></div>
+    <section id="receive" className="wallet-panel mt-5" aria-labelledby="receive-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Receive</p><h2 id="receive-heading" className="mt-1 font-display text-xl font-semibold text-white">Your wallet address</h2></div><QrCode size={21} className="text-gold-300" aria-hidden="true" /></div>{address ? <div className="mt-5 flex flex-col items-start gap-5 sm:flex-row sm:items-center"><div className="qr-frame"><QRCodeSVG value={address} size={148} includeMargin /></div><div className="min-w-0"><p className="break-all font-mono text-sm text-parchment-100/75">{address}</p><button type="button" onClick={copyAddress} className="wallet-secondary mt-4"><Copy size={15} aria-hidden="true" />{copied ? "Copied" : "Copy address"}</button><p className="mt-3 text-xs leading-5 text-parchment-100/45">Only share this public address. Receive CELO and USDm on the selected Celo network.</p></div></div> : <div className="empty-wallet"><WalletCards size={19} aria-hidden="true" /><p>Connect a wallet to create a receive address and QR code.</p><ConnectWalletButton /></div>}</section>
+    <section id="history" className="wallet-panel mt-5" aria-labelledby="history-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">History</p><h2 id="history-heading" className="mt-1 font-display text-xl font-semibold text-white">Confirmed activity</h2></div><History size={21} className="text-gold-300" aria-hidden="true" /></div><div className="empty-wallet mt-5"><Clock3 size={19} aria-hidden="true" /><div><p className="text-sm font-medium text-parchment-100/75">No in-app transactions yet</p><p className="mt-1 text-xs leading-5 text-parchment-100/45">A CeloHT transaction indexer is not configured. Confirmed wallet activity is not fabricated here.</p></div>{isConnected && address && <a className="wallet-secondary" href={`${explorerUrl(chainId)}/address/${address}`} target="_blank" rel="noreferrer">Open explorer <ExternalLink size={14} aria-hidden="true" /></a>}</div></section>
+  </div></div>;
 }
+
+function AssetRow({ label, value, detail }: { label: string; value: string; detail: string }) { return <div className="asset-row"><span className="asset-symbol">{label === "CELO" ? "C" : "U"}</span><div><p className="text-sm font-semibold text-white">{label}</p><p className="mt-1 text-xs text-parchment-100/42">{detail}</p></div><strong className="ml-auto font-mono text-sm text-white">{value}</strong></div>; }
+function ActionLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) { return <a href={href} className="wallet-action"><span>{icon}</span><span>{label}</span></a>; }
+function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) { return <label htmlFor={htmlFor} className="text-xs font-semibold uppercase tracking-[0.16em] text-parchment-100/52">{children}</label>; }
+function ReviewLine({ label, value, mono }: { label: string; value: string; mono?: boolean }) { return <div className="review-line"><span>{label}</span><strong className={mono ? "break-all text-right font-mono text-xs" : "text-right"}>{value}</strong></div>; }
+function TransactionReview({ submitted, recipient, asset, amount, chain, hash, isSending, isConfirming, isConfirmed, isFailed, onReset }: { submitted: boolean; recipient: string; asset: Asset; amount: string; chain?: { name?: string }; hash?: `0x${string}`; isSending: boolean; isConfirming: boolean; isConfirmed: boolean; isFailed: boolean; onReset: () => void }) { return <section className="wallet-panel" aria-labelledby="review-heading"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">Review & status</p><h2 id="review-heading" className="mt-1 font-display text-xl font-semibold text-white">Transaction details</h2></div><ShieldAlert size={21} className="text-cyan-300" aria-hidden="true" /></div>{!submitted ? <div className="review-empty"><p>Recipient, amount, network fee, and total will appear here before submission.</p><span>Wallet approval is always required.</span></div> : <div className="review-details"><ReviewLine label="From" value="Connected wallet" /><ReviewLine label="To" value={recipient || "Not provided"} mono /><ReviewLine label="Asset / amount" value={`${amount || "0"} ${asset}`} /><ReviewLine label="Network" value={chain?.name ?? "Celo network"} /><ReviewLine label="Network fee" value="Estimated in wallet" /><div className="transaction-state">{isSending ? <><Clock3 size={16} /> Waiting for wallet signature</> : isConfirming ? <><Clock3 size={16} /> Transaction submitted, confirming on-chain</> : isConfirmed ? <><CheckCircle2 size={16} /> Transfer confirmed</> : isFailed ? <><ShieldAlert size={16} /> Transfer failed or reverted</> : hash ? "Transaction submitted" : "Awaiting wallet response"}</div>{hash && <><p className="text-xs text-parchment-100/45">Transaction hash</p><p className="break-all font-mono text-xs text-parchment-100/65">{hash}</p><a className="wallet-secondary" href={`${explorerUrl(chain?.name === "Celo Sepolia" ? celoSepolia.id : celo.id)}/tx/${hash}`} target="_blank" rel="noreferrer">View transaction <ExternalLink size={14} aria-hidden="true" /></a></>}{(isConfirmed || isFailed) && <button type="button" onClick={onReset} className="wallet-secondary">Start another transfer</button>}</div>}</section>; }
+function explorerUrl(chainId: number) { return chainId === celoSepolia.id ? "https://sepolia.celoscan.io" : "https://celoscan.io"; }
