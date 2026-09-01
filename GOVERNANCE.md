@@ -2,7 +2,7 @@
 
 This repository follows the same governance model as the rest of the
 CeloHT ecosystem — see the flagship repository's
-[`GOVERNANCE.md`](https://github.com/celo-ht/celoht/blob/main/GOVERNANCE.md)
+[`GOVERNANCE.md`](https://github.com/Celo-HaiTi/celoht/blob/main/GOVERNANCE.md)
 for the full, binding policy. This document covers what's specific to the
 dApp repository.
 

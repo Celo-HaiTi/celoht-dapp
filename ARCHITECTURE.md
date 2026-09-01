@@ -9,7 +9,7 @@ a shared runtime.
 ```text
                     ┌─────────────────────────┐
                     │      Celo network         │
-                    │  (mainnet / Alfajores)     │
+                    │ (mainnet / Celo Sepolia)  │
                     └────────────▲───────────────┘
                                  │ read/write via wagmi + viem
                     ┌────────────┴───────────────┐

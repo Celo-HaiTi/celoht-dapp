@@ -18,7 +18,7 @@ ERC-721 token. See [`../packages/contracts/contracts/CertificateRegistry.sol`](.
 
 Course content is currently sample data (`apps/web/src/lib/data/courses.ts`),
 mirroring the curriculum in the flagship repository's
-[`docs/education.md`](https://github.com/celo-ht/celoht/blob/main/docs/education.md).
+[`docs/education.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/education.md).
 Production course content and quiz logic are designed to be served from
 Supabase — see [`api.md`](api.md).
 

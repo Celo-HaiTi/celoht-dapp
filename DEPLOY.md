@@ -29,8 +29,8 @@ To enable QR-code wallet connections on mobile:
 ## Option 2: Run Locally
 
 ```bash
-git clone https://github.com/celo-ht/dapp.git
-cd dapp
+git clone https://github.com/Celo-HaiTi/celoht-dapp.git
+cd celoht-dapp
 npm install
 npm run dev
 ```
@@ -108,4 +108,4 @@ Once deployed:
 
 ---
 
-**Need help?** Open an issue at [github.com/celo-ht/dapp](https://github.com/celo-ht/dapp/issues)
+**Need help?** Open an issue at [github.com/Celo-HaiTi/celoht-dapp](https://github.com/Celo-HaiTi/celoht-dapp/issues)

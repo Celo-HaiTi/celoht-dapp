@@ -12,11 +12,11 @@ reforestation records, governance votes) and a donation manager — nothing
 that behaves like an exchange or a yield-generating protocol.
 
 **Why does a page say a contract "isn't deployed on this network yet"?**
-The contract suite is complete and tested but is deployed to each network
-(Alfajores, then Celo mainnet) as a separate step — see
-[`docs/deployment.md`](docs/deployment.md) for current status. Pages
-detect this and show sample data clearly labeled as such, rather than
-failing or showing fabricated numbers.
+The contract suite is complete and tested but is deployed by network as a
+separate step, with Celo Sepolia used for testnet validation before Celo
+Mainnet — see [`docs/deployment.md`](docs/deployment.md) for current
+status. Pages detect this and show sample data clearly labeled as such,
+rather than failing or showing fabricated numbers.
 
 **Do I need to trust CeloHT with my funds?**
 No. This dApp only ever requests a signature or transaction approval from

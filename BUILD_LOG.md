@@ -307,7 +307,7 @@ Created realistic sample data for all flows:
 
 ### **For Developers**
 ```bash
-git clone https://github.com/celo-ht/dapp.git
+git clone https://github.com/Celo-HaiTi/celoht-dapp.git
 cd dapp
 npm install
 

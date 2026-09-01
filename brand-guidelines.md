@@ -33,6 +33,6 @@ actual copy.
 ## Logo Usage
 
 See the flagship repository's
-[`docs/logo-usage.md`](https://github.com/celo-ht/celoht/blob/main/docs/logo-usage.md)
+[`docs/logo-usage.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/logo-usage.md)
 for the full logo usage policy. The logo file used in this app lives at
 `apps/web/public/celoht-logo.png`.

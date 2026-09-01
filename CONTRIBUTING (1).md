@@ -12,7 +12,7 @@ Everyone participating in this project is expected to follow
 ## Local Setup
 
 ```bash
-git clone https://github.com/celo-ht/dapp.git
+git clone https://github.com/Celo-HaiTi/celoht-dapp.git
 cd dapp
 npm install
 ```

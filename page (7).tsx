@@ -115,7 +115,7 @@ export default function GovernancePage() {
           participation for resistance to plutocratic and Sybil attacks — see the GovernanceVoting
           contract&rsquo;s NatSpec and{" "}
           <a
-            href="https://github.com/celo-ht/celoht/blob/main/GOVERNANCE.md"
+            href="https://github.com/Celo-HaiTi/celoht/blob/main/GOVERNANCE.md"
             className="underline underline-offset-2"
           >
             the flagship repository&rsquo;s governance policy

@@ -7,12 +7,12 @@
 **The official decentralized application for CeloHT** education, a
 community agent network, and reforestation, built on the Celo ecosystem.
 
-[![CI](https://github.com/celo-ht/dapp/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
-[![Contracts](https://github.com/celo-ht/dapp/actions/workflows/contracts.yml/badge.svg)](.github/workflows/contracts.yml)
-[![CodeQL](https://github.com/celo-ht/dapp/actions/workflows/codeql.yml/badge.svg)](.github/workflows/codeql.yml)
+[![CI](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
+[![Contracts](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/contracts.yml/badge.svg)](.github/workflows/contracts.yml)
+[![CodeQL](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/codeql.yml/badge.svg)](.github/workflows/codeql.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-0B1120.svg)](LICENSE)
 
-[Flagship repository](https://github.com/celo-ht/celoht) · [Website](https://github.com/celo-ht/website) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[Flagship repository](https://github.com/Celo-HaiTi/celoht) · [Website](https://github.com/Celo-HaiTi/website) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
 ---
 
@@ -102,16 +102,16 @@ enabling those flows.
 ## Getting started
 
 ```bash
-git clone https://github.com/celo-ht/dapp.git
-cd dapp
+git clone https://github.com/Celo-HaiTi/celoht-dapp.git
+cd celoht-dapp
 npm install
 
 # Frontend
 npm run dev            # http://localhost:3000
 
 # Contracts
-npm run contracts:compile
-npm run contracts:test
+npm run compile
+npm test
 ```
 
 See [`docs/development.md`](docs/development.md) for the full guide,
@@ -121,9 +121,9 @@ frontend ship to production.
 
 ## Current status
 
-The contract suite (5 contracts, 30 passing tests) is complete and
-audited internally, but **not yet deployed to Celo mainnet or Alfajores**
-see [`docs/deployment.md`](docs/deployment.md) for exact status and
+The contract suite (5 contracts, local tests passing) is complete for demo and
+review workflows, but it is **not yet deployed to Celo Mainnet or Celo Sepolia**
+for production use. See [`docs/deployment.md`](docs/deployment.md) for exact status and
 [`ROADMAP.md`](ROADMAP.md) for the plan. Pages that read on-chain data
 detect this and fall back to clearly labeled sample data rather than
 showing broken or fabricated numbers.

@@ -24,10 +24,10 @@ browser.
 - **WalletConnect** requires a Project ID to be configured
   (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`) — without it, only injected
   browser wallets are offered. See [`docs/development.md`](docs/development.md).
-- Your wallet must be configured for **Celo mainnet** or **Alfajores**
-  (Celo's public testnet) — this dApp doesn't support other networks.
+- Your wallet must be configured for **Celo Mainnet** or **Celo Sepolia**
+  — this dApp doesn't support other networks.
 
-## Adding CELO/Alfajores to a Wallet
+## Adding CELO or Celo Sepolia to a Wallet
 
 Most wallets support adding Celo automatically through
 [chainlist.org](https://chainlist.org) or Celo's own documentation. Valora

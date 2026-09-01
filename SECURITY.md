@@ -6,7 +6,7 @@ Please **don't** open a public issue for a security vulnerability —
 especially a smart contract vulnerability. Instead:
 
 - **Email**: security@celoht.com
-- **GitHub Security Advisories**: use ["Report a vulnerability"](https://github.com/celo-ht/dapp/security/advisories/new)
+- **GitHub Security Advisories**: use ["Report a vulnerability"](https://github.com/Celo-HaiTi/celoht-dapp/security/advisories/new)
 
 Include a description, reproduction steps or a proof-of-concept, and the
 affected contract address / commit / frontend version.

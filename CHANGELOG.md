@@ -33,5 +33,5 @@ All notable changes to the CeloHT dApp are documented here, following
 - CI/CD: build/lint/typecheck workflow, contract compile/test workflow,
   CodeQL, Dependabot, and issue/PR templates.
 
-[Unreleased]: https://github.com/celo-ht/dapp/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/celo-ht/dapp/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Celo-HaiTi/celoht-dapp/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Celo-HaiTi/celoht-dapp/releases/tag/v0.1.0

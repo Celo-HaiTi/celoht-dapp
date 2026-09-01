@@ -4,7 +4,7 @@
 
 Celo's mobile-first design and low transaction fees match the CeloHT
 mission — see the flagship repository's
-[`docs/technology.md`](https://github.com/celo-ht/celoht/blob/main/docs/technology.md)
+[`docs/technology.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/technology.md)
 for the ecosystem-wide reasoning. This document covers dApp-specific
 technical choices.
 

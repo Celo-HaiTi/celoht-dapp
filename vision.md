@@ -19,5 +19,5 @@ That means:
   code.
 
 See the flagship repository's
-[`docs/vision.md`](https://github.com/celo-ht/celoht/blob/main/docs/vision.md)
+[`docs/vision.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/vision.md)
 for the ecosystem-wide vision.

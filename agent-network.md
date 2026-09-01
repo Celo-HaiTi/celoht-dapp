@@ -26,6 +26,6 @@ metadata would have.
 ## Becoming an Agent
 
 See the flagship repository's
-[`docs/agent-network.md`](https://github.com/celo-ht/celoht/blob/main/docs/agent-network.md)
+[`docs/agent-network.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/agent-network.md)
 for the full, non-technical process (education requirement, operating
 standards, code of conduct) behind the on-chain registration step.

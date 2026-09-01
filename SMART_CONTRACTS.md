@@ -8,7 +8,7 @@ The repository contains five Solidity contracts and their tests:
 - `ImpactRegistry`
 - `GovernanceVoting`
 
-The local Hardhat suite currently passes 30 tests. The contracts are not deployed or verified on Celo Mainnet or Alfajores in this repository, and they have not received a professional security audit. They must not be presented as production-secured or live.
+The local Hardhat suite currently passes 35 tests. The contracts are not deployed or verified on Celo Mainnet or Celo Sepolia in this repository, and they have not received a professional security audit. They must not be presented as production-secured or live.
 
 ## Before deployment
 

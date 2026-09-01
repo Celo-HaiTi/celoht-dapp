@@ -2,8 +2,8 @@
 
 ## General Questions
 
-- **GitHub Discussions** (flagship repository): [github.com/celo-ht/celoht/discussions](https://github.com/celo-ht/celoht/discussions)
-- **dApp-specific bugs**: open an [Issue](https://github.com/celo-ht/dapp/issues) in this repository
+- **GitHub Discussions** (flagship repository): [github.com/Celo-HaiTi/celoht/discussions](https://github.com/Celo-HaiTi/celoht/discussions)
+- **dApp-specific bugs**: open an [Issue](https://github.com/Celo-HaiTi/celoht-dapp/issues) in this repository
 
 ## Contact
 

@@ -65,7 +65,7 @@ export default function AgentsPage() {
           completing the education program, then wait for approval from a network coordinator. See
           the flagship repository&rsquo;s{" "}
           <a
-            href="https://github.com/celo-ht/celoht/blob/main/docs/agent-network.md"
+            href="https://github.com/Celo-HaiTi/celoht/blob/main/docs/agent-network.md"
             className="underline underline-offset-2"
           >
             agent network documentation

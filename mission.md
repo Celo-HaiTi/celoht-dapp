@@ -15,5 +15,5 @@ feature traces back to one of them:
 | Governance voting                             | Cross-cutting (community input on all three) |
 
 See the flagship repository's
-[`docs/mission.md`](https://github.com/celo-ht/celoht/blob/main/docs/mission.md)
+[`docs/mission.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/mission.md)
 for the full mission statement behind the whole CeloHT ecosystem.
