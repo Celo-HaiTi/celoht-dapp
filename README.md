@@ -7,9 +7,8 @@
 **The official decentralized application for CeloHT** education, a
 community agent network, and reforestation, built on the Celo ecosystem.
 
-[![CI](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
-[![Contracts](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/contracts.yml/badge.svg)](.github/workflows/contracts.yml)
-[![CodeQL](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/codeql.yml/badge.svg)](.github/workflows/codeql.yml)
+[![Deploy](https://github.com/Celo-HaiTi/celoht-dapp/actions/workflows/deploy-pages.yml/badge.svg)](.github/workflows/deploy-pages.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-0B1120?logo=githubpages&logoColor=white)](https://celo-haiti.github.io/celoht-dapp/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-0B1120.svg)](LICENSE)
 
 [Flagship repository](https://github.com/Celo-HaiTi/celoht) · [Website](https://github.com/Celo-HaiTi/website) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
