@@ -1,5 +1,8 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { useAccount, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -8,14 +11,44 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { agents } from "@/lib/data/agents";
 import { shortenAddress } from "@/lib/utils";
-
-export const metadata: Metadata = {
-  title: "Agents",
-  description:
-    "Find a verified CeloHT community agent for cash-in, cash-out, and hands-on support.",
-};
+import { abis, erc20Abi, getContractAddress, getUsdmAddress } from "@/lib/contracts";
 
 const statusTone = { Active: "forest", Pending: "warning", Suspended: "danger" } as const;
+
+function RegistrationPanel() {
+  const { isConnected, address } = useAccount();
+  const chainId = useChainId();
+  const registryAddress = getContractAddress(chainId, "CeloHTAgentRegistry");
+  const usdmAddress = getUsdmAddress(chainId);
+  const [approvalHash, setApprovalHash] = useState<`0x${string}`>();
+  const [registrationHash, setRegistrationHash] = useState<`0x${string}`>();
+  const [error, setError] = useState<string>();
+  const approvalStarted = useRef(false);
+  const { writeContractAsync, isPending } = useWriteContract();
+  const fee = useReadContract({ address: registryAddress, abi: abis.CeloHTAgentRegistry, functionName: "registrationFee", query: { enabled: Boolean(registryAddress) } });
+  const allowance = useReadContract({ address: usdmAddress, abi: erc20Abi, functionName: "allowance", args: address && registryAddress ? [address, registryAddress] : undefined, query: { enabled: Boolean(address && registryAddress && usdmAddress) } });
+  const approvalReceipt = useWaitForTransactionReceipt({ hash: approvalHash });
+  const registrationReceipt = useWaitForTransactionReceipt({ hash: registrationHash });
+
+  async function register() {
+    if (!registryAddress || !usdmAddress || typeof fee.data !== "bigint" || !isConnected) return;
+    setError(undefined);
+    try {
+      if (allowance.data === undefined || allowance.data < fee.data) setApprovalHash(await writeContractAsync({ address: usdmAddress, abi: erc20Abi, functionName: "approve", args: [registryAddress, fee.data] }));
+      else setRegistrationHash(await writeContractAsync({ address: registryAddress, abi: abis.CeloHTAgentRegistry, functionName: "registerAgent" }));
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Agent registration failed."); }
+  }
+
+  useEffect(() => {
+    if (!approvalReceipt.isSuccess || registrationHash || approvalStarted.current || !registryAddress) return;
+    approvalStarted.current = true;
+    void writeContractAsync({ address: registryAddress, abi: abis.CeloHTAgentRegistry, functionName: "registerAgent" })
+      .then(setRegistrationHash)
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Agent registration failed."));
+  }, [approvalReceipt.isSuccess, registrationHash, registryAddress, writeContractAsync]);
+
+  return <Section eyebrow="On-chain registration" title="Register as an agent"><p className="text-ink-soft dark:text-parchment-100/70 max-w-2xl text-sm">Registration uses the official CeloHTAgentRegistry fee and does not perform identity verification on-chain.</p><Button className="mt-4" onClick={register} disabled={!isConnected || !registryAddress || !usdmAddress || typeof fee.data !== "bigint" || isPending || Boolean(approvalHash || registrationHash)}>{isPending ? "Confirm in wallet…" : "Register agent"}</Button>{approvalHash && !approvalReceipt.isSuccess && <p className="mt-3 text-sm">USDm approval pending confirmation.</p>}{registrationHash && !registrationReceipt.isSuccess && <p className="mt-3 text-sm">Registration submitted, waiting for confirmation.</p>}{registrationReceipt.isSuccess && <p className="mt-3 text-sm text-forest-600">Agent registration confirmed on-chain.</p>}{error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}</Section>;
+}
 
 export default function AgentsPage() {
   return (
@@ -61,7 +94,7 @@ export default function AgentsPage() {
 
       <Section eyebrow="Want to become an agent?" title="">
         <p className="text-ink-soft dark:text-parchment-100/70 max-w-2xl text-sm">
-          Agents self-register on-chain via <code>AgentRegistry.registerAgent</code> after
+          Agents self-register on-chain via <code>CeloHTAgentRegistry.registerAgent</code> after
           completing the education program, then wait for approval from a network coordinator. See
           the flagship repository&rsquo;s{" "}
           <a
@@ -73,6 +106,7 @@ export default function AgentsPage() {
           for the full process.
         </p>
       </Section>
+      <RegistrationPanel />
     </>
   );
 }

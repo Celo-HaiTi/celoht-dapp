@@ -25,7 +25,7 @@ export default function ReforestationPage() {
           <div className="border-forest-500/30 rounded-2xl border p-6">
             <h3 className="font-semibold">1. A project is registered</h3>
             <p className="text-ink-soft dark:text-parchment-100/70 mt-2 text-sm">
-              An admin creates a project in ImpactRegistry and DonationManager.
+              Reforestation contributions are recorded by CeloHTReforestation.
             </p>
           </div>
           <div className="border-forest-500/30 rounded-2xl border p-6">

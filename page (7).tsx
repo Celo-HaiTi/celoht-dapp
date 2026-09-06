@@ -1,7 +1,6 @@
 "use client";
 
 import { useAccount, useChainId, useReadContract, useWriteContract } from "wagmi";
-import { keccak256, toBytes } from "viem";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -12,20 +11,17 @@ import { useToast } from "@/components/ui/Toast";
 import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
 import { proposals } from "@/lib/data/proposals";
 
-const VOTER_ROLE = keccak256(toBytes("VOTER_ROLE"));
-
 export default function GovernancePage() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const chainId = useChainId();
   const { push } = useToast();
-  const deployed = isContractDeployed(chainId, "GovernanceVoting");
-  const votingAddress = getContractAddress(chainId, "GovernanceVoting");
+  const deployed = isContractDeployed(chainId, "CeloHTGovernance");
+  const votingAddress = getContractAddress(chainId, "CeloHTGovernance");
 
-  const isVoter = useReadContract({
+  const participationFee = useReadContract({
     address: votingAddress,
-    abi: abis.GovernanceVoting,
-    functionName: "hasRole",
-    args: address ? [VOTER_ROLE, address] : undefined,
+    abi: abis.CeloHTGovernance,
+    functionName: "participationFee",
     query: { enabled: isConnected && deployed },
   });
 
@@ -36,9 +32,9 @@ export default function GovernancePage() {
     writeContract(
       {
         address: votingAddress,
-        abi: abis.GovernanceVoting,
-        functionName: "castVote",
-        args: [BigInt(proposalId), support],
+        abi: abis.CeloHTGovernance,
+        functionName: "vote",
+        args: [BigInt(proposalId), support ? 1 : 2],
       },
       {
         onSuccess: () => push({ title: "Vote submitted", tone: "success" }),
@@ -75,15 +71,11 @@ export default function GovernancePage() {
 
               {!deployed ? (
                 <p className="text-ink-soft dark:text-parchment-100/50 mt-4 text-xs">
-                  GovernanceVoting isn&rsquo;t deployed on this network yet — showing sample data.
+                  CeloHTGovernance isn&rsquo;t deployed on this network yet — showing sample data.
                 </p>
               ) : !isConnected ? (
                 <p className="text-ink-soft dark:text-parchment-100/50 mt-4 text-xs">
-                  Connect your wallet to vote, if you hold VOTER_ROLE.
-                </p>
-              ) : !isVoter.data ? (
-                <p className="text-ink-soft dark:text-parchment-100/50 mt-4 text-xs">
-                  Your connected wallet doesn&rsquo;t hold VOTER_ROLE for this contract.
+                  Connect your wallet to vote, if you are authorized to propose and vote.
                 </p>
               ) : (
                 <div className="mt-4 flex gap-2">
@@ -104,6 +96,7 @@ export default function GovernancePage() {
                   </Button>
                 </div>
               )}
+              {deployed && isConnected && <p className="text-ink-soft dark:text-parchment-100/50 mt-3 text-xs">Participation fee: {participationFee.data == null ? "Loading" : `${String(participationFee.data)} USDm base units`}.</p>}
             </Card>
           ))}
         </div>
@@ -112,7 +105,7 @@ export default function GovernancePage() {
       <Section eyebrow="Why not token voting?" title="">
         <p className="text-ink-soft dark:text-parchment-100/70 max-w-2xl text-sm">
           A token-weighted vote can be bought. CeloHT deliberately trades permissionless
-          participation for resistance to plutocratic and Sybil attacks — see the GovernanceVoting
+          participation for resistance to plutocratic and Sybil attacks — see the CeloHTGovernance
           contract&rsquo;s NatSpec and{" "}
           <a
             href="https://github.com/Celo-HaiTi/celoht/blob/main/GOVERNANCE.md"

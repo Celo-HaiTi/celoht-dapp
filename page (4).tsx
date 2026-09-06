@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import { celo } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
@@ -8,10 +8,19 @@ import { Section } from "@/components/Section";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { BalanceDisplay } from "@/components/web3/BalanceDisplay";
+import { abis, getContractAddress } from "@/lib/contracts";
 
 export default function TransactionsPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
+  const servicePaymentsAddress = getContractAddress(chainId, "CeloHTServicePayments");
+  const educationPrice = useReadContract({
+    address: servicePaymentsAddress,
+    abi: abis.CeloHTServicePayments,
+    functionName: "priceOf",
+    args: [1],
+    query: { enabled: Boolean(servicePaymentsAddress) },
+  });
   const explorerBase =
     chainId === celo.id ? "https://celoscan.io" : "https://sepolia.celoscan.io";
 
@@ -35,6 +44,12 @@ export default function TransactionsPage() {
         ) : (
           <div className="space-y-6">
             <BalanceDisplay />
+            <Card>
+              <CardTitle>Agent service pricing</CardTitle>
+              <CardDescription className="mt-2">
+                Education assistance price from CeloHTServicePayments: {educationPrice.data == null ? "Loading" : `${educationPrice.data.toString()} USDm base units`}.
+              </CardDescription>
+            </Card>
             <Button asChild variant="secondary">
               <a href={`${explorerBase}/address/${address}`} target="_blank" rel="noreferrer">
                 View full history on Celoscan ↗

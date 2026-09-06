@@ -12,8 +12,7 @@ export type ReforestationProject = {
 };
 
 // Sample data — see README.md in this folder. In production, treesPlanted
-// sums ImpactRegistry.totalTreesFor(projectId) and donationsUsd sums
-// DonationManager.totalDonatedTo(projectId).
+// Reforestation totals are read from CeloHTReforestation; project metadata remains off-chain.
 export const projects: ReforestationProject[] = [
   {
     id: "reforest-leogane-01",

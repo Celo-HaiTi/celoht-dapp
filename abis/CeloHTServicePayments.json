@@ -3,18 +3,33 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "usdmToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "agentRegistryAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "initialTreasury",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "admin",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "donationToken_",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "p2pPrice",
+        "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "feeRecipient_",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "educationPrice",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -45,26 +60,60 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "value",
+        "name": "agentId",
         "type": "uint256"
       }
     ],
-    "name": "BasisPointsOverflow",
+    "name": "AgentInactive",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "EnforcedPause",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "AgentNotFound",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "ExpectedPause",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "expected",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "provided",
+        "type": "uint256"
+      }
+    ],
+    "name": "IncorrectAmount",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "ReentrancyGuardReentrantCall",
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "bps",
+        "type": "uint16"
+      }
+    ],
+    "name": "InvalidBps",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "paymentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PaymentNotFound",
     "type": "error"
   },
   {
@@ -79,91 +128,49 @@
     "type": "error"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
         "internalType": "address",
-        "name": "donor",
+        "name": "expected",
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "memoURI",
-        "type": "string"
-      }
-    ],
-    "name": "Donated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "account",
+        "name": "provided",
         "type": "address"
       }
     ],
-    "name": "Paused",
-    "type": "event"
+    "name": "WrongToken",
+    "type": "error"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previousBps",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newBps",
-        "type": "uint256"
-      }
-    ],
-    "name": "PlatformFeeUpdated",
-    "type": "event"
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "paymentId",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "agentShare",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "treasuryShare",
+        "type": "uint256"
       }
     ],
-    "name": "ProjectRegistered",
+    "name": "PaymentDistributed",
     "type": "event"
   },
   {
@@ -245,13 +252,43 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "paymentId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "customer",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
+        "name": "serviceType",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "timestamp",
+        "type": "uint64"
       }
     ],
-    "name": "Unpaused",
+    "name": "ServicePaid",
     "type": "event"
   },
   {
@@ -259,25 +296,76 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
+        "name": "serviceType",
+        "type": "uint8"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "oldPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newPrice",
         "type": "uint256"
       }
     ],
-    "name": "Withdrawn",
+    "name": "ServicePriceUpdated",
     "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "oldAgentBps",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "newAgentBps",
+        "type": "uint16"
+      }
+    ],
+    "name": "SplitUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldTreasury",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "TreasuryUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BPS_DENOMINATOR",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -294,65 +382,36 @@
   },
   {
     "inputs": [],
-    "name": "MAX_PLATFORM_FEE_BPS",
+    "name": "FEE_ADMIN_ROLE",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
-        "name": "projectId",
+        "name": "",
         "type": "bytes32"
       }
     ],
-    "name": "availableBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "memoURI",
-        "type": "string"
-      }
-    ],
-    "name": "donate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "donationToken",
+    "name": "TREASURY_ADMIN_ROLE",
     "outputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "agentRegistry",
+    "outputs": [
+      {
+        "internalType": "contract ICeloHTAgentRegistry",
         "name": "",
         "type": "address"
       }
@@ -362,12 +421,63 @@
   },
   {
     "inputs": [],
-    "name": "feeRecipient",
+    "name": "agentShareBps",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint16",
         "name": "",
-        "type": "address"
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "paymentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPayment",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "paymentId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "customer",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "agentId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum ICeloHTServicePayments.ServiceType",
+            "name": "serviceType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct ICeloHTServicePayments.Payment",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -435,28 +545,38 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
+    "inputs": [
+      {
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
+        "name": "serviceType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "payForService",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "paymentId",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "bool",
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
         "name": "",
-        "type": "bool"
+        "type": "uint8"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "platformFeeBps",
+    "name": "price",
     "outputs": [
       {
         "internalType": "uint256",
@@ -470,38 +590,20 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
+        "name": "serviceType",
+        "type": "uint8"
       }
     ],
-    "name": "projectExists",
+    "name": "priceOf",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
-      }
-    ],
-    "name": "registerProject",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -543,12 +645,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newRecipient",
-        "type": "address"
+        "internalType": "uint16",
+        "name": "newAgentBps",
+        "type": "uint16"
       }
     ],
-    "name": "setFeeRecipient",
+    "name": "setAgentShareBps",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -556,12 +658,30 @@
   {
     "inputs": [
       {
+        "internalType": "enum ICeloHTServicePayments.ServiceType",
+        "name": "serviceType",
+        "type": "uint8"
+      },
+      {
         "internalType": "uint256",
-        "name": "newBps",
+        "name": "newPrice",
         "type": "uint256"
       }
     ],
-    "name": "setPlatformFeeBps",
+    "name": "setServicePrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "setTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -586,38 +706,13 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "treasury",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "donor",
+        "name": "",
         "type": "address"
-      }
-    ],
-    "name": "totalDonatedBy",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "totalDonatedTo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -625,32 +720,15 @@
   },
   {
     "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "name": "usdm",
+    "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
+        "internalType": "contract IERC20",
+        "name": "",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
       }
     ],
-    "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]

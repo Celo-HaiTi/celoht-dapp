@@ -8,18 +8,16 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/Ca
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
 import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
-import { getProjectId, projects } from "@/lib/data/projects";
+import { projects } from "@/lib/data/projects";
 
 function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   const chainId = useChainId();
-  const deployed = isContractDeployed(chainId, "ImpactRegistry");
-  const projectIdHex = getProjectId(project.id);
+  const deployed = isContractDeployed(chainId, "CeloHTReforestation");
 
   const onChainTrees = useReadContract({
-    address: getContractAddress(chainId, "ImpactRegistry"),
-    abi: abis.ImpactRegistry,
-    functionName: "totalTreesFor",
-    args: [projectIdHex],
+    address: getContractAddress(chainId, "CeloHTReforestation"),
+    abi: abis.CeloHTReforestation,
+    functionName: "totalDonated",
     query: { enabled: deployed },
   });
 
@@ -44,7 +42,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
       </div>
       {!deployed && (
         <p className="text-ink-soft dark:text-parchment-100/50 mt-3 text-xs">
-          Verified planting data is unavailable until ImpactRegistry is deployed on this network.
+          Verified reforestation totals are unavailable until CeloHTReforestation is deployed on this network.
         </p>
       )}
     </Card>
@@ -60,7 +58,7 @@ export default function ProjectsPage() {
       <PageHero
         eyebrow="Reforestation · Projects"
         title="All registered projects"
-        lead="Tree counts read live from ImpactRegistry once a project is deployed and verified plantings are recorded."
+        lead="Reforestation totals read live from CeloHTReforestation; the protocol does not claim a fixed tree conversion rate."
       />
 
       <Section>

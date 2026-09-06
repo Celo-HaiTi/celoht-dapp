@@ -3,6 +3,16 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "usdmToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "initialTreasury",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "admin",
         "type": "address"
       }
@@ -32,76 +42,98 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "EnforcedPause",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ExpectedPause",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "internalType": "uint256",
+        "name": "donationId",
+        "type": "uint256"
+      }
+    ],
+    "name": "DonationNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "expected",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "provided",
+        "type": "uint256"
+      }
+    ],
+    "name": "IncorrectAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "account",
+        "name": "token",
         "type": "address"
       }
     ],
-    "name": "Paused",
-    "type": "event"
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "expected",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "provided",
+        "type": "address"
+      }
+    ],
+    "name": "WrongToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAmount",
+    "type": "error"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
-        "name": "recordId",
+        "name": "donationId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "reportedBy",
+        "name": "donor",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint32",
-        "name": "treeCount",
-        "type": "uint32"
-      }
-    ],
-    "name": "PlantingRecorded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        "internalType": "uint64",
+        "name": "timestamp",
+        "type": "uint64"
       }
     ],
-    "name": "ProjectCreated",
+    "name": "DonationReceived",
     "type": "event"
   },
   {
@@ -183,13 +215,19 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "oldTreasury",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newTreasury",
         "type": "address"
       }
     ],
-    "name": "Unpaused",
+    "name": "TreasuryUpdated",
     "type": "event"
   },
   {
@@ -206,62 +244,122 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "TREASURY_ADMIN_ROLE",
+    "outputs": [
       {
         "internalType": "bytes32",
-        "name": "projectId",
+        "name": "",
         "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
       }
     ],
-    "name": "createProject",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "recordId",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "getRecord",
+    "name": "donate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "donationId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "donationCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "donor",
+        "type": "address"
+      }
+    ],
+    "name": "donorTotal",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "donorTotalAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "donationId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getDonation",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "bytes32",
-            "name": "projectId",
-            "type": "bytes32"
+            "internalType": "uint256",
+            "name": "donationId",
+            "type": "uint256"
           },
           {
             "internalType": "address",
-            "name": "reportedBy",
+            "name": "donor",
             "type": "address"
           },
           {
-            "internalType": "uint32",
-            "name": "treeCount",
-            "type": "uint32"
-          },
-          {
-            "internalType": "string",
-            "name": "evidenceURI",
-            "type": "string"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
-            "name": "recordedAt",
+            "name": "timestamp",
             "type": "uint64"
           }
         ],
-        "internalType": "struct IImpactRegistry.PlantingRecord",
+        "internalType": "struct ICeloHTReforestation.Donation",
         "name": "",
         "type": "tuple"
       }
@@ -331,87 +429,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "projectExists",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "recordCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint32",
-        "name": "treeCount",
-        "type": "uint32"
-      },
-      {
-        "internalType": "string",
-        "name": "evidenceURI",
-        "type": "string"
-      }
-    ],
-    "name": "recordPlanting",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "recordId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -450,6 +467,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "newTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "setTreasury",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -467,14 +497,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "totalTreesFor",
+    "inputs": [],
+    "name": "totalDonated",
     "outputs": [
       {
         "internalType": "uint256",
@@ -487,9 +511,28 @@
   },
   {
     "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "treasury",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdm",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

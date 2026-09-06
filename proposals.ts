@@ -10,7 +10,7 @@ export type Proposal = {
 };
 
 // Sample data — see README.md in this folder. In production this reads
-// GovernanceVoting.getProposal(id) for each id up to proposalCount().
+// CeloHTGovernance proposal metadata is read from the deployed contract when indexed.
 export const proposals: Proposal[] = [
   {
     id: 0,

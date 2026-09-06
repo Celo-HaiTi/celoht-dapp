@@ -10,7 +10,7 @@ export type Agent = {
 };
 
 // Sample data — see README.md in this folder. In production this is a
-// join between AgentRegistry.agentsPage() on-chain reads and off-chain
+// Join between CeloHTAgentRegistry reads and off-chain profile metadata.
 // profile metadata (name, coordinates) resolved from each agent's
 // metadataURI.
 export const agents: Agent[] = [

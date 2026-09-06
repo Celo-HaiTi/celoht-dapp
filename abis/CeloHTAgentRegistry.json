@@ -3,6 +3,21 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "usdmToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "initialTreasury",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "initialRegistrationFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
         "name": "admin",
         "type": "address"
       }
@@ -32,57 +47,98 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "EnforcedPause",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ExpectedPause",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "AgentNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "account",
+        "name": "wallet",
         "type": "address"
       }
     ],
-    "name": "Paused",
-    "type": "event"
+    "name": "AlreadyRegistered",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "expected",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "provided",
+        "type": "uint256"
+      }
+    ],
+    "name": "IncorrectAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "expected",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "provided",
+        "type": "address"
+      }
+    ],
+    "name": "WrongToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
   },
   {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
-        "name": "recordId",
+        "name": "agentId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "reportedBy",
+        "name": "wallet",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint32",
-        "name": "treeCount",
-        "type": "uint32"
+        "internalType": "uint64",
+        "name": "timestamp",
+        "type": "uint64"
       }
     ],
-    "name": "PlantingRecorded",
+    "name": "AgentRegistered",
     "type": "event"
   },
   {
@@ -90,18 +146,56 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        "internalType": "bool",
+        "name": "active",
+        "type": "bool"
       }
     ],
-    "name": "ProjectCreated",
+    "name": "AgentStatusUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "verified",
+        "type": "bool"
+      }
+    ],
+    "name": "AgentVerificationUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "RegistrationFeeUpdated",
     "type": "event"
   },
   {
@@ -183,14 +277,33 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "oldTreasury",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newTreasury",
         "type": "address"
       }
     ],
-    "name": "Unpaused",
+    "name": "TreasuryUpdated",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "AGENT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -206,62 +319,95 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "TREASURY_ADMIN_ROLE",
+    "outputs": [
       {
         "internalType": "bytes32",
-        "name": "projectId",
+        "name": "",
         "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
       }
     ],
-    "name": "createProject",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "recordId",
+        "name": "agentId",
         "type": "uint256"
       }
     ],
-    "name": "getRecord",
+    "name": "agentExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wallet",
+        "type": "address"
+      }
+    ],
+    "name": "agentIdOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAgent",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "bytes32",
-            "name": "projectId",
-            "type": "bytes32"
+            "internalType": "uint256",
+            "name": "agentId",
+            "type": "uint256"
           },
           {
             "internalType": "address",
-            "name": "reportedBy",
+            "name": "wallet",
             "type": "address"
           },
           {
-            "internalType": "uint32",
-            "name": "treeCount",
-            "type": "uint32"
-          },
-          {
-            "internalType": "string",
-            "name": "evidenceURI",
-            "type": "string"
-          },
-          {
             "internalType": "uint64",
-            "name": "recordedAt",
+            "name": "registeredAt",
             "type": "uint64"
+          },
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "verified",
+            "type": "bool"
           }
         ],
-        "internalType": "struct IImpactRegistry.PlantingRecord",
+        "internalType": "struct ICeloHTAgentRegistry.Agent",
         "name": "",
         "type": "tuple"
       }
@@ -331,34 +477,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
       }
     ],
-    "name": "projectExists",
+    "name": "isAgentActive",
     "outputs": [
       {
         "internalType": "bool",
@@ -371,7 +497,20 @@
   },
   {
     "inputs": [],
-    "name": "recordCount",
+    "name": "registerAgent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registrationFee",
     "outputs": [
       {
         "internalType": "uint256",
@@ -380,35 +519,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint32",
-        "name": "treeCount",
-        "type": "uint32"
-      },
-      {
-        "internalType": "string",
-        "name": "evidenceURI",
-        "type": "string"
-      }
-    ],
-    "name": "recordPlanting",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "recordId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -450,6 +560,68 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "active",
+        "type": "bool"
+      }
+    ],
+    "name": "setAgentStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "agentId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "verified",
+        "type": "bool"
+      }
+    ],
+    "name": "setAgentVerified",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setRegistrationFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "setTreasury",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -467,19 +639,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "projectId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "totalTreesFor",
+    "inputs": [],
+    "name": "treasury",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -487,9 +653,15 @@
   },
   {
     "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "usdm",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

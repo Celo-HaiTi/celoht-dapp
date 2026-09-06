@@ -1,62 +1,50 @@
 import { celo, celoSepolia } from "wagmi/chains";
 import type { Address } from "viem";
 import { isAddress } from "viem";
+import deploymentConfig from "./deployments/dapp-config.json";
 
 /**
- * Deployed contract addresses per chain.
- *
- * CeloHT contracts remain undefined until they are actually deployed. USDm
- * uses the verified addresses supplied for Celo Mainnet and Celo Sepolia.
+ * The Celo Sepolia address book is derived from the synchronized official
+ * deployment manifest. Mainnet remains intentionally unconfigured here until
+ * its official deployment manifest is verified.
  */
-const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 const configuredUsdmAddresses: Partial<Record<number, string>> = {
   [celo.id]: process.env.NEXT_PUBLIC_USDM_MAINNET_ADDRESS?.trim() || "0x765DE816845861e75A25fCA122bb6898b8b1282a",
-  [celoSepolia.id]: process.env.NEXT_PUBLIC_USDM_SEPOLIA_ADDRESS?.trim() || "0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b",
+  [celoSepolia.id]: deploymentConfig.celoSepolia.usdm,
 };
-
-const configuredContractAddresses: Partial<Record<number, Partial<Record<ContractName, string>>>> = {
-  [celo.id]: {
-    DonationManager: process.env.NEXT_PUBLIC_DONATION_MANAGER_MAINNET_ADDRESS?.trim(),
-  },
-  [celoSepolia.id]: {
-    DonationManager: process.env.NEXT_PUBLIC_DONATION_MANAGER_SEPOLIA_ADDRESS?.trim(),
-  },
-};
-
-function configuredAddress(chainId: number, contract: ContractName): Address {
-  const value = configuredContractAddresses[chainId]?.[contract];
-  return value && isAddress(value) ? value : ZERO_ADDRESS;
-}
 
 export type ContractName =
-  | "AgentRegistry"
-  | "CertificateRegistry"
-  | "DonationManager"
-  | "ImpactRegistry"
-  | "GovernanceVoting";
+  | "CeloHTAgentRegistry"
+  | "CeloHTServicePayments"
+  | "CeloHTEducation"
+  | "CeloHTReforestation"
+  | "CeloHTGovernance";
 
-type AddressBook = Record<ContractName, Address>;
+type AddressBook = Partial<Record<ContractName, Address>>;
+
+function verifiedAddress(value: string): Address {
+  if (!isAddress(value)) throw new Error(`Invalid official contract address: ${value}`);
+  return value;
+}
+
+const configuredContractAddresses: Partial<Record<number, AddressBook>> = {
+  [celoSepolia.id]: {
+    CeloHTAgentRegistry: verifiedAddress(deploymentConfig.celoSepolia.contracts.agentRegistry.address),
+    CeloHTServicePayments: verifiedAddress(deploymentConfig.celoSepolia.contracts.servicePayments.address),
+    CeloHTEducation: verifiedAddress(deploymentConfig.celoSepolia.contracts.education.address),
+    CeloHTReforestation: verifiedAddress(deploymentConfig.celoSepolia.contracts.reforestation.address),
+    CeloHTGovernance: verifiedAddress(deploymentConfig.celoSepolia.contracts.governance.address),
+  },
+};
 
 export const contractAddresses: Record<number, AddressBook> = {
-  [celoSepolia.id]: {
-    AgentRegistry: ZERO_ADDRESS,
-    CertificateRegistry: ZERO_ADDRESS,
-    DonationManager: configuredAddress(celoSepolia.id, "DonationManager"),
-    ImpactRegistry: ZERO_ADDRESS,
-    GovernanceVoting: ZERO_ADDRESS,
-  },
-  [celo.id]: {
-    AgentRegistry: ZERO_ADDRESS,
-    CertificateRegistry: ZERO_ADDRESS,
-    DonationManager: configuredAddress(celo.id, "DonationManager"),
-    ImpactRegistry: ZERO_ADDRESS,
-    GovernanceVoting: ZERO_ADDRESS,
-  },
+  [celoSepolia.id]: configuredContractAddresses[celoSepolia.id] ?? {},
+  [celo.id]: configuredContractAddresses[celo.id] ?? {},
 };
 
 export function getContractAddress(chainId: number, contract: ContractName): Address | undefined {
   const address = contractAddresses[chainId]?.[contract];
-  return address && address !== ZERO_ADDRESS ? address : undefined;
+  return address && isAddress(address) ? address : undefined;
 }
 
 export function isContractDeployed(chainId: number, contract: ContractName): boolean {

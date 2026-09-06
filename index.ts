@@ -1,24 +1,17 @@
-import type { Abi } from "viem";
-import AgentRegistryAbi from "./abis/AgentRegistry.json";
-import CertificateRegistryAbi from "./abis/CertificateRegistry.json";
-import DonationManagerAbi from "./abis/DonationManager.json";
-import ImpactRegistryAbi from "./abis/ImpactRegistry.json";
-import GovernanceVotingAbi from "./abis/GovernanceVoting.json";
+import { erc20Abi, type Abi } from "viem";
+import CeloHTAgentRegistryAbi from "./abis/CeloHTAgentRegistry.json";
+import CeloHTServicePaymentsAbi from "./abis/CeloHTServicePayments.json";
+import CeloHTEducationAbi from "./abis/CeloHTEducation.json";
+import CeloHTReforestationAbi from "./abis/CeloHTReforestation.json";
+import CeloHTGovernanceAbi from "./abis/CeloHTGovernance.json";
 
 export const abis = {
-  AgentRegistry: AgentRegistryAbi as Abi,
-  CertificateRegistry: CertificateRegistryAbi as Abi,
-  DonationManager: DonationManagerAbi as Abi,
-  ImpactRegistry: ImpactRegistryAbi as Abi,
-  GovernanceVoting: GovernanceVotingAbi as Abi,
+  CeloHTAgentRegistry: CeloHTAgentRegistryAbi as Abi,
+  CeloHTServicePayments: CeloHTServicePaymentsAbi as Abi,
+  CeloHTEducation: CeloHTEducationAbi as Abi,
+  CeloHTReforestation: CeloHTReforestationAbi as Abi,
+  CeloHTGovernance: CeloHTGovernanceAbi as Abi,
 } as const;
 
-export const erc20Abi = [
-  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ name: "", type: "uint256" }] },
-  { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ name: "", type: "uint8" }] },
-  { type: "function", name: "allowance", stateMutability: "view", inputs: [{ name: "owner", type: "address" }, { name: "spender", type: "address" }], outputs: [{ name: "", type: "uint256" }] },
-  { type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ name: "", type: "bool" }] },
-  { type: "function", name: "transfer", stateMutability: "nonpayable", inputs: [{ name: "to", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ name: "", type: "bool" }] },
-] as const;
-
+export { erc20Abi };
 export * from "./addresses";
