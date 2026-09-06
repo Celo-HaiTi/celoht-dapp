@@ -34,6 +34,11 @@ test("Celo Sepolia deployment is official and complete", () => {
   }
 });
 
+test("Mainnet has no unverified CeloHT or USDm deployment", () => {
+  const addressesSource = readFileSync(resolve(root, "addresses.ts"), "utf8");
+  assert.doesNotMatch(addressesSource, /\[celo\.id\]:\s*"0x[0-9a-fA-F]{40}"/);
+});
+
 test("every deployed contract has a synchronized ABI", () => {
   for (const [name, file] of Object.entries(abiFiles)) {
     const abiPath = resolve(root, "abis", file);

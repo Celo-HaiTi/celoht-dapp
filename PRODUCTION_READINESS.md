@@ -1,19 +1,19 @@
 # Production Readiness
 
-## Status
+## TESTNET READY
 
-**Testnet frontend review: READY WITH LIMITATIONS. Mainnet financial use: NOT READY.**
+The Celo Sepolia frontend is ready for testnet review. Mainnet financial use is **BLOCKED**.
 
 ## Verified
 
 - Official Celo Sepolia deployment snapshot and five generated ABIs are synchronized.
 - Celo Sepolia chain ID is `11142220`.
-- Mainnet chain ID is `42220`; only the documented USDm token address is configured there.
+- Mainnet chain ID is `42220`; no CeloHT contract or USDm token address is configured there.
 - Wallet reads and user-signed CELO/USDm transfers use receipt-based status handling.
 - CeloHT donation and agent registration flows use USDm approval and confirmed official contract calls.
 - No local contract deployment or competing Solidity architecture remains.
 
-## Blockers
+## BLOCKED
 
 - No Celo Mainnet CeloHT contract deployment is provided by the official source repository.
 - No production indexer or backend exists for proposal feeds, transaction history, profiles, course progress, or evidence.

@@ -40,7 +40,7 @@ OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync-a
 
 ## Network boundary
 
-Celo Sepolia (`11142220`) is the only network with a synchronized CeloHT contract deployment in this repository. Celo Mainnet (`42220`) exposes the documented USDm token configuration, but CeloHT contract features remain unavailable until the official smart-contract repository publishes a verified Mainnet deployment.
+Celo Sepolia (`11142220`) is the only network with a synchronized CeloHT contract and USDm deployment in this repository. Celo Mainnet (`42220`) has no configured CeloHT contract or USDm deployment here, so those features remain unavailable until the official smart-contract repository publishes verified Mainnet metadata.
 
 The frontend is a static GitHub Pages application. It can use public RPCs and user wallet signatures, but it cannot host server authentication, Supabase service operations, an event indexer, KYC, evidence storage, or privileged administration. Those states are shown as unavailable rather than fabricated.
 

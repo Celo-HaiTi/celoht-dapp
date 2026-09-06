@@ -9,8 +9,7 @@ import deploymentConfig from "./deployments/dapp-config.json";
  * its official deployment manifest is verified.
  */
 const configuredUsdmAddresses: Partial<Record<number, string>> = {
-  // Official USDm Mainnet token documented by the smart-contract repository.
-  [celo.id]: "0x765DE816845861e75A25fCA122bb6898B8B1282a",
+  // Mainnet remains unavailable until an official USDm deployment is verified.
   [celoSepolia.id]: deploymentConfig.celoSepolia.usdm,
 };
 
