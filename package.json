@@ -11,13 +11,12 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "audit": "npm audit --omit=dev --audit-level=high",
     "contracts:sync": "node scripts/sync-contracts.mjs --check",
     "contracts:sync-abis": "node scripts/sync-contracts.mjs",
     "test": "node --test tests/contracts-sync.test.mjs"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.1.0",
-    "@openzeppelin/contracts-upgradeable": "^5.1.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-progress": "^1.1.1",
@@ -38,8 +37,6 @@
     "wagmi": "^2.14.11"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -48,9 +45,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
-    "hardhat": "^2.22.15",
     "prettier": "^3.9.6",
-    "solhint": "^5.0.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

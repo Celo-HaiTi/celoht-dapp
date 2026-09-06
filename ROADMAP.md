@@ -1,41 +1,10 @@
 # Roadmap
 
-This roadmap covers the dApp specifically. For the ecosystem-wide roadmap
-(education programs, agent network expansion, reforestation phases), see
-the flagship repository's
-[`ROADMAP.md`](https://github.com/Celo-HaiTi/celoht/blob/main/ROADMAP.md).
-
-## Phase 1 — Foundation (current)
-
-- [x] Contract suite: AgentRegistry, CertificateRegistry, DonationManager,
-      ImpactRegistry, GovernanceVoting — 30 passing tests
-- [x] Frontend scaffold: all core pages, wallet connection, theme support
-- [x] CI/CD: build, lint, typecheck, contract tests, CodeQL, Dependabot
-- [ ] External audit of the contract suite
-- [ ] Deploy contracts to Celo Sepolia (testnet)
-
-## Phase 2 — Testnet Validation
-
-- [ ] Full end-to-end testing on Celo Sepolia with real community agents
-- [ ] Supabase integration for off-chain profile and course content
-- [ ] IPFS pinning integration for evidence photos and metadata
-- [ ] WalletConnect Project ID provisioned and QR-code flow tested with Valora
-
-## Phase 3 — Mainnet Launch
-
-- [ ] External audit findings resolved
-- [ ] Contracts deployed to Celo mainnet with the real USDm address
-- [ ] Transaction history indexer (replacing the current Celoscan link-out)
-- [ ] Public launch of the dApp alongside the CeloHT website
-
-## Phase 4 — Growth
-
-- [ ] Real map provider integration (replacing the built-in lightweight
-      visualization on the Agent Map page)
-- [ ] Push/email notification delivery for the preferences already
-      collected on the Settings page
-- [ ] Expanded governance participation as described in the flagship
-      repository's governance roadmap
-
-See [`docs/deployment.md`](docs/deployment.md) for exact current
-deployment status at any given time.
+- [x] Synchronize official Celo Sepolia CeloHT contracts and ABIs.
+- [x] Use receipt-based wallet transaction states.
+- [x] Remove fabricated governance, reforestation, and registry data.
+- [ ] Deploy an authenticated backend and event indexer.
+- [ ] Add persistent profile/course state with row-level security.
+- [ ] Add authenticated physical-impact evidence workflows.
+- [ ] Review an official Celo Mainnet CeloHT deployment when published.
+- [ ] Resolve dependency audit findings without breaking wallet compatibility.

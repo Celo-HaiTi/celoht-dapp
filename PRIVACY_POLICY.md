@@ -22,7 +22,7 @@ on-chain that you don't want to be permanently public.
 - **Supabase-backed features** (course content, extended profiles,
   partner directory): if/when configured, see
   [`docs/api.md`](docs/api.md) for the schema. This app runs without a
-  live Supabase project by default — see `apps/web/src/lib/data/README.md`.
+  live Supabase project by default. The static frontend shows unavailable states when it cannot read configured data.
 
 ### What we don't collect
 

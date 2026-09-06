@@ -9,5 +9,5 @@ conversation.
 ## Data Source
 
 Partner listings are currently sample data
-(`apps/web/src/lib/data/partners.ts`), designed to be backed by a
+(`partners.ts`), designed to be backed by a
 Supabase `partners` table in production — see [`api.md`](api.md).

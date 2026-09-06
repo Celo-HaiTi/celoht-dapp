@@ -19,7 +19,7 @@ The wallet UI detects unsupported networks and provides a switch-to-Celo action 
 
 USDm is read from the centralized `addresses.ts` configuration. The configured contracts are:
 
-- Celo Mainnet: `0x765DE816845861e75A25fCA122bb6898b8b1282a`.
+- Celo Mainnet: `0x765DE816845861e75A25fCA122bb6898B8B1282a`.
 - Celo Sepolia: `0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b`.
 
 Both addresses were checked through public Celo RPC reads and report `USDm` with 18 decimals. The frontend uses `balanceOf`, `decimals`, and `transfer` through the ERC-20 ABI.

@@ -1,64 +1,17 @@
-# API
+# Data API Boundaries
 
-## On-Chain "API"
+## Blockchain source of truth
 
-The primary API surface of this dApp is the set of public functions on
-five deployed contracts. Each has a corresponding interface in
-[`../packages/contracts/contracts/interfaces/`](../packages/contracts/contracts/interfaces/)
-documenting every function, parameter, and event with NatSpec comments —
-treat those interfaces as the authoritative API reference.
+Balances, allowances, transaction receipts, agent registry state, USDm donation totals, education eligibility, service configuration, and governance configuration come from the connected chain through the official generated ABIs.
 
-| Contract            | Interface                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------- |
-| AgentRegistry       | [`IAgentRegistry.sol`](../packages/contracts/contracts/interfaces/IAgentRegistry.sol)             |
-| CertificateRegistry | [`ICertificateRegistry.sol`](../packages/contracts/contracts/interfaces/ICertificateRegistry.sol) |
-| DonationManager     | [`IDonationManager.sol`](../packages/contracts/contracts/interfaces/IDonationManager.sol)         |
-| ImpactRegistry      | [`IImpactRegistry.sol`](../packages/contracts/contracts/interfaces/IImpactRegistry.sol)           |
-| GovernanceVoting    | No separate interface — see the contract directly                                                 |
+## Backend source of truth
 
-ABIs are generated from these contracts and synced into the frontend via
-`npm run contracts:sync-abis` — see `apps/web/src/lib/contracts/abis/`.
+Profiles, course progress, indexed events, evidence records, and authentication are backend concerns. This repository has no server API or indexer. `client.ts` can create a Supabase browser client only when public URL and anonymous key variables are configured; it never uses service-role credentials.
 
-## Off-Chain API (Supabase)
+## Synchronization
 
-Designed schema for off-chain data (not required to run the UI locally —
-see `apps/web/src/lib/data/README.md` for the sample-data fallback):
+The official contract repository is the only contract source of truth. Run `npm run contracts:sync` to verify `deployments/dapp-config.json`, `deployments/celoSepolia.json`, and every ABI in `abis/`.
 
-### `courses`
+## Evidence
 
-| Column             | Type      | Notes                                        |
-| ------------------ | --------- | -------------------------------------------- |
-| `id`               | text (PK) | Matches `Course.id` in the sample data shape |
-| `title`            | text      |                                              |
-| `summary`          | text      |                                              |
-| `modules`          | text[]    |                                              |
-| `duration_minutes` | integer   |                                              |
-| `language`         | text      |                                              |
-| `level`            | text      |                                              |
-
-### `agent_profiles`
-
-| Column           | Type      | Notes                                                 |
-| ---------------- | --------- | ----------------------------------------------------- |
-| `wallet_address` | text (PK) | Matches the on-chain `AgentRegistry` entry            |
-| `display_name`   | text      |                                                       |
-| `region`         | text      |                                                       |
-| `lat` / `lng`    | numeric   |                                                       |
-| `metadata_uri`   | text      | The IPFS URI registered on-chain, for cross-reference |
-
-### `partners`
-
-| Column        | Type | Notes |
-| ------------- | ---- | ----- |
-| `name`        | text |       |
-| `category`    | text |       |
-| `description` | text |       |
-| `url`         | text |       |
-
-## IPFS
-
-Evidence photos (reforestation), agent profile metadata, and certificate
-metadata are designed to be pinned via a provider such as Pinata or
-web3.storage — see `.env.example` in `apps/web/` for the expected
-environment variables. No pinning integration is wired into the UI yet;
-see [`../ROADMAP.md`](../ROADMAP.md).
+A USDm transfer is a financial record. It is not proof of planting, project completion, identity verification, or any physical-world outcome. Those records require a separately authenticated evidence and indexing system.

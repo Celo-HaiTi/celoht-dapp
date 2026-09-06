@@ -1,59 +1,19 @@
 # Security Policy
 
-## Reporting a Vulnerability
+Report vulnerabilities privately through GitHub Security Advisories. Do not include private keys, recovery phrases, API secrets, or database credentials in reports.
 
-Please **don't** open a public issue for a security vulnerability —
-especially a smart contract vulnerability. Instead:
+## Current controls
 
-- **Email**: security@celoht.com
-- **GitHub Security Advisories**: use ["Report a vulnerability"](https://github.com/Celo-HaiTi/celoht-dapp/security/advisories/new)
+- Wallet signing is delegated to wagmi connectors; the frontend never requests or stores private keys.
+- Contract addresses and ABIs come from the synchronized official deployment snapshot.
+- CeloHT contract features fail closed when the active chain has no official deployment.
+- USDm amounts use viem `bigint` parsing and receipt confirmation before success is shown.
+- Agent identity/KYC is not stored on-chain by this frontend.
+- Reforestation financial records are not interpreted as physical planting evidence.
+- Privileged contract administration is not exposed as a browser feature.
 
-Include a description, reproduction steps or a proof-of-concept, and the
-affected contract address / commit / frontend version.
+## Known limitations
 
-## Scope
+The static GitHub Pages app has no server nonce/signature session, indexer, database authorization layer, or admin API. It is not production-ready for persistent profiles, KYC, evidence workflows, or privileged operations. The official smart-contract repository and deployed contracts require their own independent security review.
 
-| In scope                                | Out of scope                         |
-| --------------------------------------- | ------------------------------------ |
-| `packages/contracts/contracts/**`       | The Celo protocol itself             |
-| `apps/web/src/**`                       | Valora's application security        |
-| CI/CD workflows in `.github/workflows/` | Third-party wallet extensions        |
-| Wallet-connection and signing flows     | WalletConnect's relay infrastructure |
-
-## Smart Contract Security Practices
-
-- All contracts use OpenZeppelin's audited `AccessControl`, `Pausable`,
-  and `ReentrancyGuard` base contracts rather than reimplementing them.
-- `DonationManager`'s platform fee is hard-capped at 5% in code — no
-  admin key can raise it further.
-- Every contract has `pause()`/`unpause()` gated to `ADMIN_ROLE`, so a
-  detected issue can halt state-changing functions without a redeploy.
-- CertificateRegistry certificates are soulbound (non-transferable) by
-  construction, removing an entire class of transfer-related exploits.
-- `npm run contracts:test` (30 tests as of this writing) runs on every
-  Pull Request via CI — see `.github/workflows/contracts.yml`.
-
-Before any mainnet deployment, contracts should go through an external
-audit — see [`docs/deployment.md`](docs/deployment.md) for current status.
-
-## Frontend Security Practices
-
-- A strict Content Security Policy and standard security headers are set
-  in `apps/web/next.config.ts`.
-- The frontend never requests or stores a private key or seed phrase —
-  all signing happens in the user's own wallet.
-- Dependency vulnerabilities are tracked via Dependabot and `npm audit`
-  in CI.
-
-## Response Timeline
-
-| Step                | Target                                                 |
-| ------------------- | ------------------------------------------------------ |
-| Acknowledge receipt | 48 hours                                               |
-| Initial assessment  | 5 business days                                        |
-| Remediation plan    | 10 business days (sooner for critical contract issues) |
-
-## Acknowledgment
-
-We're glad to credit researchers who disclose responsibly — with your
-permission — in [`CHANGELOG.md`](CHANGELOG.md).
+Run `npm audit` before release. The current dependency graph has known findings; CI must report them rather than hiding audit failures.

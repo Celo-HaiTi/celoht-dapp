@@ -1,20 +1,15 @@
 # Smart Contracts
 
-The repository contains five Solidity contracts and their tests:
+This repository does not contain or deploy the CeloHT Solidity contracts. The official source is [Celo-HaiTi/celoht-smart-contracts](https://github.com/Celo-HaiTi/celoht-smart-contracts).
 
-- `AgentRegistry`
-- `CertificateRegistry`
-- `DonationManager`
-- `ImpactRegistry`
-- `GovernanceVoting`
+The frontend consumes the official Celo Sepolia deployment snapshot and generated ABIs for:
 
-The local Hardhat suite currently passes 35 tests. The contracts are not deployed or verified on Celo Mainnet or Celo Sepolia in this repository, and they have not received a professional security audit. They must not be presented as production-secured or live.
+- `CeloHTAgentRegistry`
+- `CeloHTServicePayments`
+- `CeloHTEducation`
+- `CeloHTReforestation`
+- `CeloHTGovernance`
 
-## Before deployment
+Run `npm run contracts:sync` to verify the checked-in snapshot. Refresh it only from a checkout of the official repository with `OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync-abis`. This process never deploys contracts.
 
-- Review access-control and treasury roles with the operating organization.
-- Use a multisig for critical administrative and withdrawal roles.
-- Deploy to Celo Sepolia first and verify every address and event.
-- Verify source code on the appropriate Celo explorer.
-- Record reviewed addresses in `addresses.ts`.
-- Run contract tests and security analysis against the exact deployed bytecode.
+The official repository currently targets Celo Sepolia (`11142220`) for the five CeloHT contracts. No Celo Mainnet CeloHT contract deployment is represented here, so those features remain unavailable on Mainnet.

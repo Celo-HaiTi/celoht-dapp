@@ -12,7 +12,7 @@ the marketing website — same palette, same principles.
 | Forest    | `#2F6B4F` | Reforestation-specific accents           |
 | Parchment | `#F7F8FA` | Light-mode background                    |
 
-Defined once in `apps/web/src/app/globals.css` under the Tailwind v4
+Defined once in `globals.css` under the Tailwind v4
 `@theme` block — see [`../ARCHITECTURE.md`](../ARCHITECTURE.md).
 
 ## Typography
@@ -35,4 +35,4 @@ actual copy.
 See the flagship repository's
 [`docs/logo-usage.md`](https://github.com/Celo-HaiTi/celoht/blob/main/docs/logo-usage.md)
 for the full logo usage policy. The logo file used in this app lives at
-`apps/web/public/celoht-logo.png`.
+`public/celoht-logo.png`.
