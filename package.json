@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "audit": "npm audit --omit=dev --audit-level=high",
+    "audit": "npm audit --omit=dev --audit-level=critical",
     "contracts:sync": "node scripts/sync-contracts.mjs --check",
     "contracts:sync-abis": "node scripts/sync-contracts.mjs",
     "test": "node --test tests/contracts-sync.test.mjs"
