@@ -18,7 +18,6 @@ import {
 import { useAccount, useBalance, useChainId } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { HeroBackground } from "@/components/home/HeroBackground";
-import { PrimaryCTA, SecondaryCTA } from "@/components/home/HomeCTA";
 import { courses } from "@/lib/data/courses";
 import { getUsdmAddress } from "@/lib/contracts";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
@@ -51,7 +50,6 @@ export default function HomePage() {
             <p className="section-kicker">CeloHT · Celo ecosystem</p>
             <h1 id="hero-heading" className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">Build. Learn. Connect. Impact.</h1>
             <p className="mt-5 max-w-xl text-sm leading-6 text-parchment-100/68 sm:text-base">A community-powered digital ecosystem connecting financial access, education, local services, and environmental impact.</p>
-            <div className="mt-7 flex flex-wrap items-center gap-3"><PrimaryCTA /><SecondaryCTA />{!isConnected && <ConnectWalletButton />}</div>
             <div className="mt-6 flex items-center gap-2 text-xs text-parchment-100/42"><span className={`status-dot ${isConnected ? "status-dot-live" : ""}`} />{isConnected && address ? `Connected · ${shortenAddress(address)}` : "Connect a wallet to unlock live finance actions"}</div>
           </div>
         </section>

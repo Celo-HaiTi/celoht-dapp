@@ -664,6 +664,22 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   background: linear-gradient(145deg, #070c18 0%, #0b1426 58%, #102b2a 140%);
 }
 
+.app-topbar { background: rgba(7, 12, 24, 0.78); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(18px); }
+.workspace-canvas { position: relative; overflow: hidden; background: radial-gradient(circle at 82% 0%, rgba(22, 95, 118, 0.18), transparent 28rem), linear-gradient(145deg, #070c18 0%, #0a1426 58%, #0d2529 140%); }
+.overview-hero { background: radial-gradient(circle at 85% 12%, rgba(70, 174, 190, 0.16), transparent 17rem), linear-gradient(125deg, rgba(21, 42, 73, 0.96), rgba(14, 53, 57, 0.92)); }
+.surface-panel { border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 1.25rem; background: rgba(255, 255, 255, 0.045); }
+.section-label { color: rgba(238, 242, 246, 0.52); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+.icon-tile { display: inline-flex; height: 2.25rem; width: 2.25rem; align-items: center; justify-content: center; border-radius: 0.75rem; background: rgba(255,255,255,0.06); }
+.action-card, .module-card { min-height: 7.25rem; border: 1px solid rgba(255,255,255,0.09); border-radius: 1rem; background: rgba(255,255,255,0.045); padding: 1rem; transition: border-color 180ms ease, background 180ms ease, transform 180ms ease; }
+.action-card:hover, .module-card:hover { border-color: rgba(248,220,143,0.48); background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+.module-icon { display: inline-flex; height: 2.1rem; width: 2.1rem; align-items: center; justify-content: center; border-radius: 0.7rem; }
+.module-icon.gold { color: #f8dc8f; background: rgba(245, 200, 66, 0.12); }
+.module-icon.cyan { color: #8de5ec; background: rgba(70, 203, 212, 0.12); }
+.module-icon.violet { color: #c4b5fd; background: rgba(167, 139, 250, 0.12); }
+.module-icon.green { color: #8bd4ad; background: rgba(76, 146, 113, 0.14); }
+
+@media (prefers-reduced-motion: reduce) { .action-card, .module-card { transition: none; } }
+
 .dashboard-grid {
   background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
   background-size: 48px 48px;
