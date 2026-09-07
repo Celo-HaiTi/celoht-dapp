@@ -4,9 +4,11 @@ import path from "node:path";
 import process from "node:process";
 
 const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const sourceRoot = process.env.OFFICIAL_CONTRACTS_PATH
-  ? path.resolve(process.env.OFFICIAL_CONTRACTS_PATH)
-  : repoRoot;
+const configuredSource = process.env.OFFICIAL_CONTRACTS_PATH?.trim();
+if (process.env.CI && !configuredSource) {
+  throw new Error("CI contract synchronization requires OFFICIAL_CONTRACTS_PATH to point to a checkout of Celo-HaiTi/celoht-smart-contracts.");
+}
+const sourceRoot = configuredSource ? path.resolve(configuredSource) : repoRoot;
 const sourceConfigPath = path.join(sourceRoot, "deployments", "dapp-config.json");
 const sourceDeploymentPath = path.join(sourceRoot, "deployments", "celoSepolia.json");
 const localConfigPath = path.join(repoRoot, "deployments", "dapp-config.json");

@@ -27,8 +27,14 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Checkout official smart contracts
+        uses: actions/checkout@v4
+        with:
+          repository: Celo-HaiTi/celoht-smart-contracts
+          path: official-contracts
+
       - name: Install dependencies
-        run: npm install --include=optional
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -40,6 +46,8 @@ jobs:
         run: npm test
 
       - name: Verify official contract synchronization
+        env:
+          OFFICIAL_CONTRACTS_PATH: ${{ github.workspace }}/official-contracts
         run: npm run contracts:sync
 
       - name: Audit production dependencies

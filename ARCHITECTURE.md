@@ -6,7 +6,7 @@ Official smart-contract repository
         v
 Official deployment manifests + ABI arrays
         |
-        | npm run contracts:sync
+        | npm run contracts:sync (external official checkout in CI)
         v
 DApp deployment snapshot and generated ABIs
         |
@@ -28,3 +28,7 @@ Course content, profile metadata, evidence, indexed events, persistent progress,
 ## Privileged boundary
 
 Contract roles and treasury authority remain on-chain. The frontend does not administer roles and does not contain private keys. A future admin workflow must use server nonce/signature authentication and server-side authorization before touching any privileged operation.
+
+The backend-dependent capabilities are unavailable unless a deployed `celoht-backend` URL is configured. Authentication, KYC/application workflows, indexed education progress, reforestation evidence, governance feeds, and user-specific application data must come from that backend; the UI must not infer them from local storage or transaction submission.
+
+When `NEXT_PUBLIC_BACKEND_URL` is configured, the header exposes the backend's nonce/signature wallet sign-in flow. Authenticated backend requests use the HttpOnly session cookie issued by `/api/v1/auth/verify`; no service-role secret is sent to the browser. Backend-dependent features remain unavailable when the URL is unset or the backend health check is failing.

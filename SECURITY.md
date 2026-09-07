@@ -11,9 +11,10 @@ Report vulnerabilities privately through GitHub Security Advisories. Do not incl
 - Agent identity/KYC is not stored on-chain by this frontend.
 - Reforestation financial records are not interpreted as physical planting evidence.
 - Privileged contract administration is not exposed as a browser feature.
+- Backend sign-in uses a one-time server-issued nonce and wallet signature; the browser never receives Supabase service-role credentials.
 
 ## Known limitations
 
 The static GitHub Pages app has no server nonce/signature session, indexer, database authorization layer, or admin API. It is not production-ready for persistent profiles, KYC, evidence workflows, or privileged operations. The official smart-contract repository and deployed contracts require their own independent security review.
 
-Run `npm audit` before release. The current dependency graph has known findings; CI must report them rather than hiding audit failures.
+Run `npm audit` before release. CI fails on high or critical production dependency findings. The current dependency graph and the official smart-contract deployment still require independent review before any production release.

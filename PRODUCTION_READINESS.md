@@ -16,10 +16,11 @@ The Celo Sepolia frontend is ready for testnet review. Mainnet financial use is 
 ## BLOCKED
 
 - No Celo Mainnet CeloHT contract deployment is provided by the official source repository.
-- No production indexer or backend exists for proposal feeds, transaction history, profiles, course progress, or evidence.
-- No server nonce/signature authentication or privileged admin API exists.
+- The official backend source exists, but no deployed backend URL is configured in this frontend by default. Proposal feeds, transaction history, profiles, course progress, and evidence require a healthy deployed backend/indexer.
+- The backend provides nonce/signature authentication and privileged APIs, but those workflows remain unavailable until `NEXT_PUBLIC_BACKEND_URL` is configured and the backend environment is fully provisioned.
 - KYC and reforestation evidence workflows are not implemented.
 - Dependency audit findings remain and require review before a production release.
 - The official smart-contract deployment itself needs independent operational and security review.
+- CI contract synchronization now reads an explicit checkout of `Celo-HaiTi/celoht-smart-contracts`; it must not be replaced with the dApp checkout or a hand-edited ABI/address file.
 
 The application must continue to show `Unavailable`, `Not configured`, or equivalent states for these capabilities. It must not manufacture blockchain or physical-impact data.

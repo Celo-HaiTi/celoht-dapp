@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -47,4 +48,15 @@ test("every deployed contract has a synchronized ABI", () => {
     assert.ok(abi.length > 0, `${name} ABI is empty`);
     assert.deepEqual(abi, config.contracts[name].abi);
   }
+});
+
+test("CI synchronization requires an external official checkout", () => {
+  assert.throws(
+    () => execFileSync(process.execPath, [resolve(root, "scripts/sync-contracts.mjs"), "--check"], {
+      cwd: root,
+      env: { ...process.env, CI: "true", OFFICIAL_CONTRACTS_PATH: "" },
+      stdio: "pipe",
+    }),
+    /OFFICIAL_CONTRACTS_PATH/,
+  );
 });

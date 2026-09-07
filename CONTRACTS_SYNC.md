@@ -15,4 +15,4 @@ OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync-a
 OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync
 ```
 
-The synchronization script copies the five ABI arrays from the official `deployments/dapp-config.json` into `abis/` and fails on a missing Celo Sepolia deployment, chain mismatch, missing ABI, or stale local file. CI runs the check before building the DApp. It never deploys contracts or reads private deployment credentials.
+The synchronization script copies the five ABI arrays from the official `deployments/dapp-config.json` into `abis/` and fails on a missing Celo Sepolia deployment, chain mismatch, missing ABI, or stale local file. In CI, `OFFICIAL_CONTRACTS_PATH` is mandatory and the workflow checks out `Celo-HaiTi/celoht-smart-contracts` separately, so CI cannot validate the snapshot against itself. It never deploys contracts or reads private deployment credentials.

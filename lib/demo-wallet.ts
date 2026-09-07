@@ -29,7 +29,7 @@ export function validateTransferInput(input: TransferInput): { valid: boolean; e
   }
 
   if (input.wrongNetwork) {
-    return { valid: false, error: "Switch to Celo Mainnet to continue." };
+    return { valid: false, error: "Switch to a supported Celo network to continue." };
   }
 
   if (!input.recipient || !isLikelyCeloAddress(input.recipient)) {
