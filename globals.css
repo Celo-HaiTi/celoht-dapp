@@ -688,6 +688,22 @@ input::placeholder {
     padding: 2rem 0 0;
   }
 
+  .hero-logo-orbit {
+    top: 1rem;
+    right: clamp(1rem, 7vw, 4rem);
+    width: clamp(13rem, 31vw, 21rem);
+    transform: none;
+    animation: cinematic-logo-entrance 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .ecosystem-visual {
+    top: 1rem;
+    right: clamp(1rem, 5vw, 3rem);
+    width: clamp(12rem, 28vw, 19rem);
+    opacity: 0.28;
+    transform: none;
+  }
+
   .hero-brief {
     width: min(100%, 24rem);
     margin: 0 0 0 auto;
@@ -708,11 +724,10 @@ input::placeholder {
   .reforest-next > div:last-child { width: 100%; }
   .reforest-next a { flex: 1; }
   .cinematic-hero { align-items: stretch; padding: 1.5rem 0 1rem; }
-  .hero-copy { padding: 2.5rem 0 0; }
-  .hero-logo-orbit { top: 28%; right: -5%; width: 15rem; opacity: 0.72; }
-  .hero-aura { top: 27%; right: -7rem; width: 19rem; }
-  .ecosystem-visual { top: 28%; right: -2%; width: 16rem; opacity: 0.65; }
-  .ecosystem-node { font-size: 0.52rem; }
+  .hero-copy { padding: 8.5rem 0 0; }
+  .hero-logo-orbit { top: 0.75rem; right: auto; left: 50%; width: min(11.5rem, 48vw); transform: translateX(-50%); opacity: 0.82; animation: none; }
+  .hero-aura { top: 3rem; right: 50%; width: min(18rem, 76vw); transform: translateX(50%); }
+  .ecosystem-visual { display: none; }
   .workspace-panel { padding: 1rem; }
   .module-card { min-height: 16rem; }
   .hero-brief { width: 100%; margin: 0; }
