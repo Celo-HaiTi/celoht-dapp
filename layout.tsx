@@ -6,8 +6,9 @@ import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { BottomNav } from "@/components/BottomNav";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.celoht.com/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
+const LOGO_URL = `${BASE_PATH}/celoht-logo.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/celoht-logo.png",
+        url: LOGO_URL,
         width: 998,
         height: 1000,
         alt: "CeloHT Logo",
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
     title: "CeloHT — Digital Finance for Everyone",
     description:
       "A community-driven Celo app for accessible wallets, learning, and environmental impact.",
-    images: ["/celoht-logo.png"],
+    images: [LOGO_URL],
   },
   robots: { index: true, follow: true },
 };

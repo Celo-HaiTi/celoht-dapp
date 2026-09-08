@@ -11,6 +11,17 @@ Use `npm run contracts:sync` to verify deployment metadata and ABIs. Do not edit
 
 ## Frontend deployment
 
+Both public origins use this same repository and exported application. Build the
+GitHub Pages project path with `npm run build:github-pages`; build the custom
+domain root with `npm run build:custom-domain`. The first emits links/assets
+under `/celoht-dapp/`, while the second emits them at `/`.
+
+`app.celoht.com` requires a separate static deployment configured from this
+repository (the checked-in `vercel.json` is prepared for that deployment) and
+DNS/HTTPS configuration outside this repository. The GitHub Pages workflow
+publishes the project-path artifact and includes `public/CNAME` for the custom
+domain binding when GitHub Pages is configured to serve it.
+
 ```bash
 npm install
 npm run contracts:sync

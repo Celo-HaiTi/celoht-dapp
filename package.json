@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:github-pages": "GITHUB_PAGES=true REPO_NAME=celoht-dapp NEXT_PUBLIC_APP_URL=https://celo-haiti.github.io/celoht-dapp/ npm run build",
+    "build:custom-domain": "GITHUB_PAGES=false NEXT_PUBLIC_APP_URL=https://app.celoht.com/ npm run build",
     "export": "next build",
     "start": "next start",
     "lint": "eslint .",

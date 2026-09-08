@@ -1,6 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "buildCommand": "npm run build:custom-domain",
+  "outputDirectory": "out",
   "env": {
     "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID": "@NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"
   },
