@@ -6,8 +6,8 @@ import { injected, walletConnect } from "wagmi/connectors";
  * WalletConnect requires a Project ID from https://cloud.reown.com
  * (formerly WalletConnect Cloud). Without one, the WalletConnect connector
  * (which is what makes Valora — a mobile-only wallet — connectable from a
- * desktop browser via QR code) is disabled and only browser-injected
- * wallets are offered. See docs/DEVELOPMENT.md and .env.example.
+ * desktop browser via QR code) is disabled. MiniPay connects through its
+ * injected provider when the dApp is opened inside MiniPay.
  */
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim();
 const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || undefined;

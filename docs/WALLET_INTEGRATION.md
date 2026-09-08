@@ -3,7 +3,6 @@
 ## Supported connection paths
 
 - **MiniPay:** detected through the injected provider's `isMiniPay` flag and connected through wagmi's injected connector.
-- **Browser EVM wallet:** connected through wagmi's injected connector when an injected provider is available.
 - **Valora and other mobile wallets:** connected through the WalletConnect connector. The wallet modal is available only when `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is configured; the connector opens WalletConnect's QR/deep-link flow.
 
 The application never requests, receives, or stores private keys or recovery phrases.
@@ -26,6 +25,6 @@ Both addresses were checked through public Celo RPC reads and report `USDm` with
 
 ## Required deployment configuration
 
-Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the GitHub Pages build environment to enable WalletConnect QR/deep links. Injected MiniPay/browser wallets do not require this value.
+Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the GitHub Pages build environment to enable WalletConnect QR/deep links. MiniPay does not require this value when the dApp is opened inside MiniPay.
 
 Wallet balances and transaction receipts come from the connected wallet and Celo RPC. CeloHT-specific history, donation records, and authenticated application state require the separate backend/indexer described in the production deployment status report.

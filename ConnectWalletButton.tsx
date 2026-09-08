@@ -31,8 +31,8 @@ export function ConnectWalletButton() {
       return `${connectorName} connection was cancelled.`;
     }
     if (normalized.includes("provider not found") || normalized.includes("provider unavailable")) {
-      return connectorName === "Browser wallet" || connectorName === "MiniPay"
-        ? "This browser does not have an injected wallet available."
+      return connectorName === "MiniPay"
+        ? "Open CeloHT inside MiniPay to connect with its wallet provider."
         : `Unable to connect to ${connectorName}. Please try again.`;
     }
     return `Unable to connect to ${connectorName}. Please try again.`;
@@ -95,13 +95,13 @@ export function ConnectWalletButton() {
             id="connect-wallet-description"
             className="text-ink-soft dark:text-parchment-100/70 mt-1 text-sm"
           >
-            Connect a Valora-compatible wallet, MiniPay, or browser wallet. This app never requests
+            Connect a Valora-compatible wallet or MiniPay. This app never requests
             your private keys or seed phrase.
           </DialogDescription>
 
           <div className="mt-6 flex flex-col gap-2">
-            {connectors.length > 0 ? connectors.map((connector) => {
-              const connectorName = connector.id === "walletConnect" ? "Valora / WalletConnect" : isMiniPay && connector.id === "injected" ? "MiniPay" : "Browser wallet";
+            {connectors.length > 0 ? connectors.filter((connector) => connector.id !== "injected").map((connector) => {
+              const connectorName = connector.id === "walletConnect" ? "Valora / WalletConnect" : connector.name;
               return (
               <Button
                 key={connector.uid}
@@ -113,7 +113,25 @@ export function ConnectWalletButton() {
                 {connectorName}
               </Button>
               );
-            }) : <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-100">Choose a compatible wallet to connect.</p>}
+            }) : null}
+
+            <Button
+              variant="secondary"
+              className="justify-start"
+              disabled={isPending}
+              onClick={() => {
+                setConnectorError(null);
+                const injectedConnector = connectors.find((connector) => connector.id === "injected");
+                if (isMiniPay && injectedConnector) {
+                  connectWallet(injectedConnector, "MiniPay");
+                } else {
+                  setConnectorError("Open CeloHT inside MiniPay to connect. MiniPay deep linking is not configured for this deployment.");
+                }
+              }}
+            >
+              <Smartphone size={16} aria-hidden="true" />
+              <span className="flex flex-col items-start"><span>MiniPay</span><span className="text-xs font-normal text-parchment-100/55">Open MiniPay to connect your wallet.</span></span>
+            </Button>
           </div>
 
           {connectorError && (

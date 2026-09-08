@@ -16,14 +16,13 @@ browser.
 
 | Wallet                                                                   | Connection method       |
 | ------------------------------------------------------------------------ | ----------------------- |
-| Any browser extension wallet (MetaMask, Rabby, etc.) configured for Celo | Injected connector      |
-| Any WalletConnect-compatible mobile wallet                               | WalletConnect (QR code) |
+| MiniPay | Injected provider when the dApp is opened inside MiniPay |
+| Any WalletConnect-compatible mobile wallet | WalletConnect (QR code) |
 
 ## Requirements
 
 - **WalletConnect** requires a Project ID to be configured
-  (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`) — without it, only injected
-  browser wallets are offered. See [`docs/development.md`](docs/development.md).
+  (`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`). See [`docs/development.md`](docs/development.md).
 - Your wallet must be configured for **Celo Mainnet** or **Celo Sepolia**
   — this dApp doesn't support other networks.
 

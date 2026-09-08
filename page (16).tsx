@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: "Which wallets are supported?",
-    a: "Any wallet compatible with Valora, plus any injected browser wallet and, once configured, any WalletConnect-compatible mobile wallet. See SUPPORTED_WALLETS.md.",
+    a: "MiniPay when the dApp is opened inside MiniPay, plus Valora-compatible and other WalletConnect-compatible mobile wallets. See SUPPORTED_WALLETS.md.",
   },
   {
     q: "Why do some pages say a contract 'isn't deployed on this network yet'?",
