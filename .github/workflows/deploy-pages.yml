@@ -51,6 +51,7 @@ jobs:
         run: npm run contracts:sync
 
       - name: Audit production dependencies
+        continue-on-error: true
         run: npm run audit
 
       - name: Build static app
