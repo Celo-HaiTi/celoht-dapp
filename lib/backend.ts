@@ -15,8 +15,12 @@ export class BackendRequestError extends Error {
 }
 
 function backendBaseUrl(): string | undefined {
-  const value = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
+  const value = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
   return value ? value.replace(/\/$/, "") : undefined;
+}
+
+function backendApiUrl(baseUrl: string, path: string): string {
+  return baseUrl.endsWith("/v1") || baseUrl.endsWith("/api/v1") ? `${baseUrl}${path}` : `${baseUrl}/api/v1${path}`;
 }
 
 export function isBackendConfigured(): boolean {
@@ -27,7 +31,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = backendBaseUrl();
   if (!baseUrl) throw new BackendRequestError(0, { code: "unavailable", message: "Backend is not configured." });
 
-  const response = await fetch(`${baseUrl}/api/v1${path}`, {
+  const response = await fetch(backendApiUrl(baseUrl, path), {
     ...init,
     credentials: "include",
     headers: { "content-type": "application/json", ...init?.headers },
