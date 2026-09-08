@@ -4,7 +4,7 @@ type Props = { title?: string; eyebrow?: string; children: ReactNode; className?
 
 export function Section({ title, eyebrow, children, className = "" }: Props) {
   return (
-    <section className={`mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 ${className}`}>
+    <section className={`page-section mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 ${className}`}>
       {eyebrow && (
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-parchment-100/45">
           {eyebrow}

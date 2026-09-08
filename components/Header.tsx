@@ -37,7 +37,7 @@ export function Header() {
   return (
     <>
     <aside className="app-sidebar fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-white/10 bg-navy-950 px-4 py-5 lg:flex">
-      <Link href="/" className="brand-mark flex items-center gap-3 px-2" aria-label="CeloHT overview"><Image src={logoSrc} alt="CeloHT" width={36} height={36} priority className="brand-logo" /><span><span className="block font-display text-lg font-semibold tracking-tight text-white">CeloHT</span><span className="block text-[9px] uppercase tracking-[0.16em] text-parchment-100/38">Application workspace</span></span></Link>
+      <Link href="/" className="brand-mark flex items-center gap-3 px-2" aria-label="CeloHT overview"><Image src={logoSrc} alt="CeloHT" width={36} height={36} priority className="brand-logo" /><span><span className="block font-display text-lg font-semibold tracking-tight text-white">CeloHT</span><span className="block text-[9px] uppercase tracking-[0.16em] text-parchment-100/38">Sovereign finance</span></span></Link>
       <p className="mb-2 mt-10 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-parchment-100/32">Workspace</p>
       <nav aria-label="Workspace" className="flex-1"><ul className="space-y-1">{workspaceNav.map(renderNavItem)}</ul><p className="mb-2 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-parchment-100/32">Account</p><ul className="space-y-1">{secondaryNav.map(renderNavItem)}</ul></nav>
       <div className="border-t border-white/10 pt-4"><div className="flex items-center gap-2 px-3 text-xs text-parchment-100/50"><span className={`h-2 w-2 rounded-full ${isConnected && networkReady ? "bg-emerald-400" : "bg-amber-400"}`} />{isConnected && networkReady ? chain?.name : "Wallet not connected"}</div></div>
@@ -46,7 +46,7 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-3 rounded-lg text-white" aria-label="CeloHT home">
           <Image src={logoSrc} alt="CeloHT" width={30} height={30} priority className="brand-logo lg:hidden" />
-          <span className="hidden sm:block"><span className="block font-display text-lg font-semibold tracking-tight">CeloHT</span><span className="block text-[9px] uppercase tracking-[0.18em] text-parchment-100/40">Human finance, on-chain</span></span>
+          <span className="hidden sm:block"><span className="block font-display text-lg font-semibold tracking-tight">CeloHT</span><span className="block text-[9px] uppercase tracking-[0.18em] text-parchment-100/40">Sovereign finance</span></span>
         </Link>
 
         <div className="flex items-center gap-2">

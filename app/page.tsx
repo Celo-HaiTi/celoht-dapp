@@ -47,10 +47,26 @@ export default function HomePage() {
         <section className="cinematic-hero" aria-labelledby="hero-heading">
           <HeroBackground />
           <div className="hero-copy">
-            <p className="section-kicker">CeloHT · Celo ecosystem</p>
-            <h1 id="hero-heading" className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">Build. Learn. Connect. Impact.</h1>
-            <p className="mt-5 max-w-xl text-sm leading-6 text-parchment-100/68 sm:text-base">A community-powered digital ecosystem connecting financial access, education, local services, and environmental impact.</p>
-            <div className="mt-6 flex items-center gap-2 text-xs text-parchment-100/42"><span className={`status-dot ${isConnected ? "status-dot-live" : ""}`} />{isConnected && address ? `Connected · ${shortenAddress(address)}` : "Connect a wallet to unlock live finance actions"}</div>
+            <p className="section-kicker">CeloHT · Sovereign finance</p>
+            <h1 id="hero-heading" className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">Your CeloHT command center.</h1>
+            <p className="mt-5 max-w-xl text-sm leading-6 text-parchment-100/68 sm:text-base">A calm, wallet-first workspace for digital payments, learning, local services, and verified impact.</p>
+            <div className="mt-6 flex items-center gap-2 text-xs text-parchment-100/42"><span className={`status-dot ${isConnected ? "status-dot-live" : ""}`} />{isConnected && address ? `Connected · ${shortenAddress(address)}` : "Wallet disconnected · financial actions are locked"}</div>
+          </div>
+          <div className="hero-brief" aria-label="Wallet status">
+            <div className="hero-brief-header"><span className="section-kicker">Live workspace</span><span className={`status-dot ${isConnected ? "status-dot-live" : ""}`} /></div>
+            {isConnected ? <>
+              <p className="hero-brief-label">Connected wallet</p>
+              <p className="hero-brief-address">{address ? shortenAddress(address, 6) : "Unavailable"}</p>
+              <div className="hero-brief-balances">
+                <div><span>CELO</span><strong>{celoBalance.isLoading ? "..." : celoBalance.error ? "Unavailable" : celoAmount}</strong></div>
+                <div><span>USDm</span><strong>{usdmBalance.isLoading ? "..." : usdmBalance.error ? "Unavailable" : usdmAmount}</strong></div>
+              </div>
+              <Link href="/wallet" className="hero-brief-link">Open Finance <ArrowUpRight size={14} aria-hidden="true" /></Link>
+            </> : <>
+              <p className="hero-brief-title">Connect your wallet</p>
+              <p className="hero-brief-copy">Activate live balances and signed Celo transactions from your own wallet.</p>
+              <ConnectWalletButton />
+            </>}
           </div>
         </section>
 

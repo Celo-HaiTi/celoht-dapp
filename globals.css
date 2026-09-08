@@ -3,8 +3,8 @@
 /* CeloHT design tokens — shared palette with the flagship repo and
    marketing website, so the dApp feels like the same product. */
 @theme {
-  --font-display: "Space Grotesk", "Avenir Next", sans-serif;
-  --font-body: "DM Sans", "Avenir Next", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Avenir Next", "DM Sans", "Segoe UI", sans-serif;
   --font-mono:
     ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 
@@ -72,9 +72,37 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 78% -10%, rgba(245, 200, 66, 0.12), transparent 30rem), #070c18;
+  background: radial-gradient(circle at 78% -10%, rgba(245, 200, 66, 0.1), transparent 30rem), #070c18;
   color: #f4f7fa;
 }
+
+.hero-brief {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 19rem);
+  margin-left: auto;
+  border: 1px solid rgba(248, 220, 143, 0.22);
+  border-radius: 1rem;
+  background: linear-gradient(150deg, rgba(9, 19, 37, 0.9), rgba(16, 38, 45, 0.72));
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.22);
+  padding: 1.1rem;
+  backdrop-filter: blur(14px);
+}
+
+.hero-brief-header,
+.hero-brief-balances,
+.hero-brief-link { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.hero-brief-label { margin-top: 1.5rem; color: rgba(238, 242, 246, 0.48); font-size: 0.7rem; }
+.hero-brief-address { margin-top: 0.35rem; color: white; font-family: var(--font-mono); font-size: 0.8rem; }
+.hero-brief-balances { margin-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1rem; }
+.hero-brief-balances div { display: flex; min-width: 0; flex-direction: column; gap: 0.35rem; }
+.hero-brief-balances span { color: rgba(238, 242, 246, 0.42); font-size: 0.62rem; letter-spacing: 0.14em; }
+.hero-brief-balances strong { color: white; font-family: var(--font-mono); font-size: 0.92rem; font-weight: 500; }
+.hero-brief-title { margin-top: 1.5rem; color: white; font-family: var(--font-display); font-size: 1.45rem; line-height: 1.1; }
+.hero-brief-copy { margin-top: 0.6rem; color: rgba(238, 242, 246, 0.56); font-size: 0.78rem; line-height: 1.5; }
+.hero-brief .connect-wallet-button { width: 100%; margin-top: 1.25rem; justify-content: center; }
+.hero-brief-link { margin-top: 1.25rem; justify-content: flex-start; color: #f8dc8f; font-size: 0.75rem; font-weight: 700; }
+.hero-brief-link:hover { color: white; }
 
 .workspace-bg {
   background: radial-gradient(circle at 82% 0%, rgba(245, 200, 66, 0.08), transparent 28rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%);
@@ -598,6 +626,20 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.app-sidebar { border-right-color: rgba(248, 220, 143, 0.12); background: linear-gradient(180deg, #0b1120 0%, #09101d 100%); }
+.app-header { background: rgba(7, 12, 24, 0.86); border-bottom-color: rgba(248, 220, 143, 0.12); }
+.workspace-bg { background: radial-gradient(circle at 82% -4%, rgba(31, 102, 109, 0.2), transparent 25rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.page-hero { position: relative; border-bottom: 1px solid rgba(248, 220, 143, 0.14); }
+.page-hero::after { position: absolute; right: 1.5rem; bottom: -1px; width: 5rem; height: 2px; background: #f5c842; content: ""; }
+.page-section { position: relative; }
+.mobile-bottom-nav { border-top-color: rgba(248, 220, 143, 0.14); box-shadow: 0 -1rem 2.5rem rgba(0, 0, 0, 0.16); }
+.mobile-nav-item { display: flex; min-height: 3rem; flex-direction: column; align-items: center; justify-content: center; gap: 0.22rem; border-radius: 0.7rem; color: rgba(238, 242, 246, 0.5); font-size: 0.62rem; font-weight: 600; transition: color 180ms ease, background-color 180ms ease, transform 180ms ease; }
+.mobile-nav-item:hover, .mobile-nav-active { color: #f8dc8f; background: rgba(245, 200, 66, 0.08); }
+.mobile-nav-item:active { transform: scale(0.96); }
+.mobile-nav-primary { color: #f4f7fa; }
+.mobile-nav-primary svg { border-radius: 0.55rem; background: #f5c842; padding: 0.28rem; color: #0b1120; box-sizing: content-box; }
+.mobile-nav-primary.mobile-nav-active { color: #f8dc8f; background: transparent; }
+
 main {
   min-height: calc(100dvh - 64px);
 }
@@ -645,6 +687,7 @@ input::placeholder {
   .ecosystem-node { font-size: 0.52rem; }
   .workspace-panel { padding: 1rem; }
   .module-card { min-height: 16rem; }
+  .hero-brief { width: 100%; margin: 0; }
 }
 
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
@@ -835,4 +878,49 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 }
 [data-state="open"].data-\[state\=open\]\:slide-in-from-bottom-2 {
   animation: celoht-slide-up 180ms ease-out;
+}
+
+/* Sovereign Finance UI surface pass */
+.wallet-shell,
+.profile-shell,
+.settings-shell,
+.trust-shell { background: radial-gradient(circle at 82% 0%, rgba(31, 102, 109, 0.16), transparent 26rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
+.wallet-header,
+.profile-header,
+.settings-header,
+.trust-header { border-bottom-color: rgba(248, 220, 143, 0.14); }
+.portfolio-panel,
+.wallet-panel,
+.quick-actions,
+.profile-connect,
+.identity-panel,
+.profile-panel,
+.security-panel,
+.settings-panel,
+.trust-panel { border-color: rgba(248, 220, 143, 0.13); border-radius: 1rem; box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.12); }
+.portfolio-panel { background: linear-gradient(145deg, rgba(245, 200, 66, 0.1), rgba(13, 35, 48, 0.5) 62%); }
+.portfolio-total strong,
+.asset-row strong,
+.hero-brief-balances strong { font-variant-numeric: tabular-nums; }
+.wallet-primary,
+.wallet-secondary,
+.profile-action,
+.reforest-primary-cta,
+.reforest-secondary-cta { min-height: 2.9rem; border-radius: 0.7rem; }
+.wallet-primary { box-shadow: 0 0.6rem 1.5rem rgba(245, 200, 66, 0.13); }
+.wallet-primary:focus-visible,
+.wallet-secondary:focus-visible,
+.profile-action:focus-visible { outline-offset: 3px; }
+
+@media (max-width: 639px) {
+  .page-hero { padding-top: 1.75rem; }
+  .page-hero::after { right: 1rem; width: 3.5rem; }
+  .wallet-header,
+  .profile-header,
+  .settings-header,
+  .trust-header { align-items: flex-start; flex-direction: column; }
+  .portfolio-panel,
+  .wallet-panel,
+  .settings-panel,
+  .trust-panel { border-radius: 0.85rem; }
 }
