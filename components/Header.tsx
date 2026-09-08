@@ -44,9 +44,9 @@ export function Header() {
     </aside>
     <header className="app-header sticky top-0 z-40 border-b border-white/10 bg-navy-950/90 backdrop-blur-xl lg:ml-64">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-3 rounded-lg text-white" aria-label="CeloHT home">
+        <Link href="/" className="header-brand flex min-w-0 shrink items-center gap-2.5 rounded-lg text-white" aria-label="CeloHT home">
           <Image src={logoSrc} alt="CeloHT" width={30} height={30} priority className="brand-logo lg:hidden" />
-          <span className="hidden sm:block"><span className="block font-display text-lg font-semibold tracking-tight">CeloHT</span><span className="block text-[9px] uppercase tracking-[0.18em] text-parchment-100/40">Sovereign finance</span></span>
+          <span className="header-brand-copy"><span className="block font-display text-lg font-semibold tracking-tight">CeloHT</span><span className="header-brand-tagline block text-[9px] uppercase tracking-[0.18em] text-parchment-100/40">Sovereign finance</span></span>
         </Link>
 
         <div className="flex items-center gap-2">

@@ -113,9 +113,19 @@ body {
 }
 
 .brand-logo {
+  display: block;
+  width: clamp(2rem, 3vw, 2.25rem);
+  height: auto;
+  max-width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 998 / 1000;
   object-fit: contain;
   filter: drop-shadow(0 0 14px rgba(245, 200, 66, 0.16));
 }
+
+.header-brand { max-width: min(12rem, 42vw); }
+.header-brand-copy { min-width: 0; }
+.header-brand-copy > span:first-child { white-space: nowrap; }
 
 .section-kicker {
   color: rgba(248, 220, 143, 0.78);
@@ -706,6 +716,12 @@ input::placeholder {
   .workspace-panel { padding: 1rem; }
   .module-card { min-height: 16rem; }
   .hero-brief { width: 100%; margin: 0; }
+}
+
+@media (max-width: 419px) {
+  .header-brand { gap: 0.5rem; max-width: 8rem; }
+  .header-brand-tagline { display: none; }
+  .app-header .brand-logo { width: 2rem; }
 }
 
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
