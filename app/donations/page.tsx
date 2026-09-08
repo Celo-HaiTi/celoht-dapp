@@ -22,8 +22,8 @@ export default function DonationsPage() {
   const [donationHash, setDonationHash] = useState<`0x${string}`>();
   const [error, setError] = useState<string>();
   const approvalStarted = useRef(false);
-  const reforestationAddress = getContractAddress(chainId, "CeloHTReforestation");
-  const usdmAddress = getUsdmAddress(chainId);
+  const reforestationAddress = getContractAddress(celoSepolia.id, "CeloHTReforestation");
+  const usdmAddress = getUsdmAddress(celoSepolia.id);
   const { writeContractAsync, isPending } = useWriteContract();
   const approvalReceipt = useWaitForTransactionReceipt({ hash: approvalHash });
   const donationReceipt = useWaitForTransactionReceipt({ hash: donationHash });

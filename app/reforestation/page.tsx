@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, CircleAlert, ExternalLink, Leaf, MapPin, ShieldCheck, Sprout, WalletCards } from "lucide-react";
 import { formatUnits } from "viem";
-import { useChainId, useReadContract } from "wagmi";
+import { useReadContract } from "wagmi";
+import { celoSepolia } from "wagmi/chains";
 import { abis, getContractAddress, getUsdmAddress, isContractDeployed } from "@/lib/contracts";
 import { projects } from "@/lib/data/projects";
 
@@ -11,11 +12,10 @@ const project = projects[0];
 const journey = ["Contribute", "Fund", "Plant", "Verify", "Track", "Grow"];
 
 export default function ReforestationPage() {
-  const chainId = useChainId();
-  const reforestationAddress = getContractAddress(chainId, "CeloHTReforestation");
-  const configured = isContractDeployed(chainId, "CeloHTReforestation") && Boolean(getUsdmAddress(chainId));
-  const totalDonated = useReadContract({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "totalDonated", query: { enabled: configured } });
-  const donationCount = useReadContract({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "donationCount", query: { enabled: configured } });
+  const reforestationAddress = getContractAddress(celoSepolia.id, "CeloHTReforestation");
+  const configured = isContractDeployed(celoSepolia.id, "CeloHTReforestation") && Boolean(getUsdmAddress(celoSepolia.id));
+  const totalDonated = useReadContract({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "totalDonated", chainId: celoSepolia.id, query: { enabled: configured } });
+  const donationCount = useReadContract({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "donationCount", chainId: celoSepolia.id, query: { enabled: configured } });
   const total = typeof totalDonated.data === "bigint" ? formatUnits(totalDonated.data, 18) : "Unavailable";
   const count = typeof donationCount.data === "bigint" ? donationCount.data.toString() : "Unavailable";
 

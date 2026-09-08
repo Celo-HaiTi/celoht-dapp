@@ -58,3 +58,8 @@ export function getUsdmAddress(chainId: number): Address | undefined {
   }
   return configuredAddress;
 }
+
+export function getTreasuryAddress(chainId: number): Address | undefined {
+  const treasury = chainId === celoSepolia.id ? deploymentConfig.celoSepolia.generalTreasury : undefined;
+  return treasury && isAddress(treasury) ? treasury : undefined;
+}
