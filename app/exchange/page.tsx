@@ -1,140 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ArrowRightLeft, Banknote, RefreshCw } from "lucide-react";
-import { useAccount, useBalance } from "wagmi";
+import { ArrowRightLeft, Banknote } from "lucide-react";
+import { useAccount } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
-import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { demoExchangeQuote } from "@/lib/demo-data";
 
 export default function ExchangePage() {
-  const [fromAsset, setFromAsset] = useState<"CELO" | "USDm">("CELO");
-  const [toAsset, setToAsset] = useState<"CELO" | "USDm">("USDm");
-  const [amount, setAmount] = useState("12.5");
-  const [reviewed, setReviewed] = useState(false);
-  const { address, isConnected } = useAccount();
-  const { data: celoBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
-
-  const quote = useMemo(() => {
-    const numericAmount = Number(amount) || 0;
-    const expected = numericAmount * demoExchangeQuote.rate;
-    return {
-      expected,
-      minimumReceived: expected * (1 - demoExchangeQuote.slippage / 100),
-    };
-  }, [amount]);
+  const { isConnected } = useAccount();
 
   return (
     <>
       <Breadcrumbs items={[{ label: "Exchange" }]} />
       <PageHero
         eyebrow="Exchange"
-        title="Swap between CELO and USDm"
-        lead="This flow is intentionally demo-only until a real DEX or bridge is integrated. It presents realistic figures and labels them clearly as sample values."
+        title="Exchange unavailable"
+        lead="A verified Celo DEX or bridge is not configured for this deployment. No exchange quote or transaction is available."
       />
 
       <Section>
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <Card>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label htmlFor="from" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
-                  From
-                </label>
-                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: {celoBalance ? `${Number(celoBalance.formatted).toFixed(4)} CELO` : "Connect wallet"}</span>
-              </div>
-              <div className="flex gap-2">
-                <select
-                  id="from"
-                  value={fromAsset}
-                  onChange={(event) => setFromAsset(event.target.value as "CELO" | "USDm")}
-                  className="rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                >
-                  <option value="CELO">CELO</option>
-                  <option value="USDm">USDm</option>
-                </select>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={amount}
-                  onChange={(event) => setAmount(event.target.value)}
-                  className="w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                />
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  type="button"
-                  aria-label="Switch assets"
-                  onClick={() => {
-                    const currentFrom = fromAsset;
-                    setFromAsset(toAsset);
-                    setToAsset(currentFrom);
-                  }}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-navy-700/15 bg-parchment-50 dark:border-parchment-100/10 dark:bg-navy-900"
-                >
-                  <RefreshCw size={16} aria-hidden="true" />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label htmlFor="to" className="text-xs font-medium uppercase tracking-[0.16em] text-ink-soft dark:text-parchment-100/60">
-                  To
-                </label>
-                <span className="text-xs text-ink-soft dark:text-parchment-100/60">Available: USDm balance unavailable</span>
-              </div>
-              <div className="flex gap-2">
-                <select
-                  id="to"
-                  value={toAsset}
-                  onChange={(event) => setToAsset(event.target.value as "CELO" | "USDm")}
-                  className="rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10"
-                >
-                  <option value="CELO">CELO</option>
-                  <option value="USDm">USDm</option>
-                </select>
-                <div className="flex w-full items-center rounded-xl border border-navy-700/15 bg-transparent px-3 py-2.5 text-sm dark:border-parchment-100/10">
-                  {quote.expected.toFixed(2)}
-                </div>
-              </div>
-
-              <Button className="w-full" disabled={!isConnected || Number(amount) <= 0} onClick={() => setReviewed(true)}>Review demo quote</Button>
-              {reviewed && <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-800 dark:text-amber-200">Quote reviewed. No transaction was signed because no Celo DEX is configured for this deployment.</p>}
-            </div>
-          </Card>
-
-          <Card>
             <CardHeader>
               <Banknote size={18} aria-hidden="true" />
-              <CardTitle>Quote</CardTitle>
+              <CardTitle>Swap service</CardTitle>
             </CardHeader>
-            <CardDescription>Demo data only — no real on-chain swap executed.</CardDescription>
-            <dl className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Rate</dt>
-                <dd>1 {fromAsset} = {demoExchangeQuote.rate.toFixed(2)} {toAsset}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Estimated received</dt>
-                <dd>{quote.expected.toFixed(2)} {toAsset}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Minimum received</dt>
-                <dd>{quote.minimumReceived.toFixed(2)} {toAsset}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Network fee</dt>
-                <dd>{demoExchangeQuote.networkFee.toFixed(3)} CELO</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-ink-soft dark:text-parchment-100/60">Slippage</dt>
-                <dd>{demoExchangeQuote.slippage}%</dd>
-              </div>
-            </dl>
+            <CardDescription>Unavailable until an official exchange integration provides live quotes and receipt-confirmed transactions.</CardDescription>
+            <div className="mt-5 rounded-xl border border-navy-700/15 p-4 text-sm dark:border-parchment-100/10">
+              <p className="font-medium">Status: Not configured</p>
+              <p className="mt-2 text-ink-soft dark:text-parchment-100/60">{isConnected ? "Your wallet is connected, but no swap route is enabled." : "Connect a wallet after an official swap route is enabled."}</p>
+            </div>
           </Card>
         </div>
       </Section>
@@ -142,7 +38,7 @@ export default function ExchangePage() {
       <Section eyebrow="On-chain status" title="Demo-mode safety">
         <div className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-800 dark:text-amber-200">
           <ArrowRightLeft size={18} aria-hidden="true" />
-          No transaction has been signed or submitted to a blockchain network from this demo flow.
+          No exchange transaction can be signed or submitted until a verified swap integration is configured.
         </div>
       </Section>
     </>
