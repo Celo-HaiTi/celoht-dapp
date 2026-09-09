@@ -5,7 +5,6 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { BottomNav } from "@/components/BottomNav";
-import { Footer } from "@/components/Footer";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.celoht.com/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
@@ -69,9 +68,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main id="main-content" className="lg:ml-64">
               {children}
             </main>
-            <div className="lg:ml-64">
-              <Footer />
-            </div>
             <BottomNav />
           </ToastProvider>
         </Web3Gate>
