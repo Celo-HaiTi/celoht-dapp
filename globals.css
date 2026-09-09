@@ -916,6 +916,44 @@ input::placeholder {
     width: min(100%, 24rem);
     margin: 0 0 0 auto;
   }
+
+  .page-hero {
+    padding-top: 1.1rem;
+  }
+
+  .page-hero::after {
+    right: 1rem;
+    width: 4rem;
+  }
+
+  .workspace-panel,
+  .portfolio-panel,
+  .wallet-panel,
+  .quick-actions,
+  .settings-panel,
+  .profile-panel,
+  .security-panel,
+  .identity-panel,
+  .course-card,
+  .agent-onboarding,
+  .activity-card,
+  .activity-empty,
+  .surface-panel {
+    border-radius: 1rem;
+    box-shadow: 0 1rem 2.5rem rgba(1, 5, 12, 0.18);
+  }
+
+  .hero-brief-title {
+    font-size: 1.2rem;
+  }
+
+  .hero-brief-balances strong {
+    font-size: 0.86rem;
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 639px) {
@@ -939,6 +977,37 @@ input::placeholder {
   .workspace-panel { padding: 1rem; }
   .module-card { min-height: 16rem; }
   .hero-brief { width: 100%; margin: 0; }
+
+  .app-header {
+    min-height: 4rem;
+  }
+
+  .workspace-panel,
+  .portfolio-panel,
+  .wallet-panel,
+  .quick-actions,
+  .settings-panel,
+  .profile-panel,
+  .security-panel,
+  .identity-panel,
+  .course-card,
+  .agent-onboarding,
+  .activity-card,
+  .activity-empty,
+  .surface-panel {
+    border-radius: 0.85rem;
+    box-shadow: 0 0.9rem 2.1rem rgba(1, 5, 12, 0.14);
+  }
+
+  .mobile-nav-item {
+    min-height: 3.15rem;
+    font-size: 0.56rem;
+  }
+
+  .mobile-nav-primary svg {
+    border-radius: 0.45rem;
+    padding: 0.22rem;
+  }
 }
 
 @media (max-width: 419px) {
