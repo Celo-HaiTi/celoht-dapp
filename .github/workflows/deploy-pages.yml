@@ -67,7 +67,9 @@ jobs:
           COMMUNITY_LINKEDIN_URL: "https://www.linkedin.com/company/celoht/"
         run: npm run build
 
-      - name: Add .nojekyll
+      - name: Prepare Pages artifact
+        env:
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN || '' }}
         run: |
           test -f out/index.html
           test -f out/wallet/index.html
@@ -75,7 +77,13 @@ jobs:
           test -f out/favicon.svg
           test -f out/favicon.ico
           test -f out/manifest.json
-          test "$(cat out/CNAME)" = "app.celoht.com"
+
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            printf '%s' "$CUSTOM_DOMAIN" > out/CNAME
+          else
+            rm -f out/CNAME
+          fi
+
           touch out/.nojekyll
 
       - name: Upload Pages artifact
