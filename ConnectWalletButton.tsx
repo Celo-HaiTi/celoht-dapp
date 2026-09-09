@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { getUsdmAddress } from "@/lib/contracts";
 import { celo, celoSepolia } from "wagmi/chains";
+import { useI18n } from "@/lib/i18n/context";
 
 export function ConnectWalletButton() {
   const { address, isConnected, chain, connector } = useAccount();
@@ -15,6 +16,7 @@ export function ConnectWalletButton() {
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: isSwitching, error: switchError } = useSwitchChain();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const isMiniPay =
@@ -28,14 +30,14 @@ export function ConnectWalletButton() {
   function describeConnectionError(message: string, connectorName: string) {
     const normalized = message.toLowerCase();
     if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
-      return `${connectorName} connection was cancelled.`;
+      return `${connectorName}: ${t("errors.connectionCancelled")}`;
     }
     if (normalized.includes("provider not found") || normalized.includes("provider unavailable")) {
       return connectorName === "MiniPay"
         ? "Open CeloHT inside MiniPay to connect with its wallet provider."
-        : `Unable to connect to ${connectorName}. Please try again.`;
+        : `${connectorName}: ${t("errors.providerUnavailable")}`;
     }
-    return `Unable to connect to ${connectorName}. Please try again.`;
+    return `${connectorName}: ${t("errors.tryAgain")}`;
   }
 
   function connectWallet(connector: (typeof connectors)[number], connectorName: string) {
@@ -86,17 +88,16 @@ export function ConnectWalletButton() {
     <>
       <Button size="sm" onClick={() => setOpen(true)}>
         <Wallet size={16} aria-hidden="true" />
-        Connect Wallet
+        {t("wallet.connect")}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent aria-describedby="connect-wallet-description">
-          <DialogTitle className="font-display text-xl font-semibold">Connect a wallet</DialogTitle>
+          <DialogTitle className="font-display text-xl font-semibold">{t("wallet.connect")}</DialogTitle>
           <DialogDescription
             id="connect-wallet-description"
             className="text-ink-soft dark:text-parchment-100/70 mt-1 text-sm"
           >
-            Connect a Valora-compatible wallet or MiniPay. This app never requests
-            your private keys or seed phrase.
+            CeloHT works with Valora-compatible wallets and MiniPay. {t("settings.walletSafety")}
           </DialogDescription>
 
           <div className="mt-6 flex flex-col gap-2">

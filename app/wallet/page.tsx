@@ -23,12 +23,14 @@ import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { erc20Abi } from "@/lib/contracts";
 import { getExplorerUrlForChain, getNetworkConfig, isSupportedWalletNetwork } from "@/lib/network/config";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/context";
 
 type Asset = "CELO" | "USDm";
 type TxState = "idle" | "signing" | "pending" | "success" | "failed";
 
 export default function WalletPage() {
   const { address, isConnected } = useAccount();
+  const { t } = useI18n();
   const chainId = useChainId();
   const networkConfig = getNetworkConfig(chainId) ?? getNetworkConfig();
   const usdmAddress = networkConfig?.tokens.usdm.address;
@@ -118,13 +120,13 @@ export default function WalletPage() {
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f8dc8f]">CeloHT · Sovereign finance</p>
-            <h1 className="mt-3 font-['Iowan_Old_Style','Georgia',serif] text-3xl font-semibold tracking-tight text-white sm:text-4xl">Wallet</h1>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f8dc8f]">CeloHT · {t("common.finance")}</p>
+            <h1 className="mt-3 font-['Iowan_Old_Style','Georgia',serif] text-3xl font-semibold tracking-tight text-white sm:text-4xl">{t("common.wallet")}</h1>
           </div>
           <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2">
             <span className={`h-2.5 w-2.5 rounded-full ${isConnected && !wrongNetwork ? "bg-[#4dd39b]" : wrongNetwork ? "bg-[#f5c842]" : "bg-white/40"}`} />
             <div className="text-left">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">Network</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">{t("common.network")}</div>
               <div className="font-mono text-xs text-white">{statusLabel}</div>
             </div>
           </div>
@@ -134,8 +136,8 @@ export default function WalletPage() {
           <section className="portfolio-panel overflow-hidden p-4 sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#f8dc8f]/85">Portfolio</p>
-                <h2 className="mt-2 font-['Iowan_Old_Style','Georgia',serif] text-2xl text-white sm:text-3xl">Total Balance</h2>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#f8dc8f]/85">{t("wallet.balance")}</p>
+                <h2 className="mt-2 font-['Iowan_Old_Style','Georgia',serif] text-2xl text-white sm:text-3xl">{t("wallet.balance")}</h2>
               </div>
               <div className="flex items-center gap-2 rounded-full border border-[#4dd39b]/25 bg-[#4dd39b]/10 px-3 py-1.5 text-xs text-[#abefc8]">
                 <span className="h-2 w-2 rounded-full bg-[#4dd39b]" />
@@ -154,19 +156,19 @@ export default function WalletPage() {
                 </div>
                 <div className="mt-5">
                   <div className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{usdmDisplay === "—" ? "$0.00" : `$${usdmDisplay}`}</div>
-                  <div className="mt-2 text-sm text-white/60">USDm balance</div>
+                  <div className="mt-2 text-sm text-white/60">{t("wallet.balance")} USDm</div>
                 </div>
                 <div className="mt-3 text-sm text-[#dfeaf6]/60">≈ Local currency estimate unavailable until a price feed is configured.</div>
               </div>
 
               <div className="wallet-panel w-full max-w-md p-4 backdrop-blur-sm">
                 <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/40">
-                  <span>Wallet</span>
+                  <span>{t("common.wallet")}</span>
                   <span>{networkConfig?.network === "mainnet" ? "Mainnet" : "Testnet"}</span>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
                   <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/35">Address</div>
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/35">{t("wallet.address")}</div>
                     <div className="mt-1 truncate font-mono text-sm text-white">{address ? shortenAddress(address, 8) : "Not connected"}</div>
                   </div>
                   {address ? (
@@ -176,19 +178,19 @@ export default function WalletPage() {
                   ) : null}
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs text-white/55">
-                  <span>Provider</span>
+                  <span>{t("wallet.provider")}</span>
                   <span>{isConnected ? "WalletConnect / injected" : "Disconnected"}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs text-white/55">
-                  <span>Network status</span>
+                  <span>{t("wallet.networkStatus")}</span>
                   <span>{wrongNetwork ? "Unsupported" : isConnected ? "Live" : "Offline"}</span>
                 </div>
                 <div className="mt-4 flex gap-3">
                   <button type="button" disabled={!isConnected || wrongNetwork} className="wallet-primary" onClick={() => setShowReceive(false)}>
-                    Send
+                    {t("wallet.send")}
                   </button>
                   <button type="button" disabled={!isConnected} className="wallet-secondary flex-1" onClick={() => setShowReceive(true)}>
-                    Receive
+                    {t("wallet.receive")}
                   </button>
                 </div>
               </div>

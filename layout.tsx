@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { BottomNav } from "@/components/BottomNav";
+import { I18nProvider } from "@/lib/i18n/context";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.celoht.com/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
@@ -53,7 +54,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ht" suppressHydrationWarning>
       <head>
         <link rel="icon" href={`${BASE_PATH}/favicon.svg`} type="image/svg+xml" />
         <link rel="icon" href={`${BASE_PATH}/favicon.ico`} />
@@ -62,14 +63,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="bg-navy-950 font-body text-parchment antialiased">
         <Web3Gate>
-          <ToastProvider>
-            <SkipLink />
-            <Header />
-            <main id="main-content" className="lg:ml-64">
-              {children}
-            </main>
-            <BottomNav />
-          </ToastProvider>
+          <I18nProvider>
+            <ToastProvider>
+              <SkipLink />
+              <Header />
+              <main id="main-content" className="lg:ml-64">
+                {children}
+              </main>
+              <BottomNav />
+            </ToastProvider>
+          </I18nProvider>
         </Web3Gate>
       </body>
     </html>
