@@ -611,7 +611,16 @@ body::before {
 .activity-close { min-height: 2rem; width: 2rem; padding: 0; font-size: 1.2rem; }
 .detail-line { display: flex; justify-content: space-between; gap: 1rem; color: rgba(238, 242, 246, 0.45); font-size: 0.75rem; }
 .detail-line strong { color: rgba(238, 242, 246, 0.8); font-weight: 500; }
-@keyframes activity-drawer-in { from { opacity: 0; transform: translateX(1.5rem); } to { opacity: 1; transform: translateX(0); } }
+@keyframes activity-drawer-in {
+  0% {
+    opacity: 0;
+    transform: translateX(1.4rem) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
 
 .learn-shell { background: radial-gradient(circle at 78% 0%, rgba(74, 190, 201, 0.06), transparent 27rem), linear-gradient(145deg, #070c18 0%, #0b1426 62%, #102b2a 140%); }
 .learn-header { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.75rem; }
@@ -1405,8 +1414,13 @@ textarea:focus,
 .reforest-primary-cta:hover,
 .profile-action:hover { box-shadow: 0 1rem 2.5rem rgba(245, 200, 66, 0.24); }
 
-.activity-drawer-backdrop { background: rgba(1, 5, 12, 0.72); backdrop-filter: blur(6px); }
-.activity-drawer { border-left-color: var(--celoht-stroke-strong); background: linear-gradient(180deg, #101d31, #080f1d); box-shadow: -1.5rem 0 4rem rgba(1, 5, 12, 0.24); }
+.activity-drawer-backdrop { background: rgba(1, 5, 12, 0.72); backdrop-filter: blur(8px) saturate(135%); }
+.activity-drawer {
+  border-left-color: var(--celoht-stroke-strong);
+  background: linear-gradient(180deg, rgba(16, 29, 49, 0.97), rgba(8, 15, 29, 0.99));
+  box-shadow: -1.5rem 0 4rem rgba(1, 5, 12, 0.28), inset 1px 0 0 rgba(248, 220, 143, 0.08);
+  animation: activity-drawer-in 260ms var(--celoht-ease) both;
+}
 .activity-close,
 .profile-icon-button { border-color: var(--celoht-stroke); background: rgba(255, 255, 255, 0.035); transition: background-color 180ms var(--celoht-ease), border-color 180ms var(--celoht-ease), color 180ms var(--celoht-ease), transform 180ms var(--celoht-ease); }
 .activity-close:hover,
