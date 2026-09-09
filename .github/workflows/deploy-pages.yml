@@ -60,6 +60,10 @@ jobs:
           REPO_NAME: celoht-dapp
           NEXT_PUBLIC_BASE_PATH: /celoht-dapp
           NEXT_PUBLIC_APP_URL: https://celo-haiti.github.io/celoht-dapp/
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: "02d9a7daa098b201a99a7da3769392b2"
           COMMUNITY_GITHUB_URL: "https://github.com/Celo-HaiTi"
           COMMUNITY_DISCORD_URL: "https://discord.gg/Xcx6c9bBD2"
