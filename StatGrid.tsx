@@ -4,12 +4,12 @@ export function StatGrid({ stats }: { stats: { value: string; label: string }[] 
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="border-navy-700/10 dark:border-parchment-100/10 rounded-xl border p-5"
+          className="surface-panel rounded-[var(--celoht-radius-md)] border p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-gold-300/30"
         >
-          <dt className="text-ink-soft dark:text-parchment-100/50 text-xs tracking-wide uppercase">
+          <dt className="text-xs uppercase tracking-[0.16em] text-parchment-100/48">
             {stat.label}
           </dt>
-          <dd className="text-navy-800 dark:text-gold-300 mt-1 font-mono text-2xl font-semibold">
+          <dd className="mt-2 font-mono text-2xl font-semibold tabular-nums text-gold-300">
             {stat.value}
           </dd>
         </div>

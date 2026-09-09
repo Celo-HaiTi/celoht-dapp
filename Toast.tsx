@@ -35,11 +35,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             duration={5000}
             onOpenChange={(open) => !open && remove(toast.id)}
             className={cn(
-              "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 rounded-xl border p-4 shadow-lg",
-              toast.tone === "success" && "border-forest-500/40 bg-forest-500/10",
-              toast.tone === "error" && "border-red-500/40 bg-red-500/10",
+              "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 rounded-[var(--celoht-radius-md)] border p-4 text-parchment shadow-[0_1.25rem_3rem_rgba(1,5,12,0.3)] backdrop-blur-xl",
+              toast.tone === "success" && "border-emerald-300/25 bg-emerald-950/75",
+              toast.tone === "error" && "border-red-300/25 bg-red-950/75",
               (!toast.tone || toast.tone === "default") &&
-                "border-navy-700/15 bg-parchment-50 dark:border-parchment-100/10 dark:bg-navy-900",
+                "border-white/12 bg-[#101d31]/95",
             )}
           >
             <ToastPrimitive.Title className="text-sm font-semibold">

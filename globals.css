@@ -1045,3 +1045,186 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   .settings-panel,
   .trust-panel { border-radius: 0.85rem; }
 }
+
+/* Final luxury surface system. Keep this layer last so route-level legacy
+   classes resolve to one visual language without changing their behavior. */
+:root {
+  color-scheme: dark;
+  --celoht-ink-strong: #f8fafc;
+  --celoht-ink: rgba(238, 242, 246, 0.78);
+  --celoht-ink-muted: rgba(238, 242, 246, 0.52);
+  --celoht-surface-0: #070c18;
+  --celoht-surface-1: rgba(15, 29, 49, 0.82);
+  --celoht-surface-2: rgba(22, 38, 61, 0.76);
+  --celoht-stroke: rgba(196, 211, 229, 0.14);
+  --celoht-stroke-strong: rgba(248, 220, 143, 0.28);
+  --celoht-shadow: 0 1.5rem 4rem rgba(1, 5, 12, 0.24);
+  --celoht-shadow-hover: 0 1.75rem 4.5rem rgba(1, 5, 12, 0.34);
+}
+
+body {
+  color: var(--celoht-ink);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-sidebar {
+  border-right: 1px solid rgba(248, 220, 143, 0.14);
+  background: linear-gradient(180deg, rgba(12, 22, 39, 0.98), rgba(6, 11, 22, 0.99));
+  box-shadow: 1.5rem 0 4rem rgba(1, 5, 12, 0.18);
+}
+
+.brand-mark,
+.header-brand {
+  transition: opacity 200ms var(--celoht-ease), transform 200ms var(--celoht-ease);
+}
+
+.brand-mark:hover,
+.header-brand:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.app-sidebar nav a,
+.app-sidebar nav a[aria-current="page"] {
+  min-height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--celoht-radius-sm);
+  transition: background-color 200ms var(--celoht-ease), border-color 200ms var(--celoht-ease), color 200ms var(--celoht-ease), transform 200ms var(--celoht-ease);
+}
+
+.app-sidebar nav a:hover { border-color: rgba(248, 220, 143, 0.14); transform: translateX(2px); }
+.app-sidebar nav a[aria-current="page"] { border-color: rgba(248, 220, 143, 0.18); box-shadow: inset 2px 0 0 #f5c842; }
+
+.app-header {
+  min-height: 4.25rem;
+  border-bottom: 1px solid rgba(248, 220, 143, 0.14);
+  background: rgba(6, 11, 22, 0.78);
+  box-shadow: 0 1rem 3rem rgba(1, 5, 12, 0.14);
+}
+
+.app-header button,
+.app-header a,
+.mobile-bottom-nav a { transition-timing-function: var(--celoht-ease); }
+
+.mobile-bottom-nav {
+  border-top: 1px solid rgba(248, 220, 143, 0.18);
+  background: rgba(6, 11, 22, 0.9);
+  box-shadow: 0 -1.25rem 3rem rgba(1, 5, 12, 0.24);
+}
+
+.mobile-nav-item {
+  min-height: 3.2rem;
+  border: 1px solid transparent;
+  border-radius: var(--celoht-radius-sm);
+  letter-spacing: 0.01em;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-active { border-color: rgba(248, 220, 143, 0.12); background: rgba(245, 200, 66, 0.08); }
+
+.workspace-panel,
+.module-card,
+.portfolio-panel,
+.wallet-panel,
+.quick-actions,
+.activity-overview,
+.activity-empty,
+.activity-card,
+.learning-progress,
+.agent-list-status,
+.agent-empty,
+.agent-onboarding,
+.reforest-workspace,
+.surface-panel,
+.premium-card {
+  border-color: var(--celoht-stroke);
+  box-shadow: var(--celoht-shadow);
+}
+
+.workspace-panel,
+.portfolio-panel,
+.wallet-panel,
+.activity-empty,
+.activity-card,
+.learning-progress,
+.agent-list-status,
+.agent-empty,
+.agent-onboarding,
+.reforest-workspace,
+.surface-panel { background-color: var(--celoht-surface-1); }
+
+.workspace-panel:hover,
+.module-card:hover,
+.activity-card:hover,
+.course-card:hover,
+.premium-card:hover { border-color: var(--celoht-stroke-strong); box-shadow: var(--celoht-shadow-hover); }
+
+input,
+select,
+textarea,
+.wallet-input,
+.settings-select,
+.activity-search input {
+  min-height: 2.9rem;
+  border: 1px solid var(--celoht-stroke);
+  border-radius: var(--celoht-radius-sm);
+  background: rgba(5, 11, 21, 0.38);
+  color: var(--celoht-ink-strong);
+  transition: border-color 180ms var(--celoht-ease), box-shadow 180ms var(--celoht-ease), background-color 180ms var(--celoht-ease);
+}
+
+input:hover,
+select:hover,
+textarea:hover,
+.wallet-input:hover { border-color: rgba(248, 220, 143, 0.3); }
+
+input:focus,
+select:focus,
+textarea:focus,
+.wallet-input:focus,
+.settings-select:focus,
+.activity-search input:focus { border-color: rgba(248, 220, 143, 0.72); background: rgba(5, 11, 21, 0.56); box-shadow: 0 0 0 3px rgba(245, 200, 66, 0.1), 0 0.75rem 2rem rgba(1, 5, 12, 0.12); outline: none; }
+
+.primary-cta,
+.wallet-primary,
+.learn-primary-action,
+.reforest-primary-cta,
+.profile-action { box-shadow: 0 0.8rem 2rem rgba(245, 200, 66, 0.16); transition: transform 200ms var(--celoht-ease), box-shadow 200ms var(--celoht-ease), background-color 200ms var(--celoht-ease); }
+
+.primary-cta:hover,
+.wallet-primary:hover,
+.learn-primary-action:hover,
+.reforest-primary-cta:hover,
+.profile-action:hover { box-shadow: 0 1rem 2.5rem rgba(245, 200, 66, 0.24); }
+
+.activity-drawer-backdrop { background: rgba(1, 5, 12, 0.72); backdrop-filter: blur(6px); }
+.activity-drawer { border-left-color: var(--celoht-stroke-strong); background: linear-gradient(180deg, #101d31, #080f1d); box-shadow: -1.5rem 0 4rem rgba(1, 5, 12, 0.24); }
+.activity-close,
+.profile-icon-button { border-color: var(--celoht-stroke); background: rgba(255, 255, 255, 0.035); transition: background-color 180ms var(--celoht-ease), border-color 180ms var(--celoht-ease), color 180ms var(--celoht-ease), transform 180ms var(--celoht-ease); }
+.activity-close:hover,
+.profile-icon-button:hover { background: rgba(245, 200, 66, 0.08); border-color: var(--celoht-stroke-strong); transform: translateY(-1px); }
+
+.section-kicker { color: rgba(248, 220, 143, 0.86); letter-spacing: 0.2em; }
+
+.celoht-skeleton {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.05) 20%, rgba(248, 220, 143, 0.13) 38%, rgba(255, 255, 255, 0.05) 56%);
+  background-size: 220% 100%;
+  animation: celoht-shimmer 1.8s var(--celoht-ease) infinite;
+}
+
+@keyframes celoht-shimmer { from { background-position: 180% 0; } to { background-position: -40% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .celoht-skeleton { animation: none; }
+}
+
+@media (max-width: 639px) {
+  .app-header { min-height: 4rem; }
+  .workspace-panel,
+  .portfolio-panel,
+  .wallet-panel,
+  .activity-empty,
+  .activity-card,
+  .learning-progress,
+  .agent-onboarding,
+  .reforest-workspace { box-shadow: 0 1rem 2.5rem rgba(1, 5, 12, 0.18); }
+}

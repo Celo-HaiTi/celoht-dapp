@@ -7,7 +7,7 @@ export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>
     <div
       role="status"
       aria-label="Loading"
-      className={cn("bg-navy-700/10 dark:bg-parchment-100/10 animate-pulse rounded-md", className)}
+      className={cn("celoht-skeleton rounded-[var(--celoht-radius-sm)]", className)}
       {...props}
     />
   );
