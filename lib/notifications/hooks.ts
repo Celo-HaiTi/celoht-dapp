@@ -23,9 +23,17 @@ export function useNotificationPreferences() {
   return { preferences, updatePreference, refresh };
 }
 
+function getRecordsSnapshot(key: string) {
+  if (!cache.has(key)) {
+    cache.set(key, []);
+  }
+
+  return cache.get(key)!;
+}
+
 export function useNotifications(walletAddress?: string) {
   const key = walletAddress?.toLowerCase() ?? "guest";
-  const records = useSyncExternalStore(subscribe, () => cache.get(key) ?? [], () => []);
+  const records = useSyncExternalStore(subscribe, () => getRecordsSnapshot(key), () => []);
 
   const refresh = useCallback(async () => {
     if (!walletAddress) return;
