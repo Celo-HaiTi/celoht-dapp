@@ -13,14 +13,14 @@ const LOGO_URL = `${BASE_PATH}/celoht-logo.png`;
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-  default: "CeloHT — Digital Finance for Everyone",
+  default: "CeloHT",
     template: "%s | CeloHT",
   },
   description:
     "CeloHT is a Web3 financial, education, and impact platform powered by the Celo ecosystem.",
   keywords: ["CeloHT", "Celo", "USDm", "financial inclusion", "Web3 education", "reforestation"],
   openGraph: {
-    title: "CeloHT — Digital Finance for Everyone",
+    title: "CeloHT",
     description:
       "A community-driven Celo app for accessible wallets, learning, and environmental impact.",
     url: SITE_URL,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CeloHT — Digital Finance for Everyone",
+    title: "CeloHT",
     description:
       "A community-driven Celo app for accessible wallets, learning, and environmental impact.",
     images: [LOGO_URL],
