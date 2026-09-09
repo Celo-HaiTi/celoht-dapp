@@ -2,7 +2,7 @@
 
 This project is configured for GitHub Pages hosting at:
 
-https://celoht-dapp.github.io/
+https://celo-haiti.github.io/celoht-dapp/
 
 ## Run locally
 
