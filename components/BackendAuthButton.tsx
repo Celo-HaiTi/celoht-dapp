@@ -31,7 +31,7 @@ export function BackendAuthButton() {
     }
   }
 
-  if (!configured) return <span className="text-xs text-parchment-100/45">Backend unavailable</span>;
+  if (!configured) return null;
   if (!isConnected) return <span className="text-xs text-parchment-100/45">Connect wallet to sign in</span>;
   if (signedIn) return <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300"><ShieldCheck size={14} aria-hidden="true" /> Signed in</span>;
 
