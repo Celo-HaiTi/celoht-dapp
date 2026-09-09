@@ -7,7 +7,7 @@ import {
   getTokenConfig,
   isSupportedWalletNetwork,
   resolveEnvironmentMode,
-} from "../lib/network/config.ts";
+} from "../lib/network/config.mjs";
 
 test("network layer exposes a supported testnet configuration without fake mainnet assumptions", () => {
   const config = getNetworkConfig(11142220);

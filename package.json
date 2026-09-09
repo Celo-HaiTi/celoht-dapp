@@ -16,7 +16,7 @@
     "audit": "npm audit --omit=dev --audit-level=high",
     "contracts:sync": "node scripts/sync-contracts.mjs --check",
     "contracts:sync-abis": "node scripts/sync-contracts.mjs",
-    "test": "node --experimental-strip-types --test tests/*.mjs"
+    "test": "node --test tests/*.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
