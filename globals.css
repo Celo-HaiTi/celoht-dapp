@@ -453,6 +453,98 @@ body::before {
 .wallet-error, .wallet-warning { border-radius: 0.55rem; padding: 0.65rem; font-size: 0.75rem; line-height: 1.35; }
 .wallet-error { border: 1px solid rgba(220, 116, 116, 0.3); background: rgba(220, 116, 116, 0.06); color: #f3b1b1; }
 .wallet-warning { border: 1px solid rgba(231, 184, 59, 0.3); background: rgba(231, 184, 59, 0.06); color: #f4d887; }
+
+.celoht-state-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(17, 29, 47, 0.92), rgba(11, 21, 36, 0.96));
+  box-shadow: 0 1.25rem 3rem rgba(1, 5, 12, 0.16);
+  padding: 1.25rem;
+}
+
+.celoht-state-panel::before {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(248, 220, 143, 0.08), transparent 60%);
+  transform: translate(-35%, -35%);
+  content: "";
+}
+
+.celoht-state-panel.loading {
+  border-color: rgba(248, 220, 143, 0.28);
+  background: linear-gradient(145deg, rgba(23, 30, 38, 0.96), rgba(15, 26, 30, 0.96));
+}
+
+.celoht-state-panel.loading::before {
+  background: linear-gradient(135deg, rgba(248, 220, 143, 0.16), transparent 62%);
+}
+
+.celoht-state-panel.success {
+  border-color: rgba(116, 213, 162, 0.28);
+  background: linear-gradient(145deg, rgba(12, 33, 28, 0.96), rgba(10, 25, 21, 0.96));
+}
+
+.celoht-state-panel.success::before {
+  background: linear-gradient(135deg, rgba(116, 213, 162, 0.14), transparent 62%);
+}
+
+.celoht-state-panel.error {
+  border-color: rgba(229, 139, 139, 0.32);
+  background: linear-gradient(145deg, rgba(39, 18, 18, 0.96), rgba(24, 16, 22, 0.96));
+}
+
+.celoht-state-panel.error::before {
+  background: linear-gradient(135deg, rgba(229, 139, 139, 0.12), transparent 62%);
+}
+
+.celoht-state-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.celoht-state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.45rem 0.7rem;
+  color: rgba(238, 242, 246, 0.7);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.celoht-state-panel.loading .celoht-state-badge {
+  border-color: rgba(248, 220, 143, 0.32);
+  background: rgba(245, 200, 66, 0.08);
+  color: #f9d77d;
+}
+
+.celoht-state-panel.success .celoht-state-badge {
+  border-color: rgba(116, 213, 162, 0.38);
+  background: rgba(116, 213, 162, 0.08);
+  color: #9be4c4;
+}
+
+.celoht-state-panel.error .celoht-state-badge {
+  border-color: rgba(229, 139, 139, 0.38);
+  background: rgba(229, 139, 139, 0.08);
+  color: #f7b3b3;
+}
+
 .review-empty { margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; color: rgba(238, 242, 246, 0.52); font-size: 0.85rem; line-height: 1.5; }
 .review-empty span { display: block; margin-top: 0.75rem; color: rgba(248, 220, 143, 0.65); font-size: 0.72rem; }
 .review-details { display: grid; gap: 0.9rem; margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; }

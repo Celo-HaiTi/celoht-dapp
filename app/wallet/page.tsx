@@ -377,8 +377,8 @@ export default function WalletPage() {
           )}
 
           {txHash && (
-            <section className="wallet-panel p-5 sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <section className={`celoht-state-panel ${txState === "success" ? "success" : txState === "failed" ? "error" : txState === "pending" ? "loading" : "idle"}`}>
+              <div className="celoht-state-header">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Transaction status</p>
                   <h2 className="mt-2 text-xl font-semibold text-white">
@@ -388,7 +388,7 @@ export default function WalletPage() {
                     {txState === "idle" && "Ready for signature"}
                   </h2>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70">
+                <div className="celoht-state-badge">
                   {txState === "success" ? <CheckCircle2 className="h-4 w-4 text-[#4dd39b]" aria-hidden="true" /> : txState === "failed" ? <ShieldAlert className="h-4 w-4 text-[#f7b267]" aria-hidden="true" /> : txState === "pending" ? <Loader2 className="h-4 w-4 animate-spin text-[#f8dc8f]" aria-hidden="true" /> : <Clock3 className="h-4 w-4 text-white/60" aria-hidden="true" />}
                   {txState === "success" ? "Confirmed" : txState === "failed" ? "Failed" : txState === "pending" ? "Pending" : "Awaiting"}
                 </div>
