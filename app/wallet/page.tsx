@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   ArrowDownLeft,
@@ -24,6 +24,8 @@ import { erc20Abi } from "@/lib/contracts";
 import { getExplorerUrlForChain, getNetworkConfig, isSupportedWalletNetwork } from "@/lib/network/config";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
+import { createNotification } from "@/lib/notifications/service";
+import { transactionDeduplicationKey } from "@/lib/notifications/dedupe";
 
 type Asset = "CELO" | "USDm";
 type TxState = "idle" | "signing" | "pending" | "success" | "failed";
@@ -80,6 +82,27 @@ export default function WalletPage() {
     : "idle";
 
   const amountError = amount && (!amountValid ? `Enter a valid ${asset} amount.` : !enoughBalance ? `Insufficient ${asset} balance.` : undefined);
+
+  useEffect(() => {
+    if (!address || !txHash || !isConnected) return;
+    const failed = Boolean(txReceipt.isError || txError) && !txReceipt.isSuccess;
+    const confirmed = txReceipt.isSuccess;
+    if (!failed && !confirmed) return;
+    const state = confirmed ? "confirmed" : "failed";
+    void createNotification({
+      recipientWalletAddress: address,
+      type: confirmed ? "transaction_confirmed" : "transaction_failed",
+      title: confirmed ? t("notifications.transactionConfirmed") : t("notifications.transactionFailed"),
+      message: confirmed ? `${amount || ""} ${asset} · ${t("wallet.confirmed")}` : `${asset} · ${t("wallet.failed")}`,
+      metadata: { asset, amount, action: "transfer" },
+      transactionHash: txHash,
+      chainId,
+      priority: confirmed ? "normal" : "high",
+      deliveryStatus: "delivered",
+      deduplicationKey: transactionDeduplicationKey(chainId, txHash, state),
+      deepLink: `/wallet?tx=${txHash}`,
+    });
+  }, [address, amount, asset, chainId, isConnected, t, txError, txHash, txReceipt.isError, txReceipt.isSuccess]);
 
   const handleCopy = async () => {
     if (!address) return;

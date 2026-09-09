@@ -8,6 +8,7 @@ import {
   languageFromLocale,
   readStoredLanguage,
 } from "../lib/i18n/runtime.mjs";
+import { entityDeduplicationKey, securityDeduplicationKey, transactionDeduplicationKey } from "../lib/notifications/dedupe.mjs";
 
 function storageWith(value) {
   return { getItem: () => value };
@@ -42,4 +43,11 @@ test("stored language has priority over browser locale", () => {
 
 test("uses the stable storage key", () => {
   assert.equal(LANGUAGE_STORAGE_KEY, "celoht.language");
+});
+
+test("notification deduplication keys are deterministic and normalized", () => {
+  assert.equal(transactionDeduplicationKey(11142220, "0xABC", "confirmed"), "tx:11142220:0xabc:confirmed");
+  assert.equal(transactionDeduplicationKey(11142220, "0xABC", "confirmed"), transactionDeduplicationKey(11142220, "0xabc", "confirmed"));
+  assert.equal(securityDeduplicationKey("0xABC", "wrong_network"), "security:0xabc:wrong_network");
+  assert.equal(entityDeduplicationKey("agent_activity", "agent-1", "0xABC"), "agent_activity:agent-1:0xabc");
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Activity, Check, CircleAlert, Copy, ExternalLink, Globe2, Info, Languages, LockKeyhole, LogOut, Network, ShieldCheck, SlidersHorizontal, WalletCards } from "lucide-react";
 import { celo, celoSepolia } from "wagmi/chains";
@@ -12,9 +12,11 @@ import { useI18n } from "@/lib/i18n/context";
 import { languageLabels } from "@/lib/i18n/config";
 import { LANGUAGE_STORAGE_KEY } from "@/lib/i18n/config";
 import type { Language } from "@/lib/i18n/types";
+import { useNotificationPreferences } from "@/lib/notifications/hooks";
+import type { NotificationPreferences } from "@/lib/notifications/types";
+import { isBackendConfigured } from "@/lib/backend";
 
-const notificationDefaults = { confirmations: true, failures: true, security: true, agents: false, reforest: true, announcements: true };
-type NotificationKey = keyof typeof notificationDefaults;
+type NotificationKey = keyof NotificationPreferences;
 
 export default function SettingsPage() {
   const { address, chain, connector, isConnected } = useAccount();
@@ -23,11 +25,10 @@ export default function SettingsPage() {
   const { switchChain, isPending: switching, error: switchError } = useSwitchChain();
   const { language, setLanguage, t } = useI18n();
   const block = useBlockNumber({ watch: false, query: { enabled: isConnected } });
-  const notificationRaw = useSyncExternalStore(subscribeLocal, getNotificationSnapshot, getNotificationServerSnapshot);
-  const notifications = parseNotifications(notificationRaw);
+  const { preferences: notifications, updatePreference } = useNotificationPreferences();
   const notificationLabels: Record<NotificationKey, string> = {
-    confirmations: t("settings.transactionConfirmations"), failures: t("settings.transactionFailures"), security: t("settings.securityAlerts"),
-    agents: t("settings.agentActivity"), reforest: t("settings.reforestationUpdates"), announcements: t("settings.announcements"),
+    transaction_confirmed: t("settings.transactionConfirmations"), transaction_failed: t("settings.transactionFailures"), security_alert: t("settings.securityAlerts"),
+    agent_activity: t("settings.agentActivity"), reforestation_update: t("settings.reforestationUpdates"), celoht_announcement: t("settings.announcements"),
   };
   const [copied, setCopied] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -35,9 +36,7 @@ export default function SettingsPage() {
   const usdmConfigured = Boolean(getUsdmAddress(chainId));
 
   function toggleNotification(key: NotificationKey) {
-    const next = { ...notifications, [key]: !notifications[key] };
-    localStorage.setItem("celoht-notification-prefs", JSON.stringify(next));
-    window.dispatchEvent(new Event("celoht-settings"));
+    void updatePreference(key);
   }
   async function copyAddress() { if (!address) return; await navigator.clipboard.writeText(address); setCopied(true); window.setTimeout(() => setCopied(false), 1500); }
   function clearLocalData() { localStorage.removeItem("celoht-notification-prefs"); localStorage.removeItem(LANGUAGE_STORAGE_KEY); localStorage.removeItem("celoht-academy-progress:guest"); window.dispatchEvent(new Event("celoht-settings")); window.dispatchEvent(new Event("celoht-language-change")); setCleared(true); }
@@ -46,7 +45,7 @@ export default function SettingsPage() {
     <div className="settings-grid mt-7"><main className="space-y-5"><SettingsPanel icon={<WalletCards size={18} />} eyebrow={t("settings.account")} title={t("settings.walletIdentity")}><div className="settings-identity"><div className="settings-avatar">{isConnected && address ? address.slice(2, 4).toUpperCase() : "?"}</div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white">{isConnected && address ? t("settings.connectedWallet") : t("common.notConnected")}</p><p className="mt-1 break-all font-mono text-xs text-parchment-100/48">{isConnected && address ? shortenAddress(address, 6) : t("settings.connectIdentity")}</p></div>{isConnected ? <span className="settings-status settings-status-live">{t("common.connected")}</span> : <ConnectWalletButton />}</div>{isConnected && address && <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" onClick={copyAddress} className="settings-action">{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t("settings.addressCopied") : t("settings.copyAddress")}</button><button type="button" onClick={() => disconnect()} className="settings-action"><LogOut size={14} aria-hidden="true" /> {t("common.disconnect")}</button></div>}</SettingsPanel>
       <SettingsPanel icon={<Network size={18} />} eyebrow={t("settings.connectionSecurity")} title={t("settings.connectionSecurity")}><SettingRow label={t("settings.provider")} value={isConnected ? connector?.name ?? t("settings.connectedWallet") : t("common.unavailable")} /><SettingRow label={t("settings.connectionStatus")} value={isConnected ? t("common.active") : t("common.notConnected")} /><p className="settings-note"><LockKeyhole size={15} aria-hidden="true" /> {t("settings.walletSafety")}</p></SettingsPanel>
       <SettingsPanel icon={<Globe2 size={18} />} eyebrow={t("settings.networkBlockchain")} title={t("settings.celoConnection")}><SettingRow label={t("settings.network")} value={isConnected ? chain?.name ?? `Chain ${chainId}` : t("common.notConnected")} /><SettingRow label={t("settings.chainId")} value={isConnected ? String(chainId) : t("common.unavailable")} mono /><SettingRow label={t("settings.rpcStatus")} value={!isConnected ? t("common.notConnected") : block.isLoading ? t("common.loading") : block.error ? t("common.unavailable") : "Operational"} /><SettingRow label={t("settings.latestBlock")} value={block.data !== undefined ? block.data.toString() : t("common.unavailable")} mono />{isConnected && !supported && <div className="settings-warning" role="alert"><CircleAlert size={15} aria-hidden="true" /><span>{t("settings.wrongNetwork")}</span><button type="button" onClick={() => switchChain({ chainId: celo.id })} disabled={switching}>{switching ? t("settings.switching") : t("settings.switchToCelo")}</button></div>}{switchError && <p className="settings-error" role="alert">{t("settings.switchRejected")}</p>}<SettingRow label={t("settings.usdmToken")} value={usdmConfigured ? t("common.configured") : t("common.unavailable")} /></SettingsPanel>
-      <SettingsPanel icon={<SlidersHorizontal size={18} />} eyebrow={t("settings.notifications")} title={t("settings.chooseWhatMatters")}><div className="settings-toggles">{(Object.keys(notificationLabels) as NotificationKey[]).map((key) => <label key={key} className="settings-toggle"><span><strong>{notificationLabels[key]}</strong><small>{t("settings.storedLocally")}</small></span><input type="checkbox" checked={notifications[key]} onChange={() => toggleNotification(key)} /><i aria-hidden="true" /></label>)}</div></SettingsPanel>
+      <SettingsPanel icon={<SlidersHorizontal size={18} />} eyebrow={t("settings.notifications")} title={t("settings.chooseWhatMatters")}><div className="settings-toggles">{(Object.keys(notificationLabels) as NotificationKey[]).map((key) => <label key={key} className="settings-toggle"><span><strong>{notificationLabels[key]}</strong><small>{isBackendConfigured() ? t("settings.savedToAccount") : t("settings.savedLocallyFallback")}</small></span><input type="checkbox" checked={notifications[key]} onChange={() => toggleNotification(key)} /><i aria-hidden="true" /></label>)}</div></SettingsPanel>
       <SettingsPanel icon={<Languages size={18} />} eyebrow={t("settings.language")} title={t("settings.languageTitle")}><label htmlFor="language" className="sr-only">{t("settings.languageLabel")}</label><select id="language" className="settings-select" value={language} onChange={(event) => setLanguage(event.target.value as Language)}>{(Object.keys(languageLabels) as Language[]).map((code) => <option key={code} value={code}>{t(`language.${code}` as "language.ht" | "language.en" | "language.fr" | "language.es")}</option>)}</select><p className="settings-note"><Info size={15} aria-hidden="true" /> {t("settings.languageDescription")}</p></SettingsPanel>
       <SettingsPanel icon={<LockKeyhole size={18} />} eyebrow={t("settings.privacy")} title={t("settings.localDataControls")}><p className="text-sm leading-6 text-parchment-100/58">{t("settings.localDataDescription")}</p><button type="button" onClick={clearLocalData} className="settings-action mt-4">{cleared ? <Check size={14} /> : null}{cleared ? t("settings.localDataCleared") : t("settings.clearLocalData")}</button><div className="mt-4 flex gap-4 text-xs"><Link href="/privacy" className="settings-link">{t("common.privacy")}</Link><Link href="/terms" className="settings-link">{t("common.terms")}</Link></div></SettingsPanel></main>
       <aside className="settings-aside"><SettingsPanel icon={<Info size={18} />} eyebrow={t("settings.about")} title={t("settings.application")}><SettingRow label={t("settings.application")} value="CeloHT dApp" /><SettingRow label={t("settings.version")} value="0.1.0" mono /><SettingRow label={t("settings.network")} value={chain?.name ?? t("settings.celoNetworks")} /><SettingRow label="USDm" value={usdmConfigured ? t("settings.configuredForNetwork") : t("common.unavailable")} /><p className="settings-note mt-4"><ShieldCheck size={15} aria-hidden="true" /> {t("settings.openSourceWallet")}</p><Link href="/trust" className="settings-link mt-5">{t("common.trustCenter")} <ExternalLink size={14} aria-hidden="true" /></Link></SettingsPanel><SettingsPanel icon={<Activity size={18} />} eyebrow={t("settings.connectedModules")} title={t("settings.workspace")}><Link href="/wallet" className="settings-module-link">{t("common.wallet")} <ExternalLink size={14} aria-hidden="true" /></Link><Link href="/wallet/activity" className="settings-module-link">{t("common.activity")} <ExternalLink size={14} aria-hidden="true" /></Link><Link href="/learn" className="settings-module-link">{t("common.learn")} <ExternalLink size={14} aria-hidden="true" /></Link><Link href="/agents" className="settings-module-link">{t("common.agents")} <ExternalLink size={14} aria-hidden="true" /></Link></SettingsPanel></aside></div>
@@ -55,12 +54,3 @@ export default function SettingsPage() {
 
 function SettingsPanel({ icon, eyebrow, title, children }: { icon: React.ReactNode; eyebrow: string; title: string; children: React.ReactNode }) { return <section className="settings-panel"><div className="settings-panel-title"><span>{icon}</span><div><p className="section-kicker">{eyebrow}</p><h2 className="mt-1 font-display text-lg font-semibold text-white">{title}</h2></div></div><div className="mt-5">{children}</div></section>; }
 function SettingRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) { return <div className="setting-row"><span>{label}</span><strong className={mono ? "font-mono" : ""}>{value}</strong></div>; }
-
-function subscribeLocal(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  window.addEventListener("celoht-settings", onChange);
-  return () => { window.removeEventListener("storage", onChange); window.removeEventListener("celoht-settings", onChange); };
-}
-function getNotificationSnapshot() { return localStorage.getItem("celoht-notification-prefs") ?? JSON.stringify(notificationDefaults); }
-function getNotificationServerSnapshot() { return JSON.stringify(notificationDefaults); }
-function parseNotifications(raw: string) { try { const value: unknown = JSON.parse(raw); return value && typeof value === "object" ? { ...notificationDefaults, ...value } : notificationDefaults; } catch { return notificationDefaults; } }

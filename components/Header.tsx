@@ -10,6 +10,7 @@ import { celo, celoSepolia } from "wagmi/chains";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { BackendAuthButton } from "@/components/BackendAuthButton";
 import { useI18n } from "@/lib/i18n/context";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 const workspaceNav = [
   { label: "Overview", href: "/", icon: Network },
@@ -28,7 +29,7 @@ const secondaryNav = [
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isConnected, chain } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const { t } = useI18n();
   const logoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/celoht-logo.png`;
   const networkReady = chain?.id === celo.id || chain?.id === celoSepolia.id;
@@ -58,6 +59,7 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <span className={`hidden items-center gap-2 rounded-full border px-2.5 py-1.5 text-[10px] font-medium md:inline-flex ${networkReady ? "border-emerald-400/20 text-emerald-200" : "border-white/10 text-parchment-100/55"}`}><span className={`h-1.5 w-1.5 rounded-full ${networkReady ? "bg-emerald-400" : "bg-amber-400"}`} />{isConnected && networkReady ? chain?.name : t("navigation.celoNetwork")}</span>
+          <NotificationCenter walletAddress={address} />
           <div className="shrink-0"><ConnectWalletButton /></div>
           <div className="hidden shrink-0 sm:block"><BackendAuthButton /></div>
           <button type="button" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen((value) => !value)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"><span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>{menuOpen ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}</button>

@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import type { NotificationPreferences, NotificationRecord } from "@/lib/notifications/types";
 
 export type BackendError = {
   code: string;
@@ -87,4 +88,28 @@ export function getBackendEvidence() {
 
 export function getBackendGovernance() {
   return request<unknown[]>("/governance");
+}
+
+export function getBackendNotificationPreferences() {
+  return request<NotificationPreferences>("/notifications/preferences");
+}
+
+export function saveBackendNotificationPreferences(preferences: NotificationPreferences) {
+  return request<NotificationPreferences>("/notifications/preferences", { method: "PUT", body: JSON.stringify(preferences) });
+}
+
+export function getBackendNotifications() {
+  return request<NotificationRecord[]>("/notifications?limit=50");
+}
+
+export function createBackendNotification(notification: NotificationRecord) {
+  return request<NotificationRecord>("/notifications", { method: "POST", body: JSON.stringify(notification) });
+}
+
+export function markBackendNotificationRead(id: string) {
+  return request<{ read: boolean }>(`/notifications/${encodeURIComponent(id)}/read`, { method: "POST" });
+}
+
+export function markBackendNotificationsRead() {
+  return request<{ read: number }>("/notifications/read-all", { method: "POST" });
 }
