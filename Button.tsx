@@ -6,14 +6,14 @@ import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-[var(--celoht-radius-sm)] text-sm font-semibold tracking-[0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-200 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
-          "bg-gold-500 text-navy-950 hover:bg-gold-300",
+          "bg-gold-500 text-navy-950 shadow-[0_0.55rem_1.5rem_rgba(245,200,66,0.14)] hover:-translate-y-0.5 hover:bg-gold-300 hover:shadow-[0_0.8rem_2rem_rgba(245,200,66,0.2)] active:translate-y-0",
         secondary:
-          "border border-white/15 text-parchment-100 hover:border-gold-500/60 hover:bg-white/10",
+          "border border-white/15 bg-white/[0.025] text-parchment-100 hover:-translate-y-0.5 hover:border-gold-500/60 hover:bg-white/10 active:translate-y-0",
         ghost:
           "text-parchment-100/70 hover:text-white",
         destructive: "bg-red-600 text-white hover:bg-red-700",

@@ -114,7 +114,7 @@ export default function WalletPage() {
   const celoDisplay = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals ?? 18, 2) : "—";
 
   return (
-    <div className="min-h-screen bg-[#070c18] text-white">
+    <div className="wallet-shell min-h-screen text-white">
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -131,7 +131,7 @@ export default function WalletPage() {
         </header>
 
         <main className="mt-6 space-y-6">
-          <section className="overflow-hidden rounded-[30px] border border-[#f8dc8f]/20 bg-[linear-gradient(135deg,rgba(15,27,44,0.92),rgba(12,20,32,0.80))] p-4 shadow-[0_25px_80px_rgba(3,6,13,0.56)] sm:p-6">
+          <section className="portfolio-panel overflow-hidden p-4 sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#f8dc8f]/85">Portfolio</p>
@@ -159,7 +159,7 @@ export default function WalletPage() {
                 <div className="mt-3 text-sm text-[#dfeaf6]/60">≈ Local currency estimate unavailable until a price feed is configured.</div>
               </div>
 
-              <div className="w-full max-w-md rounded-[24px] border border-white/10 bg-black/10 p-4 backdrop-blur-sm">
+              <div className="wallet-panel w-full max-w-md p-4 backdrop-blur-sm">
                 <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/40">
                   <span>Wallet</span>
                   <span>{networkConfig?.network === "mainnet" ? "Mainnet" : "Testnet"}</span>
@@ -170,7 +170,7 @@ export default function WalletPage() {
                     <div className="mt-1 truncate font-mono text-sm text-white">{address ? shortenAddress(address, 8) : "Not connected"}</div>
                   </div>
                   {address ? (
-                    <button type="button" onClick={handleCopy} className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/75 transition hover:border-[#f8dc8f]/40 hover:text-white" aria-label="Copy wallet address">
+                    <button type="button" onClick={handleCopy} className="profile-icon-button h-9 w-9" aria-label="Copy wallet address">
                       <Copy size={15} aria-hidden="true" />
                     </button>
                   ) : null}
@@ -184,10 +184,10 @@ export default function WalletPage() {
                   <span>{wrongNetwork ? "Unsupported" : isConnected ? "Live" : "Offline"}</span>
                 </div>
                 <div className="mt-4 flex gap-3">
-                  <button type="button" disabled={!isConnected || wrongNetwork} className="flex-1 rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f] disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setShowReceive(false)}>
+                  <button type="button" disabled={!isConnected || wrongNetwork} className="wallet-primary" onClick={() => setShowReceive(false)}>
                     Send
                   </button>
-                  <button type="button" disabled={!isConnected} className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:border-[#f8dc8f]/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40" onClick={() => setShowReceive(true)}>
+                  <button type="button" disabled={!isConnected} className="wallet-secondary flex-1" onClick={() => setShowReceive(true)}>
                     Receive
                   </button>
                 </div>
@@ -196,7 +196,7 @@ export default function WalletPage() {
           </section>
 
           {!isConnected ? (
-            <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+            <section className="wallet-panel p-6">
               <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Disconnected</p>
@@ -207,7 +207,7 @@ export default function WalletPage() {
               <p className="mt-3 max-w-2xl text-sm text-white/60">CeloHT never requests private keys or recovery phrases. Transaction approval happens inside your wallet provider.</p>
             </section>
           ) : wrongNetwork ? (
-            <section className="rounded-[28px] border border-[#f5c842]/30 bg-[#f5c842]/8 p-6" role="alert">
+            <section className="wallet-warning p-6" role="alert">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-3">
                   <div className="rounded-xl border border-[#f5c842]/50 bg-[#f5c842]/10 p-2 text-[#f5c842]">
@@ -218,7 +218,7 @@ export default function WalletPage() {
                     <h2 className="mt-2 text-2xl font-semibold text-white">Please switch to the supported Celo network to continue.</h2>
                   </div>
                 </div>
-                <button type="button" onClick={() => window.location.reload()} className="rounded-2xl border border-[#f8dc8f]/25 bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f]">
+                <button type="button" onClick={() => window.location.reload()} className="wallet-primary w-auto px-4">
                   Refresh
                 </button>
               </div>
@@ -226,7 +226,7 @@ export default function WalletPage() {
           ) : (
             <>
               <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <div className="wallet-panel p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Balance stack</p>
@@ -241,7 +241,7 @@ export default function WalletPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <div className="wallet-panel p-5 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Action</p>
@@ -315,7 +315,7 @@ export default function WalletPage() {
               </section>
 
               <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <div className="wallet-panel p-5 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Timeline</p>
@@ -331,7 +331,7 @@ export default function WalletPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <div className="wallet-panel p-5 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Impact</p>
@@ -352,7 +352,7 @@ export default function WalletPage() {
           )}
 
           {txHash && (
-            <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+            <section className="wallet-panel p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Transaction status</p>

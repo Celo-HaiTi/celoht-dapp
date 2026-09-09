@@ -30,10 +30,24 @@
 
   --color-ink: #101623;
   --color-ink-soft: #3c465c;
+
+  --color-celoht-surface: #0d1728;
+  --color-celoht-surface-raised: #122038;
+  --color-celoht-line: rgba(238, 242, 246, 0.12);
+  --color-celoht-muted: rgba(238, 242, 246, 0.62);
+  --color-celoht-success: #77c99d;
+  --color-celoht-warning: #edc66b;
+  --color-celoht-danger: #e58b8b;
 }
 
 :root {
   color-scheme: light;
+  --celoht-sidebar-width: 16rem;
+  --celoht-content-width: 80rem;
+  --celoht-radius-sm: 0.625rem;
+  --celoht-radius-md: 0.875rem;
+  --celoht-radius-lg: 1.25rem;
+  --celoht-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 .dark {
   color-scheme: dark;
@@ -41,6 +55,19 @@
 
 * {
   border-color: var(--color-navy-700);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-300);
+  outline-offset: 3px;
 }
 
 html {
@@ -72,8 +99,53 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 78% -10%, rgba(245, 200, 66, 0.1), transparent 30rem), #070c18;
+  background:
+    radial-gradient(circle at 78% -10%, rgba(245, 200, 66, 0.1), transparent 30rem),
+    radial-gradient(circle at 10% 35%, rgba(42, 124, 128, 0.08), transparent 32rem),
+    #070c18;
   color: #f4f7fa;
+}
+
+::selection {
+  background: rgba(245, 200, 66, 0.28);
+  color: white;
+}
+
+.app-sidebar {
+  width: var(--celoht-sidebar-width);
+  background:
+    linear-gradient(180deg, rgba(14, 24, 43, 0.98), rgba(7, 12, 24, 0.98)),
+    #070c18;
+  box-shadow: 1.5rem 0 4rem rgba(1, 5, 12, 0.12);
+}
+
+.app-header {
+  border-color: rgba(238, 242, 246, 0.1);
+  background: rgba(7, 12, 24, 0.78);
+  box-shadow: 0 1rem 3rem rgba(1, 5, 12, 0.1);
+}
+
+.workspace-panel,
+.portfolio-panel,
+.wallet-panel,
+.quick-actions,
+.settings-panel,
+.profile-panel,
+.security-panel,
+.identity-panel,
+.course-card,
+.agent-onboarding,
+.activity-card,
+.activity-empty {
+  border-radius: var(--celoht-radius-md);
+  border-color: var(--color-celoht-line);
+  box-shadow: 0 1.25rem 3rem rgba(1, 5, 12, 0.14);
+}
+
+.workspace-panel:hover,
+.course-card:hover,
+.activity-card:hover {
+  border-color: rgba(248, 220, 143, 0.3);
 }
 
 .hero-brief {
