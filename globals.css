@@ -243,12 +243,12 @@ body::before {
 .brand-logo {
   display: block;
   width: clamp(2rem, 3vw, 2.25rem);
-  height: auto;
+  height: clamp(2rem, 3vw, 2.25rem);
   max-width: 100%;
   flex: 0 0 auto;
-  aspect-ratio: 998 / 1000;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
   overflow: hidden;
   filter: drop-shadow(0 0 14px rgba(245, 200, 66, 0.16));
 }
@@ -315,9 +315,10 @@ body::before {
 .cinematic-logo {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   opacity: 0.13;
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
   overflow: hidden;
   filter: drop-shadow(0 0 2.8rem rgba(245, 200, 66, 0.26));
 }
@@ -1009,8 +1010,10 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .hero-logo {
   display: block;
   width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   opacity: 0.075;
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
   overflow: hidden;
   filter: drop-shadow(0 0 2.5rem rgba(245, 200, 66, 0.22));
   animation: celoht-logo-breathe 12s ease-in-out infinite;
