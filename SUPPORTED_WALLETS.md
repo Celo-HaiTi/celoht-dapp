@@ -1,6 +1,6 @@
 # Supported Wallets
 
-## Primary: Valora
+## Wallet Support
 
 CeloHT's education material and this dApp are built around
 [Valora](https://valoraapp.com), a mobile wallet designed for simplicity
