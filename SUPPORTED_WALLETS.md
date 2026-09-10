@@ -2,15 +2,9 @@
 
 ## Wallet Support
 
-CeloHT's education material and this dApp are built around
-[Valora](https://valoraapp.com), a mobile wallet designed for simplicity
-on the Celo network. **CeloHT does not own, operate, or control Valora**
-— we build tools compatible with it.
+CeloHT is wallet-agnostic. The dApp supports MiniPay when opened inside MiniPay, as well as Valora and other compatible mobile wallets through WalletConnect, subject to current integration availability.
 
-Valora connects to this dApp through **WalletConnect**: on desktop, scan
-a QR code from the Valora app; on mobile, Valora can open the dApp
-directly through a deep link if visited from within the Valora app's
-browser.
+
 
 ## Also Supported
 
