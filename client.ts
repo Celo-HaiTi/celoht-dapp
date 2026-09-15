@@ -5,11 +5,11 @@
  * records, votes) is read directly via wagmi/viem — see
  * src/lib/contracts/.
  *
- * This client is intentionally lazy and optional: if the Supabase env
- * vars aren't set, `getSupabaseClient()` returns null and calling code
- * should fall back to the sample data in src/lib/data/. This lets the UI
- * run and be reviewed without a live Supabase project. See docs/API.md
- * for the expected schema and docs/DEVELOPMENT.md for setup.
+ * This client is intentionally lazy and optional: when the Supabase env
+ * vars are absent, `getSupabaseClient()` returns null and callers must
+ * surface an explicit unavailable state rather than fabricating records or
+ * silently substituting sample data. See docs/API.md for the expected
+ * schema and docs/DEVELOPMENT.md for setup.
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 

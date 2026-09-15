@@ -35,10 +35,10 @@ export default function ExchangePage() {
         </div>
       </Section>
 
-      <Section eyebrow="On-chain status" title="Demo-mode safety">
+      <Section eyebrow="On-chain status" title="Integration status">
         <div className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-800 dark:text-amber-200">
           <ArrowRightLeft size={18} aria-hidden="true" />
-          No exchange transaction can be signed or submitted until a verified swap integration is configured.
+          No verified exchange route is configured in this deployment. Swap transactions remain unavailable until an official integration is approved and configured.
         </div>
       </Section>
     </>

@@ -50,8 +50,10 @@ jobs:
           OFFICIAL_CONTRACTS_PATH: ${{ github.workspace }}/official-contracts
         run: npm run contracts:sync
 
+      - name: Guard against prohibited mock-data imports
+        run: npm run guard:mock-data
+
       - name: Audit production dependencies
-        continue-on-error: true
         run: npm run audit
 
       - name: Build static app

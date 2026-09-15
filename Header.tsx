@@ -17,7 +17,7 @@ export function Header() {
   const logoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/celoht-logo.png`;
 
   const networkStatus = !isConnected
-    ? "Demo mode"
+    ? "Wallet not connected"
     : chain?.id === celo.id || chain?.id === celoSepolia.id
       ? "Connected"
       : "Wrong network";

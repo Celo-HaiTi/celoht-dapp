@@ -14,6 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "audit": "npm audit --omit=dev --audit-level=high",
+    "guard:mock-data": "node scripts/check-no-mock-data.mjs",
     "contracts:sync": "node scripts/sync-contracts.mjs --check",
     "contracts:sync-abis": "node scripts/sync-contracts.mjs",
     "test": "node --test tests/*.mjs"
