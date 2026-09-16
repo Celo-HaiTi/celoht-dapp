@@ -1356,7 +1356,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
   .trust-panel { border-radius: 0.85rem; }
 }
 
-/* Final luxury surface system. Keep this layer last so route-level legacy
+/* Final luxury surface system. Keep this layer last so route-level previous
    classes resolve to one visual language without changing their behavior. */
 :root {
   color-scheme: dark;

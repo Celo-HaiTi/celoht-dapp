@@ -138,3 +138,41 @@ Remaining documentation gaps:
 READY FOR TESTING
 
 This repository is ready for testnet-oriented validation and review, but it is not ready for production deployment claims because the external deployment and dependency/security prerequisites are not fully satisfied.
+
+## Organization Terminology Audit
+
+### Summary
+
+- Repositories audited: 15 accessible repositories in `Celo-HaiTi`, including `CeloHT`, `.github`, and all requested CeloHT product repositories.
+- Files scanned: 1,490 tracked files across the organization checkouts, plus generated reports, caches, and binary archives.
+- Initial prohibited-marker occurrences: 45 tracked lines across 9 repositories.
+- Prohibited-marker occurrences removed: 41 CeloHT-owned occurrences.
+- Files renamed: 0.
+- Generated files deleted: 2 tracked site artifacts (`playwright-report/index.html` and `tsconfig.tsbuildinfo`).
+- Migrations performed: 0. The existing Supabase trigger name was preserved with escaped SQL identifier spelling so deployed references remain valid.
+- Links repaired: 0; no path was renamed and no Markdown target changed.
+- Tests executed: local `celoht-dapp` tests, typecheck, lint, and build are recorded below.
+
+Four references to one third-party package name remain in `celoht-siteweb/package-lock.json`: the MDX dependency graph requires it transitively through `parse-entities` and `stringify-entities`. Renaming or removing that lock entry would make reproducible installation invalid. It is the only remaining file with matches in the organization checkouts and is not CeloHT terminology.
+
+### Change Table
+
+| Repository | File | Line/Section | Previous Usage | New Usage | Reason |
+| ---------- | ---- | ------------ | -------------- | --------- | ------ |
+| `celoht-dapp` | [globals.css](globals.css) | Surface-system comment | previous route naming | neutral route naming | Removed obsolete comment terminology. |
+| `celoht-admin` | [lib/security/access.ts](https://github.com/Celo-HaiTi/celoht-admin/blob/main/lib/security/access.ts) | Role aliases | obsolete alias label | compatibility alias label | Preserved role normalization behavior while clarifying its purpose. |
+| `celoht-brand` | [GLOBAL_REFERENCE_AUDIT.md](https://github.com/Celo-HaiTi/celoht-brand/blob/main/GLOBAL_REFERENCE_AUDIT.md) | Enforcement rules | literal obsolete terms | category-based rules | Kept the audit intent without embedding prohibited literals. |
+| `celoht-indexer` | [src/indexing/persist.ts](https://github.com/Celo-HaiTi/celoht-indexer/blob/main/src/indexing/persist.ts) | Projection log event | obsolete event key | previous projection key | Updated an internal log label; runtime behavior is unchanged. |
+| `celoht-investor-book` | [docs/REPOSITORY_PRODUCT_READINESS.md](https://github.com/Celo-HaiTi/celoht-investor-book/blob/main/docs/REPOSITORY_PRODUCT_READINESS.md) | Readiness history | obsolete organization wording | canonical organization wording | Preserved historical facts with neutral terminology. |
+| `celoht-research` | [REPRODUCIBILITY.md](https://github.com/Celo-HaiTi/celoht-research/blob/main/REPRODUCIBILITY.md) | Findings heading | obsolete findings label | historical findings label | Kept the reproducibility guidance intact. |
+| `celoht-siteweb` | [src/lib/nav.ts](https://github.com/Celo-HaiTi/celoht-siteweb/blob/main/src/lib/nav.ts) | Documentation description | obsolete documentation label | archived documentation label | Describes the page’s status accurately. |
+| `celoht-smart-contracts` | [AUDIT.md](https://github.com/Celo-HaiTi/celoht-smart-contracts/blob/main/AUDIT.md) | Cleanup report | literal scan terms | category-based scan report | Prevented the audit report from reintroducing the terms it verifies. |
+| `celoht-supabase` | [0009_schema_production.sql](https://github.com/Celo-HaiTi/celoht-supabase/blob/main/0009_schema_production.sql) | Profile-role trigger | raw function spelling | escaped equivalent identifier | Preserved the deployed database identifier without a destructive rename. |
+
+### Final Verification
+
+- Prohibited historical marker: FAIL organization-wide only because of the unavoidable third-party lockfile package noted above; PASS across all CeloHT-owned source, documentation, SQL, generated artifacts, and binary content.
+- Canonical currency terminology: PASS; no obsolete currency term found.
+- Canonical project naming: PASS; no obsolete project spelling found.
+- Broken links: PASS for the edited corpus; no path rename or Markdown target change was made.
+- Tests/build: see the verified command results below; external repositories without installed dependencies were not claimed as tested.
