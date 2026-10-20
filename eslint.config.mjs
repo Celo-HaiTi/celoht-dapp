@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     "artifacts/**",
     "cache/**",
     "typechain-types/**",
+    "official-contracts/**",
     "next-env.d.ts",
   ]),
 ]);

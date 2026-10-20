@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Checkout official smart contracts
@@ -58,10 +58,7 @@ jobs:
 
       - name: Build static app
         env:
-          GITHUB_PAGES: true
-          REPO_NAME: celoht-dapp
-          NEXT_PUBLIC_BASE_PATH: /celoht-dapp
-          NEXT_PUBLIC_APP_URL: https://celo-haiti.github.io/celoht-dapp/
+          NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
@@ -71,11 +68,9 @@ jobs:
           COMMUNITY_DISCORD_URL: "https://discord.gg/Xcx6c9bBD2"
           COMMUNITY_TELEGRAM_URL: "https://t.me/celoht_celoht_haiti"
           COMMUNITY_LINKEDIN_URL: "https://www.linkedin.com/company/celoht/"
-        run: npm run build
+        run: npm run build:custom-domain
 
       - name: Prepare Pages artifact
-        env:
-          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN || '' }}
         run: |
           test -f out/index.html
           test -f out/wallet/index.html
@@ -83,12 +78,7 @@ jobs:
           test -f out/favicon.svg
           test -f out/favicon.ico
           test -f out/manifest.json
-
-          if [ -n "$CUSTOM_DOMAIN" ]; then
-            printf '%s' "$CUSTOM_DOMAIN" > out/CNAME
-          else
-            rm -f out/CNAME
-          fi
+          test "$(cat out/CNAME)" = "app.celoht.com"
 
           touch out/.nojekyll
 

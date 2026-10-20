@@ -39,6 +39,20 @@
     "viem": "^2.21.54",
     "wagmi": "^2.14.11"
   },
+  "overrides": {
+    "@reown/appkit": {
+      "ws": "^8.21.0"
+    },
+    "@reown/appkit-controllers": {
+      "ws": "^8.21.0"
+    },
+    "@reown/appkit-utils": {
+      "ws": "^8.21.0"
+    },
+    "@walletconnect/utils": {
+      "ws": "^8.21.0"
+    }
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
