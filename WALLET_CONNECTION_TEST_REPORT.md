@@ -37,13 +37,13 @@ NEXT_PUBLIC_APP_URL=https://app.celoht.com/
 
 ## Provider acceptance
 
-### WalletConnect: NOT READY
+### WalletConnect: CONFIGURED / REAL-SESSION TEST REQUIRED
 
-Frontend integration exists, but the approval can be completed only after a real Reown project ID is configured in the deployment and successful desktop/mobile QR sessions are tested. It must not be marked READY from build success alone.
+The public Reown/WalletConnect project ID is configured in the Pages deployment and the official Wagmi connector is enabled. Provider acceptance remains pending real desktop/mobile QR session evidence; build success alone is not sufficient for READY.
 
-### Valora: NOT READY
+### Valora: CONFIGURED / REAL-SESSION TEST REQUIRED
 
-Valora uses the WalletConnect connector. Mobile app connection, account detection, Sepolia validation, cancellation, and return behavior require real-device testing after the project ID is configured.
+Valora uses the configured WalletConnect connector. Mobile app connection, account detection, Sepolia validation, cancellation, and return behavior require real-device testing.
 
 ### MiniPay: NOT READY
 
