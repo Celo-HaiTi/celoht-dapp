@@ -21,6 +21,7 @@ export default function DonationsPage() {
   const [approvalHash, setApprovalHash] = useState<`0x${string}`>();
   const [donationHash, setDonationHash] = useState<`0x${string}`>();
   const [error, setError] = useState<string>();
+  const [simulationResult, setSimulationResult] = useState<string>();
   const approvalStarted = useRef(false);
   const reforestationAddress = getContractAddress(celoSepolia.id, "CeloHTReforestation");
   const usdmAddress = getUsdmAddress(celoSepolia.id);
@@ -67,6 +68,12 @@ export default function DonationsPage() {
     setError(undefined);
   }
 
+  function simulateDonation() {
+    if (!validAmount) return;
+    const message = `Simulated test donation prepared for ${amount} USDm — no wallet signed, no funds transferred.`;
+    setSimulationResult(message);
+  }
+
   useEffect(() => {
     if (!approvalReceipt.isSuccess || donationHash || approvalStarted.current || !parsedAmount || !reforestationAddress) return;
     approvalStarted.current = true;
@@ -78,6 +85,7 @@ export default function DonationsPage() {
   return <>
     <Breadcrumbs items={[{ label: "Impact" }, { label: "Support reforestation" }]} />
     <PageHero eyebrow="Impact · Reforestation" title="Support trees in Haiti" lead="CeloHTReforestation accepts USDm contributions and records confirmed donations on-chain. It does not claim a fixed tree conversion rate." />
+    <Section eyebrow="Safe test mode" title="Try the donation experience"><Card className="max-w-2xl"><CardHeader><Sprout size={18} aria-hidden="true" /><CardTitle>Test donation simulation</CardTitle></CardHeader><CardDescription>No wallet, approval, or transaction is required. This preparation does not represent a real contribution.</CardDescription><div className="mt-5 flex flex-wrap gap-2">{["1","5","10","25"].map((preset) => <Button key={preset} type="button" onClick={() => setAmount(preset)}>{preset} USDm</Button>)}</div><Button className="mt-4" type="button" onClick={simulateDonation} disabled={!validAmount}>Prepare simulation</Button>{simulationResult && <p className="mt-4 rounded-lg border border-gold-500/20 bg-gold-500/5 p-3 text-sm text-gold-300" role="status">{simulationResult}</p>}</Card></Section>
     <Section eyebrow="Donation" title="Choose your contribution">
       {!reforestationAddress || !usdmAddress ? <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Donations unavailable</CardTitle></CardHeader><CardDescription>The official reforestation contract is not configured for this network.</CardDescription></Card> : wrongNetwork ? <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Switch to Celo Sepolia</CardTitle></CardHeader><CardDescription>This deployed CeloHT integration is available on Celo Sepolia.</CardDescription></Card> : !isConnected ? <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>Connect your wallet to donate</CardTitle></CardHeader><CardDescription>USDm approval and donation transactions are signed by your wallet.</CardDescription></Card> : <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <Card><CardHeader><Sprout size={18} aria-hidden="true" /><CardTitle>Reforestation contribution</CardTitle></CardHeader><CardDescription>Funds transfer directly to the configured CeloHT treasury after the contract confirms your donation.</CardDescription><label htmlFor="donation-amount" className="mt-6 block text-sm font-medium">Amount in USDm</label><input id="donation-amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={Boolean(approvalHash || donationHash)} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-3 text-sm" /><p className="mt-2 text-xs">Available: {balance === undefined ? "Loading" : `${Number(balance) / 10 ** decimals} USDm`}</p>{amount && !validAmount && <p role="alert" className="mt-2 text-sm text-red-700">Enter an amount greater than zero.</p>}{validAmount && !sufficient && <p role="alert" className="mt-2 text-sm text-red-700">Your USDm balance is not enough.</p>}<Button className="mt-5 w-full" onClick={donate} disabled={!canDonate}>{isPending ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> Confirm in wallet</> : "Donate USDm"}</Button>{error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}</Card>

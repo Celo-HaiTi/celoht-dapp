@@ -1,28 +1,21 @@
 "use client";
 
-import { useChainId, useReadContract } from "wagmi";
+import { useChainId } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
-import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
+import { isContractDeployed } from "@/lib/contracts";
 import { projects } from "@/lib/data/projects";
 
 function ProjectCard({ project }: { project: (typeof projects)[number] }) {
   const chainId = useChainId();
   const deployed = isContractDeployed(chainId, "CeloHTReforestation");
 
-  const onChainTrees = useReadContract({
-    address: getContractAddress(chainId, "CeloHTReforestation"),
-    abi: abis.CeloHTReforestation,
-    functionName: "totalDonated",
-    query: { enabled: deployed },
-  });
-
-  const treesPlanted = deployed && onChainTrees.data !== undefined ? Number(onChainTrees.data) : undefined;
-  const progressPct = treesPlanted === undefined ? 0 : Math.min(100, (treesPlanted / project.treesGoal) * 100);
+  const verifiedImpactAvailable = false;
+  const progressPct = 0;
 
   return (
     <Card>
@@ -31,10 +24,11 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
         <Badge tone={project.status === "Active" ? "forest" : "neutral"}>{project.status}</Badge>
       </CardHeader>
       <CardDescription>{project.summary}</CardDescription>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-gold-300/80">Illustrative project metadata — not verified impact</p>
       <div className="mt-4">
         <div className="text-ink-soft dark:text-parchment-100/50 mb-1.5 flex justify-between text-xs">
           <span>
-            {treesPlanted === undefined ? "Verified count unavailable" : `${treesPlanted.toLocaleString()} verified trees`}
+            {verifiedImpactAvailable ? "Verified records available" : "Verified count unavailable"}
           </span>
           <span>{progressPct.toFixed(0)}%</span>
         </div>
@@ -42,7 +36,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
       </div>
       {!deployed && (
         <p className="text-ink-soft dark:text-parchment-100/50 mt-3 text-xs">
-          Verified reforestation totals are unavailable until CeloHTReforestation is deployed on this network.
+          Verified planting totals require authorized evidence review and a database-backed verified record. Contract configuration alone does not prove tree impact.
         </p>
       )}
     </Card>

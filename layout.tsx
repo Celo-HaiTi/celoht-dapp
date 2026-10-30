@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
 import { BottomNav } from "@/components/BottomNav";
 import { I18nProvider } from "@/lib/i18n/context";
+import { PilotNotice } from "@/components/PilotNotice";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.celoht.com/";
 const BASE_PATH = process.env.GITHUB_PAGES === "true" || SITE_URL.includes("github.io") ? "/celoht-dapp" : "";
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <ToastProvider>
               <SkipLink />
               <Header />
+              <PilotNotice />
               <main id="main-content" className="lg:ml-64">
                 {children}
               </main>
