@@ -26,6 +26,7 @@ import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
 import { createNotification } from "@/lib/notifications/service";
 import { transactionDeduplicationKey } from "@/lib/notifications/dedupe";
+import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 
 type Asset = "CELO" | "USDm";
 type TxState = "idle" | "signing" | "pending" | "success" | "failed";
@@ -45,7 +46,7 @@ export default function WalletPage() {
   const [showReceive, setShowReceive] = useState(false);
 
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
-  const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const usdmBalance = useUsdmBalance(address, chainId);
 
   const { data: celoHash, error: celoError, isPending: isSendingCelo, sendTransaction } = useSendTransaction();
   const { data: usdmHash, error: usdmError, isPending: isSendingUsdm, writeContract } = useWriteContract();

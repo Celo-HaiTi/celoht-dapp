@@ -9,6 +9,7 @@ import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { getUsdmAddress } from "@/lib/contracts";
 import { celo, celoSepolia } from "wagmi/chains";
 import { useI18n } from "@/lib/i18n/context";
+import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 
 export function ConnectWalletButton() {
   const { address, isConnected, chain, connector } = useAccount();
@@ -25,7 +26,7 @@ export function ConnectWalletButton() {
   const [connectorError, setConnectorError] = useState<string | null>(null);
   const usdmAddress = getUsdmAddress(chainId);
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
-  const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const usdmBalance = useUsdmBalance(address, chainId);
 
   function describeConnectionError(message: string, connectorName: string) {
     const normalized = message.toLowerCase();

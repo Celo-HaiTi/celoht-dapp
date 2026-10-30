@@ -1,7 +1,9 @@
 "use client";
 
+import { formatUnits } from "viem";
 import { useAccount, useBalance } from "wagmi";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 
 /**
  * Displays the connected wallet's native CELO balance (used for gas) and,
@@ -11,11 +13,7 @@ export function BalanceDisplay({ usdmAddress }: { usdmAddress?: `0x${string}` })
   const { address, isConnected } = useAccount();
 
   const celoBalance = useBalance({ address, query: { enabled: isConnected } });
-  const usdmBalance = useBalance({
-    address,
-    token: usdmAddress,
-    query: { enabled: isConnected && Boolean(usdmAddress) },
-  });
+  const usdmBalance = useUsdmBalance(address, undefined, usdmAddress);
 
   if (!isConnected) {
     return (
@@ -35,7 +33,7 @@ export function BalanceDisplay({ usdmAddress }: { usdmAddress?: `0x${string}` })
           <Skeleton className="mt-2 h-7 w-24" />
         ) : (
           <dd className="mt-1 font-mono text-2xl font-semibold">
-            {celoBalance.data ? Number(celoBalance.data.formatted).toFixed(4) : "—"}
+            {celoBalance.data ? Number(formatUnits(celoBalance.data.value, celoBalance.data.decimals)).toFixed(4) : "—"}
           </dd>
         )}
       </div>
@@ -51,7 +49,7 @@ export function BalanceDisplay({ usdmAddress }: { usdmAddress?: `0x${string}` })
           <Skeleton className="mt-2 h-7 w-24" />
         ) : (
           <dd className="mt-1 font-mono text-2xl font-semibold">
-            {usdmBalance.data ? Number(usdmBalance.data.formatted).toFixed(2) : "—"}
+            {usdmBalance.data ? Number(formatUnits(usdmBalance.data.value, usdmBalance.data.decimals)).toFixed(2) : "—"}
           </dd>
         )}
       </div>

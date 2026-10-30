@@ -19,8 +19,8 @@ import { useAccount, useBalance, useChainId } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { HeroBackground } from "@/components/home/HeroBackground";
 import { courses } from "@/lib/data/courses";
-import { getUsdmAddress } from "@/lib/contracts";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
+import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 
 const modules = [
   { label: "Learn", eyebrow: "Education", description: "Build practical confidence with short, focused lessons.", href: "/learn", icon: GraduationCap, action: "Continue learning", tone: "gold" },
@@ -36,8 +36,7 @@ export default function HomePage() {
   const completedCourses = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
   const chainId = useChainId();
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
-  const usdmAddress = getUsdmAddress(chainId);
-  const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const usdmBalance = useUsdmBalance(address, chainId);
   const celoAmount = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : "—";
   const usdmAmount = usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : "—";
 

@@ -6,6 +6,7 @@ import { useAccount, useBalance, useChainId, useReadContract } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { abis, getContractAddress, getUsdmAddress, isContractDeployed } from "@/lib/contracts";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
+import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 
 export default function ProfilePage() {
   const { address, chain, isConnected } = useAccount();
@@ -15,7 +16,7 @@ export default function ProfilePage() {
   const agentAddress = getContractAddress(chainId, "CeloHTAgentRegistry");
   const educationAddress = getContractAddress(chainId, "CeloHTEducation");
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
-  const usdmBalance = useBalance({ address, token: usdmAddress, query: { enabled: Boolean(address && usdmAddress) } });
+  const usdmBalance = useUsdmBalance(address, chainId);
   const agentId = useReadContract({ address: agentAddress, abi: abis.CeloHTAgentRegistry, functionName: "agentIdOf", args: address ? [address] : undefined, query: { enabled: Boolean(address && isContractDeployed(chainId, "CeloHTAgentRegistry")) } });
   const eligiblePayments = useReadContract({ address: educationAddress, abi: abis.CeloHTEducation, functionName: "eligiblePayments", args: address ? [address] : undefined, query: { enabled: Boolean(address && isContractDeployed(chainId, "CeloHTEducation")) } });
 
