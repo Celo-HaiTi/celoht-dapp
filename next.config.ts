@@ -5,7 +5,7 @@ const isGitHubPages = process.env.GITHUB_PAGES === "true";
 const basePath = isGitHubPages ? `/${repoName}` : "";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  output: isGitHubPages ? "export" : undefined,
   trailingSlash: true,
   basePath,
   assetPrefix: isGitHubPages ? `/${repoName}/` : undefined,

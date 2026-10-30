@@ -25,6 +25,18 @@ The app is currently a Celo Sepolia testnet application. Mainnet remains disable
 
 To enable the official wallet-authenticated backend, set `NEXT_PUBLIC_BACKEND_URL` to a deployed `celoht-backend` URL. The frontend only sends public wallet addresses, nonce challenges, and wallet signatures; service-role credentials remain server-only in the backend.
 
+## Controlled pilot setup
+
+1. Deploy the app as a Next.js server, not GitHub Pages static export, so `/api/pilot/*` routes run.
+2. Apply `supabase/migrations/20260909000000_notifications.sql`, then `supabase/migrations/20261030000000_pilot_pillars.sql` through the Supabase SQL editor or migration tooling.
+3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, server-only `SUPABASE_SERVICE_ROLE_KEY`, and a strong random `PILOT_SESSION_SECRET`.
+4. Use Celo Sepolia chain ID `11142220`. Do not enable a mainnet chain by changing the pilot environment.
+5. Create approved courses, lessons, and passing-score values through an authorized database/admin workflow before using the pilot workspace.
+
+The signed wallet session is HTTP-only. Database writes and privileged review actions are enforced in server routes; the service-role key must remain server-only.
+
+Agent registry registration and planting financial records remain separate from database application/evidence records. Cash-in and cash-out are explicitly database-only simulations unless a confirmed existing contract workflow is implemented and disclosed.
+
 Before a pull request:
 
 ```bash

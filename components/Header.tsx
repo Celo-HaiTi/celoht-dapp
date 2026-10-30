@@ -20,6 +20,7 @@ const workspaceNav = [
   { label: "Reforest", href: "/reforestation", icon: Leaf },
 ];
 const secondaryNav = [
+  { label: "Pilot Workspace", href: "/pilot", icon: ShieldCheck },
   { label: "Activity", href: "/wallet/activity", icon: Activity },
   { label: "Profile", href: "/profile", icon: Settings },
   { label: "Settings", href: "/settings", icon: Settings },
