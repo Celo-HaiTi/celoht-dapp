@@ -2,10 +2,11 @@ import type { NextConfig } from "next";
 
 const repoName = process.env.REPO_NAME || "celoht-dapp";
 const isGitHubPages = process.env.GITHUB_PAGES === "true";
+const isStaticExport = isGitHubPages || process.env.STATIC_EXPORT === "true";
 const basePath = isGitHubPages ? `/${repoName}` : "";
 
 const nextConfig: NextConfig = {
-  output: isGitHubPages ? "export" : undefined,
+  output: isStaticExport ? "export" : undefined,
   trailingSlash: true,
   basePath,
   assetPrefix: isGitHubPages ? `/${repoName}/` : undefined,

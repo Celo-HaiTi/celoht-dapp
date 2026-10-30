@@ -1,4 +1,4 @@
-import { getPilotSession, getPilotSupabase, jsonError, requireAdmin, requireReviewer } from "@/lib/server/pilot";
+import { getPilotSession, getPilotSupabase, jsonError, requireReviewer } from "@/lib/server/pilot";
 
 export async function GET() {
   const supabase = getPilotSupabase();

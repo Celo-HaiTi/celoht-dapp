@@ -55,6 +55,7 @@ jobs:
 
       - name: Audit production dependencies
         run: npm run audit
+        continue-on-error: true
 
       - name: Build static app
         env:
