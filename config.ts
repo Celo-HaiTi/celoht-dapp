@@ -1,5 +1,5 @@
 import { http, createConfig } from "wagmi";
-import { celo, celoSepolia } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
 
 /**
@@ -10,7 +10,6 @@ import { injected, walletConnect } from "wagmi/connectors";
  * injected provider when the dApp is opened inside MiniPay.
  */
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim();
-const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || undefined;
 const celoSepoliaRpcUrl = process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || "https://forno.celo-sepolia.celo-testnet.org";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
@@ -33,10 +32,9 @@ const connectors = [
 ];
 
 export const wagmiConfig = createConfig({
-  chains: [celo, celoSepolia],
+  chains: [celoSepolia],
   connectors,
   transports: {
-    [celo.id]: http(celoRpcUrl),
     [celoSepolia.id]: http(celoSepoliaRpcUrl),
   },
   ssr: true,

@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, FileCode2, Globe2, Landmark, Network, RefreshCw, ShieldCheck } from "lucide-react";
-import { celo, celoSepolia } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { useAccount, useBlockNumber, useChainId } from "wagmi";
 import { getContractAddress, getTreasuryAddress, getUsdmAddress, type ContractName } from "@/lib/contracts";
 
@@ -17,7 +17,7 @@ export default function TrustCenterPage() {
   const { chain, isConnected } = useAccount();
   const chainId = useChainId();
   const block = useBlockNumber({ watch: false, query: { enabled: isConnected } });
-  const networkSupported = chainId === celo.id || chainId === celoSepolia.id;
+  const networkSupported = chainId === celoSepolia.id;
   const usdmAddress = getUsdmAddress(celoSepolia.id);
   const treasuryAddress = getTreasuryAddress(celoSepolia.id);
   const configuredCount = contracts.filter(({ name }) => getContractAddress(chainId, name)).length;

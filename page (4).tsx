@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useChainId, useReadContract } from "wagmi";
-import { celo } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -22,7 +22,7 @@ export default function TransactionsPage() {
     query: { enabled: Boolean(servicePaymentsAddress) },
   });
   const explorerBase =
-    chainId === celo.id ? "https://celoscan.io" : "https://sepolia.celoscan.io";
+    chainId === celoSepolia.id ? "https://celo-sepolia.blockscout.com" : undefined;
 
   return (
     <>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Activity, ArrowDownLeft, ArrowUpRight, Check, Clock3, Copy, ExternalLink, Filter, History, RefreshCw, ShieldAlert, WalletCards } from "lucide-react";
-import { celo, celoSepolia } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { useRouter } from "next/navigation";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
@@ -23,7 +23,7 @@ export default function ActivityPage() {
   const [refreshing, startRefresh] = useTransition();
   const router = useRouter();
   const [selected, setSelected] = useState<ActivityItem | null>(null);
-  const wrongNetwork = isConnected && chainId !== celo.id && chainId !== celoSepolia.id;
+  const wrongNetwork = isConnected && chainId !== celoSepolia.id;
   const activity: ActivityItem[] = [];
   const visibleActivity = activity.filter((item) => matchesFilter(item, filter) && matchesQuery(item, query));
   const filterLabels: Record<FilterName, string> = { All: t("common.activity"), Sent: t("wallet.send"), Received: t("wallet.receive"), Donations: "Donations", Agent: t("common.agents"), Reforestation: t("common.reforest"), Pending: t("wallet.pending"), Failed: t("wallet.failed") };
@@ -34,7 +34,7 @@ export default function ActivityPage() {
 
   return <div className="activity-shell min-h-[calc(100dvh-64px)] px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8"><div className="mx-auto max-w-7xl">
     <header className="activity-header"><div><p className="section-kicker">CeloHT · {t("common.wallet")}</p><h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">{t("activity.title")}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-parchment-100/60">{t("activity.description")}</p></div><div className="flex items-center gap-2"><button type="button" onClick={refresh} className="activity-refresh" disabled={refreshing} aria-label={t("common.refresh")}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""} aria-hidden="true" /><span className="hidden sm:inline">{t("common.refresh")}</span></button>{!isConnected && <ConnectWalletButton />}</div></header>
-    {wrongNetwork && <section className="activity-alert" role="alert"><ShieldAlert size={18} aria-hidden="true" /><div><h2 className="font-semibold text-white">{t("activity.unsupportedNetwork")}</h2><p className="mt-1 text-sm text-parchment-100/60">{t("wallet.wrongNetwork")}</p></div><button type="button" className="activity-secondary" onClick={() => switchChain({ chainId: celo.id })} disabled={isSwitching}>{isSwitching ? t("settings.switching") : t("settings.switchToCelo")}</button></section>}
+    {wrongNetwork && <section className="activity-alert" role="alert"><ShieldAlert size={18} aria-hidden="true" /><div><h2 className="font-semibold text-white">{t("activity.unsupportedNetwork")}</h2><p className="mt-1 text-sm text-parchment-100/60">{t("wallet.wrongNetwork")}</p></div><button type="button" className="activity-secondary" onClick={() => switchChain({ chainId: celoSepolia.id })} disabled={isSwitching}>{isSwitching ? t("settings.switching") : t("settings.switchToCelo")}</button></section>}
     <section className="activity-overview mt-7" aria-label={t("activity.title")}><OverviewItem icon={<WalletCards size={18} />} label={t("common.wallet")} value={isConnected && address ? shortenAddress(address) : t("common.notConnected")} /><OverviewItem icon={<Activity size={18} />} label={t("common.network")} value={!isConnected ? t("common.notConnected") : wrongNetwork ? t("common.unavailable") : chain?.name ?? "Celo"} /><OverviewItem icon={<History size={18} />} label={t("activity.indexedEvents")} value={t("common.unavailable")} /></section>
     {!isConnected ? <EmptyState icon={<WalletCards size={20} />} title={t("activity.connectToView")} description={t("activity.description")} action={<ConnectWalletButton />} /> : wrongNetwork ? <EmptyState icon={<ShieldAlert size={20} />} title={t("activity.unsupportedNetwork")} description={t("wallet.wrongNetwork")} /> : <><section className="activity-controls mt-7" aria-label={t("activity.filter")}><div className="flex items-center gap-2"><Filter size={16} className="text-gold-300" aria-hidden="true" /><span className="text-xs font-semibold uppercase tracking-[0.16em] text-parchment-100/45">{t("activity.filter")}</span></div><div className="activity-filters" role="group" aria-label={t("activity.filter")}>{filters.map((item) => <button type="button" key={item} aria-pressed={filter === item} onClick={() => setFilter(item)} className={`activity-filter ${filter === item ? "activity-filter-active" : ""}`}>{filterLabels[item]}</button>)}</div><label className="activity-search"><span className="sr-only">{t("activity.search")}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("activity.search")} /></label></section>{visibleActivity.length === 0 ? <EmptyState icon={<Clock3 size={20} />} title={t("activity.noActivity")} description={t("activity.description")} /> : <div className="activity-list" aria-live="polite">{visibleActivity.map((item) => <ActivityCard key={item.hash} item={item} onSelect={setSelected} language={language} />)}</div>}</>}
     {selected && <ActivityDetails item={selected} onClose={() => setSelected(null)} />}

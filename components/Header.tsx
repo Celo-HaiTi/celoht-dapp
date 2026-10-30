@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Activity, BookOpen, Leaf, Menu, Network, Settings, ShieldCheck, Users, WalletCards, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
-import { celo, celoSepolia } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { BackendAuthButton } from "@/components/BackendAuthButton";
 import { useI18n } from "@/lib/i18n/context";
@@ -33,7 +33,7 @@ export function Header() {
   const { address, isConnected, chain } = useAccount();
   const { t } = useI18n();
   const logoSrc = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/celoht-logo.png`;
-  const networkReady = chain?.id === celo.id || chain?.id === celoSepolia.id;
+  const networkReady = chain?.id === celoSepolia.id;
   const allNav = [...workspaceNav, ...secondaryNav];
   const isActive = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
   const labels: Record<string, string> = {
