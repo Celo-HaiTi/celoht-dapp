@@ -9,7 +9,7 @@ import { injected, walletConnect } from "wagmi/connectors";
  * desktop browser via QR code) is disabled. MiniPay connects through its
  * injected provider when the dApp is opened inside MiniPay.
  */
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim();
+const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() || "02d9a7daa098b201a99a7da3769392b2";
 const celoSepoliaRpcUrl = process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || "https://forno.celo-sepolia.celo-testnet.org";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
 
