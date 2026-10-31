@@ -38,22 +38,32 @@ test("quiz answer keys are not publicly selectable", () => {
   assert.match(migration, /drop policy if exists "published quiz questions public"/);
 });
 
-test("pilot configuration separates service and session secrets from public env", () => {
+test("static frontend configuration contains no server-only credentials", () => {
   const env = readFileSync(new URL("../.env.example", import.meta.url), "utf8");
-  assert.match(env, /SUPABASE_SERVICE_ROLE_KEY=/);
-  assert.match(env, /PILOT_SESSION_SECRET=/);
+  assert.match(env, /NEXT_PUBLIC_BACKEND_URL=/);
+  assert.doesNotMatch(env, /(?:^|\n)(?:SUPABASE_SERVICE_ROLE_KEY|PILOT_SESSION_SECRET|PILOT_AGENT_MAX_SIMULATION_AMOUNT)=/);
   assert.doesNotMatch(env, /NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(env, /NEXT_PUBLIC_PILOT_SESSION_SECRET/);
-});
-
-test("custom-domain deployment keeps server-backed pilot routes enabled", () => {
-  const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
-  assert.equal(vercel.buildCommand, "npm run build");
-  assert.equal("outputDirectory" in vercel, false);
 });
 
 test("pilot authentication enforces a strong session secret", () => {
   const auth = readFileSync(new URL("../lib/server/pilot.ts", import.meta.url), "utf8");
   assert.match(auth, /Buffer\.byteLength\(secret, "utf8"\) >= 32/);
   assert.match(auth, /PILOT_SESSION_SECRET must contain at least 32 bytes/);
+});
+
+test("static Pilot Center uses the official backend client", () => {
+  const page = readFileSync(new URL("../app/pilot/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /getBackendCourses/);
+  assert.match(page, /getBackendReforestation/);
+  assert.match(page, /getBackendTransactions/);
+  assert.doesNotMatch(page, /fetch\(/);
+  assert.match(page, /does not currently support course enrollment or quizzes/);
+});
+
+test("static build restores API routes when Next build fails", () => {
+  const build = readFileSync(new URL("../scripts/build-static.mjs", import.meta.url), "utf8");
+  assert.match(build, /finally \{[\s\S]*renameSync\(hiddenApiDir, apiDir\)/);
+  assert.match(build, /process\.exitCode = exitCode/);
+  assert.doesNotMatch(build, /process\.exit\(/);
 });

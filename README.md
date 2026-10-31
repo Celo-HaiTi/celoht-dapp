@@ -27,13 +27,13 @@ To enable the official wallet-authenticated backend, set `NEXT_PUBLIC_BACKEND_UR
 
 ## Controlled pilot setup
 
-1. Deploy the app as a Next.js server, not GitHub Pages static export, so `/api/pilot/*` routes run.
-2. Apply `supabase/migrations/20260909000000_notifications.sql`, then `supabase/migrations/20261030000000_pilot_pillars.sql` through the Supabase SQL editor or migration tooling.
-3. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, server-only `SUPABASE_SERVICE_ROLE_KEY`, and a strong random `PILOT_SESSION_SECRET`.
-4. Use Celo Sepolia chain ID `11142220`. Do not enable a mainnet chain by changing the pilot environment.
-5. Create approved courses, lessons, and passing-score values through an authorized database/admin workflow before using the pilot workspace.
+1. Keep the frontend on GitHub Pages; its workflow publishes the custom domain from `public/CNAME`.
+2. Deploy the official `Celo-HaiTi/celoht-backend` using its Render blueprint and the canonical schema from `Celo-HaiTi/celoht-supabase`.
+3. Configure `api.celoht.com`, set backend CORS to `https://app.celoht.com`, and add `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` as a GitHub Actions repository variable.
+4. Configure backend secrets only in Render. Require Celo Sepolia chain ID `11142220`; never enable Mainnet through environment changes.
+5. Confirm `GET https://api.celoht.com/api/v1/health` returns 200 before testing authenticated workflows.
 
-The signed wallet session is HTTP-only. Database writes and privileged review actions are enforced in server routes; the service-role key must remain server-only.
+The official backend issues the HTTP-only wallet session and enforces database writes and privileged review actions. The service-role key must remain server-only. GitHub Pages itself cannot execute API routes or hold secrets.
 
 Agent registry registration and planting financial records remain separate from database application/evidence records. Cash-in and cash-out are explicitly database-only simulations unless a confirmed existing contract workflow is implemented and disclosed.
 

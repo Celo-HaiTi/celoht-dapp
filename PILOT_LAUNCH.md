@@ -6,41 +6,29 @@ This pilot uses Celo Sepolia, chain ID 11142220. It provides database-backed edu
 
 ## Database setup
 
-Apply migrations in order:
-
-1. `supabase/migrations/20260909000000_notifications.sql`
-2. `supabase/migrations/20261030000000_pilot_pillars.sql`
-3. `supabase/migrations/20261031000000_pilot_security_hardening.sql`
-
-Use Supabase's SQL editor or migration tooling. Keep service-role credentials out of browser code and logs.
+Use the canonical migrations in `Celo-HaiTi/celoht-supabase` and follow that repository's migration order. Do not apply the dApp-local pilot schema as a second source of truth. Keep service-role credentials in the official backend's secret manager only.
 
 ## Required environment
 
-- `NEXT_PUBLIC_SUPABASE_URL`: public project URL.
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: public browser key. It is not an administrative secret.
-- `SUPABASE_SERVICE_ROLE_KEY`: server-only key used by `/api/pilot/*` routes.
-- `PILOT_SESSION_SECRET`: random server-only secret at least 32 bytes of entropy.
-- `PILOT_AGENT_MAX_SIMULATION_AMOUNT`: server-side positive amount ceiling required when a simulated cash-in/cash-out includes an amount.
+- `NEXT_PUBLIC_BACKEND_URL`: public API origin, preferably `https://api.celoht.com`.
+- Backend-only settings belong in the official backend's Render environment as listed in its `render.yaml`: Supabase URL/keys, `CELO_CHAIN_ID=11142220`, Celo Sepolia RPC, `AUTH_SESSION_SECRET`, rate-limit settings, and `CELOHT_ALLOWED_ORIGIN=https://app.celoht.com`.
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: optional public Reown project ID for WalletConnect and Valora.
 
 ## Wallet setup
 
-Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` to an approved Reown project ID to enable WalletConnect and Valora. Without it, those connectors remain unavailable; direct injected wallets and MiniPay's supported injected provider remain separate options. The pilot authentication route signs:
-
-`CeloHT pilot login nonce: <nonce>`
-
-Sessions expire after 24 hours.
+Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` to an approved Reown project ID to enable WalletConnect and Valora. Without it, those connectors remain unavailable; injected wallets and MiniPay remain separate options. The official backend issues the nonce and session cookie; the wallet signs only the backend-provided challenge. Session lifetime is controlled by backend configuration.
 
 ## Hosting requirement
 
-The controlled pilot requires a Next.js server deployment so `/api/pilot/*` routes can run. The Vercel custom-domain configuration uses `npm run build`; the GitHub Pages static export omits API routes and is browse-only. Configure the required Supabase and session variables as server environment variables in the hosting project; do not put server secrets in `NEXT_PUBLIC_*` variables.
+Keep the frontend on GitHub Pages. Deploy the existing `Celo-HaiTi/celoht-backend` repository with its `render.yaml`, attach `api.celoht.com`, and configure CORS to allow only `https://app.celoht.com`. Add the public `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` repository variable so the GitHub Pages build can call the backend. Do not put backend secrets in GitHub variables or `NEXT_PUBLIC_*` values.
 
 ## Education operations
 
-Publish courses through an authorized database/admin process. Course lessons must be complete for the authenticated wallet before certificate issuance. Quiz scores are computed server-side against the private answer key. Certificate identifiers are unique and database-backed; they are not accreditation.
+The official backend currently exposes a published course catalog and progress by lesson ID. It does not expose lesson details, enrollment, quiz submission, or certificate issuance. Do not represent these learner actions as operational until the API and persisted workflow are implemented.
 
 ## Agent operations
 
-On-chain agent registration creates an unverified registry record. Database identity verification is a separate role-controlled workflow. Admin review statuses are:
+The official backend exposes agent application submission and KYC/admin review. On-chain agent registration remains a separate unverified registry record. Admin review statuses are:
 
 - pending
 - under review
@@ -49,11 +37,11 @@ On-chain agent registration creates an unverified registry record. Database iden
 - additional information required
 - suspended
 
-Cash-in and cash-out in `/pilot` are labeled simulations and never claim physical cash movement or blockchain settlement. Amounts are rejected unless the server simulation ceiling is configured. Application approval alone does not grant the verified-agent role; identity verification and secure document storage are not integrated in this repository.
+The official backend currently exposes agent applications and KYC review, but no cash-in/cash-out service endpoint. Do not claim these operations are available. Application approval alone is not identity verification; secure document storage and a verification provider remain external requirements.
 
 ## Reforestation operations
 
-A submitted planting record is excluded from public verified impact. Public reads show only `verified` events. Authorized reviewers can mark evidence under review, verified, rejected, or needing additional evidence. Verified trees must not exceed planted trees. Survival records support 6 and 18 months.
+The official backend currently exposes published projects and verified evidence reads. Contribution amounts remain on-chain; physical planting submissions, GPS/photo evidence, review actions, and 6/18-month survival workflows are not exposed by its current API.
 
 ## Reporting
 
@@ -74,12 +62,12 @@ All reports and exports must be generated from database rows and authorized serv
 
 ## Manual configuration still required
 
-- Apply migrations and verify RLS/storage policies.
+- Apply and verify canonical migrations and RLS policies from `celoht-supabase`.
 - Add course and lesson records with authorized content.
 - Configure Supabase Storage buckets with least-privilege policies if document/photo uploads are enabled.
 - Assign `admin` or `authorized_reviewer` JWT/role records to approved operators.
 - Configure a WalletConnect project only if approved.
-- Configure production secret storage and rotate secrets after deployment.
+- Configure Render secrets from the backend's `render.yaml`; do not store them in the frontend repository.
 - Verify every contract address against synchronized Sepolia deployment metadata and block explorer before enabling financial actions.
 
 ## Pilot readiness

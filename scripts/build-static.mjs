@@ -12,6 +12,7 @@ if (!existsSync(apiDir)) {
 
 renameSync(apiDir, hiddenApiDir);
 const command = process.platform === "win32" ? "npm.cmd" : "npm";
+let exitCode = 0;
 try {
   const result = spawnSync(command, ["run", "build"], {
     cwd: root,
@@ -19,7 +20,8 @@ try {
     stdio: "inherit",
   });
   if (result.error) throw result.error;
-  if (result.status !== 0) process.exit(result.status ?? 1);
+  if (result.status !== 0) exitCode = result.status ?? 1;
 } finally {
   if (existsSync(hiddenApiDir)) renameSync(hiddenApiDir, apiDir);
 }
+if (exitCode !== 0) process.exitCode = exitCode;

@@ -12,7 +12,7 @@
 1. Supabase project
 2. Indexer service
 3. Backend service
-4. Frontend: dynamic Next.js hosting for the controlled pilot; GitHub Pages for static browsing only
+4. Frontend: GitHub Pages static export at `app.celoht.com`; backend API on Render at `api.celoht.com`
 
 ## Etap 1 — Supabase
 
@@ -185,8 +185,8 @@ Nan `.env.example` repo `celoht-dapp`, env yo deja prezan:
 1. Mete yon backend URL aktyèl nan `NEXT_PUBLIC_BACKEND_URL`.
 2. Mete yon `NEXT_PUBLIC_API_BASE_URL` si backend la gen API v1.
 3. Mete `NEXT_PUBLIC_SUPABASE_URL` ak `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Deploy the custom domain with `npm run build` on a Next.js server host and configure the server-only pilot variables.
-5. Use `npm run build:github-pages` only for static browsing; its `/api/pilot/*` routes are omitted.
+4. Set the GitHub Actions variable `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` and configure the Render backend's CORS allowlist for `https://app.celoht.com`.
+5. Keep service-role/auth secrets in Render only; verify `https://api.celoht.com/api/v1/health` returns 200 before enabling authenticated workflows.
 
 ### Eksanple config
 

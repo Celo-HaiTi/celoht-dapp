@@ -16,11 +16,13 @@ GitHub Pages project path with `npm run build:github-pages`; build the custom
 domain root with `npm run build:custom-domain`. The first emits links/assets
 under `/celoht-dapp/`, while the second emits them at `/`.
 
-`app.celoht.com` requires a separate static deployment configured from this
-repository (the checked-in `vercel.json` is prepared for that deployment) and
-DNS/HTTPS configuration outside this repository. The GitHub Pages workflow
-publishes the project-path artifact and includes `public/CNAME` for the custom
-domain binding when GitHub Pages is configured to serve it.
+`app.celoht.com` is served by the GitHub Pages workflow as a static export with
+`public/CNAME`. GitHub Pages cannot run the pilot API. Authenticated workflows
+must call the existing `celoht-backend` service, deployed separately from its
+official Render blueprint. Use `api.celoht.com` as the backend custom domain so
+the frontend and API remain same-site for the backend's secure session cookie.
+Configure the backend to allow only `https://app.celoht.com`, then set the
+GitHub Actions variable `NEXT_PUBLIC_BACKEND_URL` to `https://api.celoht.com`.
 
 ```bash
 npm install
@@ -31,4 +33,4 @@ npm test
 npm run build
 ```
 
-GitHub Pages can serve wallet-connected reads and user-signed transactions. It cannot provide server-side authentication, privileged administration, PostgreSQL/Supabase operations, or an event indexer. Those capabilities require separately deployed infrastructure and are intentionally shown as unavailable until configured.
+GitHub Pages can serve wallet-connected reads and user-signed transactions. It cannot provide server-side authentication, privileged administration, PostgreSQL/Supabase operations, or an event indexer. Those capabilities require the separately deployed official backend, Supabase project, and indexer; they remain unavailable until those services pass their health checks.

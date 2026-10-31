@@ -8,6 +8,12 @@ export type BackendError = {
   requestId?: string;
 };
 
+export type BackendCourse = { id: string; title: string; description: string; created_at: string };
+export type BackendProgressRecord = { lesson_id: string; completed: boolean; completed_at: string | null };
+export type BackendAgentApplication = { id: string; off_chain_kyc_status: string; on_chain_registry_status: string; created_at: string; updated_at: string };
+export type BackendReforestationProject = { id: string; title: string; description: string | null; location: string | null; financialContributionCount: number; verifiedTreesPlanted: number };
+export type BackendTransaction = { id: string; chain_id: number; contract_address: string | null; transaction_hash: string; event_name: string; block_number: number; confirmed: boolean; created_at: string };
+
 export class BackendRequestError extends Error {
   constructor(public readonly status: number, public readonly details: BackendError) {
     super(details.message);
@@ -67,19 +73,38 @@ export function getBackendProfile() {
 }
 
 export function getBackendAgentApplication() {
-  return request<unknown>("/agents");
+  return request<BackendAgentApplication>("/agents");
 }
 
 export function getBackendCourses() {
-  return request<unknown[]>("/courses");
+  return request<BackendCourse[]>("/courses");
 }
 
 export function getBackendProgress() {
-  return request<unknown[]>("/progress");
+  return request<BackendProgressRecord[]>("/progress");
+}
+
+export function saveBackendProgress(lessonId: string, completed: boolean) {
+  return request<BackendProgressRecord>("/progress", {
+    method: "POST",
+    body: JSON.stringify({ lessonId, completed }),
+  });
+}
+
+export function submitBackendAgentApplication(applicationData: Record<string, unknown>) {
+  return request<Pick<BackendAgentApplication, "id" | "off_chain_kyc_status">>("/agents", {
+    method: "POST",
+    body: JSON.stringify({ applicationData }),
+  });
+}
+
+export function getBackendTransactions(walletAddress?: Address) {
+  const query = walletAddress ? `?wallet=${encodeURIComponent(walletAddress)}` : "";
+  return request<BackendTransaction[]>(`/transactions${query}`);
 }
 
 export function getBackendReforestation() {
-  return request<unknown[]>("/reforestation");
+  return request<BackendReforestationProject[]>("/reforestation");
 }
 
 export function getBackendEvidence() {
