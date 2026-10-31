@@ -12,8 +12,11 @@ test("wallet connection status covers disconnected, network, and provider states
 
 test("WalletConnect is disabled without an explicitly configured project ID", () => {
   const config = readFileSync(new URL("../config.ts", import.meta.url), "utf8");
+  const workflow = readFileSync(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
   assert.match(config, /NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID\?\.trim\(\) \|\| ""/);
   assert.doesNotMatch(config, /02d9a7daa098b201a99a7da3769392b2/);
+  assert.match(workflow, /NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: \$\{\{ vars\.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID \}\}/);
+  assert.doesNotMatch(workflow, /02d9a7daa098b201a99a7da3769392b2/);
 });
 
 test("wallet UI exposes three provider choices and Sepolia-only switching", () => {
