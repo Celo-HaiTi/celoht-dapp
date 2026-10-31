@@ -22,7 +22,6 @@ import {
   getBackendTransactions,
   isBackendConfigured,
   requestWalletNonce,
-  saveBackendProgress,
   submitBackendAgentApplication,
   verifyWalletSignature,
   type BackendAgentApplication,
@@ -42,34 +41,6 @@ type Course = {
   lessons?: { id: string; position: number; title: string }[];
 };
 
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const body = init?.body ? JSON.parse(String(init.body)) as Record<string, unknown> : {};
-  if (path === "/api/pilot/auth/me") return await getBackendProfile() as T;
-  if (path === "/api/pilot/auth/nonce") return await requestWalletNonce(String(body.walletAddress) as `0x${string}`) as T;
-  if (path === "/api/pilot/auth/verify") {
-    if (typeof body.nonce !== "string") throw new Error("Wallet challenge is missing its nonce.");
-    await verifyWalletSignature(String(body.walletAddress) as `0x${string}`, body.nonce, String(body.signature) as `0x${string}`);
-    return await getBackendProfile() as T;
-  }
-  if (path === "/api/pilot/education" && !init?.method) {
-    const courses = await getBackendCourses();
-    return courses.map((course) => ({ id: course.id, title: course.title, summary: course.description })) as T;
-  }
-  if (path === "/api/pilot/education" && body.action === "complete" && typeof body.lessonId === "string") {
-    return await saveBackendProgress(body.lessonId, true) as T;
-  }
-  if (path === "/api/pilot/education") throw new Error("The official backend does not currently support course enrollment or quizzes.");
-  if (path === "/api/pilot/agents" && body.action === "apply") {
-    const applicationData = { ...body };
-    delete applicationData.action;
-    return await submitBackendAgentApplication(applicationData) as T;
-  }
-  if (path === "/api/pilot/agents") throw new Error("The official backend does not currently expose agent service simulations.");
-  if (path === "/api/pilot/reforestation" && !init?.method) return await getBackendReforestation() as T;
-  if (path === "/api/pilot/reforestation") throw new Error("The official backend does not currently accept planting evidence submissions.");
-  throw new Error("This pilot action is not supported by the official backend.");
-}
-
 export default function PilotPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -80,6 +51,8 @@ export default function PilotPage() {
   const [progress, setProgress] = useState<BackendProgressRecord[]>([]);
   const [agentApplication, setAgentApplication] = useState<BackendAgentApplication | null>(null);
   const [agentLoadError, setAgentLoadError] = useState<string>();
+  const [agentApplicationSubmitted, setAgentApplicationSubmitted] = useState(false);
+  const [submittingAgent, setSubmittingAgent] = useState(false);
   const [projects, setProjects] = useState<BackendReforestationProject[]>([]);
   const [transactions, setTransactions] = useState<BackendTransaction[]>([]);
   const [status, setStatus] = useState<string>();
@@ -90,17 +63,17 @@ export default function PilotPage() {
     if (!isBackendConfigured()) {
       return () => { active = false; };
     }
-    void api<Course[]>("/api/pilot/education")
-      .then((result) => { if (active) setCourses(result); })
+    void getBackendCourses()
+      .then((result) => { if (active) setCourses(result.map((course) => ({ id: course.id, title: course.title, summary: course.description }))); })
       .catch((cause) => { if (active) setStatus(cause instanceof Error ? cause.message : "Unable to load courses."); });
-    void api<BackendReforestationProject[]>("/api/pilot/reforestation")
+    void getBackendReforestation()
       .then((result) => { if (active) setProjects(result); })
       .catch((cause) => { if (active) setStatus(cause instanceof Error ? cause.message : "Unable to load projects."); });
     if (address) void getBackendTransactions(address)
       .then((result) => { if (active) setTransactions(result); })
       .catch(() => { if (active) setTransactions([]); });
     if (address && isConnected) {
-      void api<Session>("/api/pilot/auth/me")
+      void getBackendProfile()
         .then(async (profile) => {
           if (!active || profile.walletAddress.toLowerCase() !== address.toLowerCase()) return;
           setSession(profile);
@@ -132,15 +105,11 @@ export default function PilotPage() {
     }
     setAuthError(undefined);
     try {
-      const nonce = await api<{ message: string; nonce: string }>("/api/pilot/auth/nonce", {
-        method: "POST",
-        body: JSON.stringify({ walletAddress: address }),
-      });
+      const nonce = await requestWalletNonce(address);
       const signature = await signMessageAsync({ message: nonce.message });
-      const result = await api<Session>("/api/pilot/auth/verify", {
-        method: "POST",
-        body: JSON.stringify({ walletAddress: address, nonce: nonce.nonce, signature }),
-      });
+      await verifyWalletSignature(address, nonce.nonce, signature);
+      const result = await getBackendProfile();
+      if (result.walletAddress.toLowerCase() !== address.toLowerCase()) throw new Error("Backend session wallet does not match the connected wallet.");
       setSession(result);
       const [applicationResult, progressResult] = await Promise.allSettled([
         getBackendAgentApplication(),
@@ -163,26 +132,32 @@ export default function PilotPage() {
 
   async function submitAgent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submittingAgent) return;
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
+    setSubmittingAgent(true);
     try {
-      await api<unknown>("/api/pilot/agents", {
-        method: "POST",
-        body: JSON.stringify({
-          action: "apply",
-          fullName: form.get("fullName"),
-          contact: form.get("contact"),
-          location: form.get("location"),
-          community: form.get("community"),
-        }),
+      await submitBackendAgentApplication({
+        fullName: String(form.get("fullName") ?? "").trim(),
+        contact: String(form.get("contact") ?? "").trim(),
+        location: String(form.get("location") ?? "").trim(),
+        community: String(form.get("community") ?? "").trim(),
       });
       setStatus(
         "Agent application submitted for review. Identity verification is not assumed.",
       );
-      setAgentApplication(await getBackendAgentApplication());
+      setAgentApplicationSubmitted(true);
       formElement.reset();
+      try {
+        setAgentApplication(await getBackendAgentApplication());
+        setAgentLoadError(undefined);
+      } catch (cause) {
+        setAgentLoadError(cause instanceof Error ? cause.message : "Application status is unavailable.");
+      }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Application failed");
+    } finally {
+      setSubmittingAgent(false);
     }
   }
 
@@ -251,7 +226,7 @@ export default function PilotPage() {
         <>
           <Section eyebrow="Agent Network" title="Application">
             <Card className="max-w-2xl">
-              {agentLoadError ? <CardDescription role="alert">Application status unavailable: {agentLoadError}</CardDescription> : agentApplication ? <CardDescription>Application on file. Off-chain review: {agentApplication.off_chain_kyc_status}. Registry: {agentApplication.on_chain_registry_status}. This status is supplied by the backend and is not inferred here.</CardDescription> : <form className="space-y-3" onSubmit={submitAgent}>
+              {agentLoadError ? <CardDescription role="alert">Application status unavailable: {agentLoadError}</CardDescription> : agentApplication ? <CardDescription>Application on file. Off-chain review: {agentApplication.off_chain_kyc_status}. Registry: {agentApplication.on_chain_registry_status}. This status is supplied by the backend and is not inferred here.</CardDescription> : agentApplicationSubmitted ? <CardDescription>Your application was submitted. The backend has not returned its review status yet.</CardDescription> : <form className="space-y-3" onSubmit={submitAgent}>
                 <input
                   name="fullName"
                   required
@@ -276,7 +251,7 @@ export default function PilotPage() {
                   placeholder="Community"
                   className="w-full rounded-lg border border-white/10 bg-white/5 p-3"
                 />
-                <Button type="submit">Submit application</Button>
+                <Button type="submit" disabled={submittingAgent}>{submittingAgent ? "Submitting…" : "Submit application"}</Button>
               </form>}
             </Card>
           </Section>

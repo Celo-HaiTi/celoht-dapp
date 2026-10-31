@@ -177,15 +177,14 @@ Nan `.env.example` repo `celoht-dapp`, env yo deja prezan:
 
 - `NEXT_PUBLIC_API_BASE_URL`
 - `NEXT_PUBLIC_BACKEND_URL`
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (optional)
 
 ### Kisa pou fè
 
 1. Mete yon backend URL aktyèl nan `NEXT_PUBLIC_BACKEND_URL`.
 2. Mete yon `NEXT_PUBLIC_API_BASE_URL` si backend la gen API v1.
-3. Mete `NEXT_PUBLIC_SUPABASE_URL` ak `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Set the GitHub Actions variable `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` and configure the Render backend's CORS allowlist for `https://app.celoht.com`.
+3. Set the GitHub Actions variable `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` and configure the Render backend's CORS allowlist for `https://app.celoht.com`.
+4. Configure WalletConnect only if using its mobile pairing flow.
 5. Keep service-role/auth secrets in Render only; verify `https://api.celoht.com/api/v1/health` returns 200 before enabling authenticated workflows.
 
 ### Eksanple config
@@ -193,8 +192,7 @@ Nan `.env.example` repo `celoht-dapp`, env yo deja prezan:
 ```env
 NEXT_PUBLIC_BACKEND_URL=https://your-backend-url.example.com
 NEXT_PUBLIC_API_BASE_URL=https://your-backend-url.example.com
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=
 ```
 
 ### Verifye
