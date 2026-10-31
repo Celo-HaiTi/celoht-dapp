@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import { clearSessionCookie, getPilotSupabase, jsonError, sessionCookie, signSession, verifyWalletSignature } from "@/lib/server/pilot";
+import { clearSessionCookie, getPilotSessionSecret, getPilotSupabase, jsonError, sessionCookie, signSession, verifyWalletSignature } from "@/lib/server/pilot";
 
 export async function POST(request: Request) {
+  if (!getPilotSessionSecret()) return jsonError("Pilot session authentication is not configured", 503);
   const body = await request.json().catch(() => null) as { walletAddress?: string; signature?: string } | null;
   if (!body?.walletAddress || !body.signature) return jsonError("Wallet address and signature required", 400);
   const store = await cookies();

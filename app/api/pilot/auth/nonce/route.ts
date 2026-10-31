@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import { createWalletNonce } from "@/lib/server/pilot";
+import { createWalletNonce, getPilotSessionSecret, jsonError } from "@/lib/server/pilot";
 
 export async function POST(request: Request) {
+  if (!getPilotSessionSecret()) return jsonError("Pilot session authentication is not configured", 503);
   const body = await request.json().catch(() => null) as { walletAddress?: string } | null;
   if (!body?.walletAddress || !/^0x[0-9a-fA-F]{40}$/.test(body.walletAddress)) {
     return Response.json({ error: { message: "Valid wallet address required" } }, { status: 400 });

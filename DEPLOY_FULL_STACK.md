@@ -2,7 +2,7 @@
 
 ## Ki sa nou deja genyen
 
-- Repo frontend: `celoht-dapp` (sa a deja fèt epi GitHub Pages a travay ak build siksè)
+- Repo frontend: `celoht-dapp` (GitHub Pages is browse-only; authenticated pilot APIs require a Next.js server host)
 - Repo backend: `/workspaces/celoht-backend`
 - Repo indexer: `/workspaces/celoht-indexer`
 - Repo Supabase: `/workspaces/celoht-supabase`
@@ -12,7 +12,7 @@
 1. Supabase project
 2. Indexer service
 3. Backend service
-4. Frontend GitHub Pages
+4. Frontend: dynamic Next.js hosting for the controlled pilot; GitHub Pages for static browsing only
 
 ## Etap 1 — Supabase
 
@@ -185,8 +185,8 @@ Nan `.env.example` repo `celoht-dapp`, env yo deja prezan:
 1. Mete yon backend URL aktyèl nan `NEXT_PUBLIC_BACKEND_URL`.
 2. Mete yon `NEXT_PUBLIC_API_BASE_URL` si backend la gen API v1.
 3. Mete `NEXT_PUBLIC_SUPABASE_URL` ak `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Re-run `npm run build:github-pages`.
-5. Verifye GitHub Pages deployment la.
+4. Deploy the custom domain with `npm run build` on a Next.js server host and configure the server-only pilot variables.
+5. Use `npm run build:github-pages` only for static browsing; its `/api/pilot/*` routes are omitted.
 
 ### Eksanple config
 

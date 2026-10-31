@@ -5,6 +5,11 @@ import { verifyMessage, type Address } from "viem";
 
 const SESSION_COOKIE = "celoht_pilot_session";
 
+export function getPilotSessionSecret(): string | null {
+  const secret = process.env.PILOT_SESSION_SECRET;
+  return secret && Buffer.byteLength(secret, "utf8") >= 32 ? secret : null;
+}
+
 export function getPilotSupabase(): SupabaseClient | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -25,14 +30,14 @@ export async function verifyWalletSignature(walletAddress: string, nonce: string
 }
 
 export function signSession(walletAddress: string, role: string): string {
-  const secret = process.env.PILOT_SESSION_SECRET;
-  if (!secret) throw new Error("PILOT_SESSION_SECRET is required");
+  const secret = getPilotSessionSecret();
+  if (!secret) throw new Error("PILOT_SESSION_SECRET must contain at least 32 bytes");
   const payload = Buffer.from(JSON.stringify({ walletAddress: walletAddress.toLowerCase(), role, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString("base64url");
   return `${payload}.${createHmac("sha256", secret).update(payload).digest("base64url")}`;
 }
 
 export async function getPilotSession(): Promise<{ walletAddress: string; role: string } | null> {
-  const secret = process.env.PILOT_SESSION_SECRET;
+  const secret = getPilotSessionSecret();
   if (!secret) return null;
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;

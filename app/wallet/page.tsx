@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
-  ArrowDownLeft,
-  ArrowUpRight,
   Check,
   CheckCircle2,
   Clock3,
@@ -14,11 +13,11 @@ import {
   QrCode,
   Send,
   ShieldAlert,
-  WalletCards,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { isAddress, parseUnits, type Address } from "viem";
-import { useAccount, useBalance, useChainId, useSendTransaction, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { encodeFunctionData, isAddress, parseUnits, type Address } from "viem";
+import { useAccount, useBalance, useChainId, useEstimateGas, useGasPrice, useSendTransaction, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { celoSepolia } from "wagmi/chains";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { erc20Abi } from "@/lib/contracts";
 import { getExplorerUrlForChain, getNetworkConfig, isSupportedWalletNetwork } from "@/lib/network/config";
@@ -32,24 +31,27 @@ type Asset = "CELO" | "USDm";
 type TxState = "idle" | "signing" | "pending" | "success" | "failed";
 
 export default function WalletPage() {
-  const { address, isConnected } = useAccount();
+  const { address, connector, isConnected } = useAccount();
   const { t } = useI18n();
   const chainId = useChainId();
-  const networkConfig = getNetworkConfig(chainId) ?? getNetworkConfig();
+  const networkConfig = isConnected ? getNetworkConfig(chainId) : getNetworkConfig();
   const usdmAddress = networkConfig?.tokens.usdm.address;
   const wrongNetwork = isConnected && !isSupportedWalletNetwork(chainId);
+  const { switchChain, isPending: isSwitchingNetwork } = useSwitchChain();
 
   const [asset, setAsset] = useState<Asset>("USDm");
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState<string>();
   const [showReceive, setShowReceive] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
 
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmBalance = useUsdmBalance(address, chainId);
 
-  const { data: celoHash, error: celoError, isPending: isSendingCelo, sendTransaction } = useSendTransaction();
-  const { data: usdmHash, error: usdmError, isPending: isSendingUsdm, writeContract } = useWriteContract();
+  const { data: celoHash, error: celoError, isPending: isSendingCelo, sendTransaction, reset: resetCeloSend } = useSendTransaction();
+  const { data: usdmHash, error: usdmError, isPending: isSendingUsdm, writeContract, reset: resetUsdmSend } = useWriteContract();
   const txHash = celoHash ?? usdmHash;
   const txError = celoError ?? usdmError;
   const txReceipt = useWaitForTransactionReceipt({ hash: txHash, query: { enabled: Boolean(txHash) } });
@@ -68,8 +70,23 @@ export default function WalletPage() {
 
   const amountValid = parsedAmount !== undefined && parsedAmount > 0n;
   const enoughBalance = Boolean(parsedAmount !== undefined && selectedBalance && parsedAmount <= selectedBalance.value);
+  const estimateEnabled = Boolean(isConnected && !wrongNetwork && recipientValid && amountValid && parsedAmount && (asset === "CELO" || usdmAddress));
+  const usdmTransferData = asset === "USDm" && usdmAddress && recipientValid && parsedAmount
+    ? encodeFunctionData({ abi: erc20Abi, functionName: "transfer", args: [recipient as Address, parsedAmount] })
+    : undefined;
+  const gasEstimate = useEstimateGas({
+    account: address,
+    to: asset === "CELO" ? (recipientValid ? recipient as Address : undefined) : usdmAddress,
+    value: asset === "CELO" ? parsedAmount : undefined,
+    data: usdmTransferData,
+    chainId,
+    query: { enabled: estimateEnabled },
+  });
+  const gasPrice = useGasPrice({ chainId, query: { enabled: estimateEnabled } });
+  const estimatedFee = gasEstimate.data !== undefined && gasPrice.data !== undefined ? gasEstimate.data * gasPrice.data : undefined;
+  const hasEnoughGas = Boolean(estimatedFee !== undefined && celoBalance.data && (asset === "CELO" ? celoBalance.data.value >= (parsedAmount ?? 0n) + estimatedFee : celoBalance.data.value >= estimatedFee));
   const canSend = Boolean(
-    isConnected && !wrongNetwork && recipientValid && amountValid && enoughBalance && !isSendingCelo && !isSendingUsdm && !txHash && (asset === "CELO" || usdmAddress),
+    isConnected && !wrongNetwork && recipientValid && amountValid && enoughBalance && hasEnoughGas && !isSendingCelo && !isSendingUsdm && !txHash && (asset === "CELO" || usdmAddress),
   );
 
   const txState: TxState = txHash
@@ -83,6 +100,7 @@ export default function WalletPage() {
     : "idle";
 
   const amountError = amount && (!amountValid ? `Enter a valid ${asset} amount.` : !enoughBalance ? `Insufficient ${asset} balance.` : undefined);
+  const feeDisplay = estimatedFee === undefined ? undefined : `${formatTokenAmount(estimatedFee, 18, 6)} CELO`;
 
   useEffect(() => {
     if (!address || !txHash || !isConnected) return;
@@ -112,8 +130,26 @@ export default function WalletPage() {
     window.setTimeout(() => setCopied(false), 1600);
   };
 
+  const handleShare = async () => {
+    if (!address) return;
+    setShareError(undefined);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "CeloHT wallet address", text: address });
+      } else {
+        await navigator.clipboard.writeText(address);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1600);
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareError("Unable to share the address from this browser.");
+    }
+  };
+
   const handleSend = () => {
     if (!canSend || !parsedAmount) return;
+    setReviewing(false);
 
     if (asset === "CELO") {
       sendTransaction({
@@ -133,11 +169,20 @@ export default function WalletPage() {
     });
   };
 
-  const connectedWalletLabel = isConnected && address ? shortenAddress(address, 6) : "Not connected";
+  const clearTransaction = () => {
+    resetCeloSend();
+    resetUsdmSend();
+    setAmount("");
+    setRecipient("");
+    setReviewing(false);
+  };
+
   const statusLabel = !isConnected ? "Disconnected" : wrongNetwork ? "Wrong network" : networkConfig?.name ?? "Celo network";
   const assetBalanceDisplay = selectedBalance ? formatTokenAmount(selectedBalance.value, selectedBalance.decimals ?? 18, 2) : "—";
   const usdmDisplay = usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals ?? 18, 2) : "—";
-  const celoDisplay = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals ?? 18, 2) : "—";
+  const celoDisplay = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals ?? 18, 2) : celoBalance.isLoading ? "Loading" : "Unavailable";
+  const usdmBalanceDisplay = !usdmAddress ? "Not configured" : usdmBalance.data ? usdmDisplay : usdmBalance.isLoading ? "Loading" : "Unavailable";
+  const balanceStatus = !isConnected ? "Connect wallet" : celoBalance.isError || (Boolean(usdmAddress) && usdmBalance.isError) ? "Unavailable" : celoBalance.isLoading || (Boolean(usdmAddress) && usdmBalance.isLoading) ? "Loading" : "On-chain";
 
   return (
     <div className="wallet-shell min-h-screen text-white">
@@ -160,8 +205,9 @@ export default function WalletPage() {
           <section className="portfolio-panel overflow-hidden p-4 sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#f8dc8f]/85">{t("wallet.balance")}</p>
-                <h2 className="mt-2 font-['Iowan_Old_Style','Georgia',serif] text-2xl text-white sm:text-3xl">{t("wallet.balance")}</h2>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-[#f8dc8f]/85">Celo Sepolia</p>
+                <h2 className="mt-2 font-['Iowan_Old_Style','Georgia',serif] text-2xl text-white sm:text-3xl">Testnet wallet</h2>
+                <p className="mt-2 text-sm text-white/55">Balances are shown in token units. No fiat price feed is configured.</p>
               </div>
               <div className="flex items-center gap-2 rounded-full border border-[#4dd39b]/25 bg-[#4dd39b]/10 px-3 py-1.5 text-xs text-[#abefc8]">
                 <span className="h-2 w-2 rounded-full bg-[#4dd39b]" />
@@ -169,22 +215,7 @@ export default function WalletPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#f8dc8f]/25 bg-[#f8dc8f]/10 text-lg font-bold text-[#f8dc8f]">C</div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/45">CeloHT</p>
-                    <p className="font-mono text-xs text-white/75">{connectedWalletLabel}</p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <div className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{usdmDisplay === "—" ? "$0.00" : `$${usdmDisplay}`}</div>
-                  <div className="mt-2 text-sm text-white/60">{t("wallet.balance")} USDm</div>
-                </div>
-                <div className="mt-3 text-sm text-[#dfeaf6]/60">≈ Local currency estimate unavailable until a price feed is configured.</div>
-              </div>
-
+            <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-end">
               <div className="wallet-panel w-full max-w-md p-4 backdrop-blur-sm">
                 <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/40">
                   <span>{t("common.wallet")}</span>
@@ -203,11 +234,11 @@ export default function WalletPage() {
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs text-white/55">
                   <span>{t("wallet.provider")}</span>
-                  <span>{isConnected ? "WalletConnect / injected" : "Disconnected"}</span>
+                  <span>{isConnected ? connector?.name ?? "Connected wallet" : "Disconnected"}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs text-white/55">
                   <span>{t("wallet.networkStatus")}</span>
-                  <span>{wrongNetwork ? "Unsupported" : isConnected ? "Live" : "Offline"}</span>
+                  <span>{wrongNetwork ? "Unsupported" : balanceStatus}</span>
                 </div>
                 <div className="mt-4 flex gap-3">
                   <button type="button" disabled={!isConnected || wrongNetwork} className="wallet-primary" onClick={() => setShowReceive(false)}>
@@ -244,8 +275,8 @@ export default function WalletPage() {
                     <h2 className="mt-2 text-2xl font-semibold text-white">Please switch to the supported Celo network to continue.</h2>
                   </div>
                 </div>
-                <button type="button" onClick={() => window.location.reload()} className="wallet-primary w-auto px-4">
-                  Refresh
+                <button type="button" onClick={() => switchChain({ chainId: celoSepolia.id })} className="wallet-primary w-auto px-4" disabled={isSwitchingNetwork}>
+                  {isSwitchingNetwork ? "Switching…" : "Switch to Celo Sepolia"}
                 </button>
               </div>
             </section>
@@ -258,12 +289,12 @@ export default function WalletPage() {
                       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Balance stack</p>
                       <h2 className="mt-2 text-xl font-semibold text-white">Assets</h2>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-white/50">Live</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-white/50">{balanceStatus}</span>
                   </div>
 
                   <div className="mt-5 space-y-3">
-                    <AssetRow label="CELO" value={celoDisplay} hint="Gas and network fees" tone="gold" />
-                    <AssetRow label="USDm" value={usdmDisplay} hint="Stable value" tone="green" />
+                    <AssetRow label="CELO" value={celoDisplay} hint="Native testnet token and gas" tone="gold" />
+                    <AssetRow label="USDm" value={usdmBalanceDisplay} hint={usdmAddress ? "Configured token balance" : "Token contract unavailable"} tone="green" />
                   </div>
                 </div>
 
@@ -291,10 +322,11 @@ export default function WalletPage() {
                         <button type="button" onClick={handleCopy} className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:border-[#f8dc8f]/35 hover:bg-white/10" disabled={!address}>
                           {copied ? "Copied" : "Copy address"}
                         </button>
-                        <button type="button" className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:border-[#f8dc8f]/35 hover:bg-white/10" disabled={!address}>
-                          Share
+                        <button type="button" onClick={() => void handleShare()} className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:border-[#f8dc8f]/35 hover:bg-white/10" disabled={!address}>
+                          Share address
                         </button>
                       </div>
+                      {shareError ? <p className="text-xs text-[#f9d77d]" role="alert">{shareError}</p> : null}
                     </div>
                   ) : (
                     <div className="mt-5 space-y-4">
@@ -324,7 +356,7 @@ export default function WalletPage() {
                       <div className="rounded-2xl border border-white/10 bg-[#0d1728] p-3">
                         <div className="flex items-center justify-between text-xs text-white/55">
                           <span>Network fee</span>
-                          <span>≈ 0.00 CELO</span>
+                          <span>{feeDisplay ?? (gasEstimate.isLoading || gasPrice.isLoading ? "Estimating…" : gasEstimate.isError || gasPrice.isError ? "Unavailable" : "Enter recipient and amount")}</span>
                         </div>
                         <div className="mt-2 flex items-center justify-between text-xs text-white/55">
                           <span>Network</span>
@@ -332,47 +364,30 @@ export default function WalletPage() {
                         </div>
                       </div>
 
-                      <button type="button" disabled={!canSend} onClick={handleSend} className="w-full rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f] disabled:cursor-not-allowed disabled:opacity-40">
+                      {amountValid && enoughBalance && estimatedFee !== undefined && !hasEnoughGas ? <p className="text-xs text-[#f9d77d]" role="alert">Insufficient CELO to cover the estimated network fee.</p> : null}
+                      {txError ? <p className="text-xs text-[#f9d77d]" role="alert">{txError.message}</p> : null}
+                      <button type="button" disabled={!canSend} onClick={() => setReviewing(true)} className="w-full rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f] disabled:cursor-not-allowed disabled:opacity-40">
                         {isSendingCelo || isSendingUsdm ? "Awaiting wallet approval" : "Review and send"}
                       </button>
+                      {reviewing ? <div className="rounded-2xl border border-[#f8dc8f]/30 bg-black/20 p-4" role="group" aria-label="Review transfer">
+                        <h3 className="text-sm font-semibold text-white">Confirm transfer details</h3>
+                        <p className="mt-3 break-all text-xs text-white/65">{amount} {asset} to {recipient}</p>
+                        <p className="mt-2 text-xs text-white/65">Estimated network fee: {feeDisplay ?? "Unavailable"}</p>
+                        <div className="mt-4 flex gap-3">
+                          <button type="button" className="wallet-secondary flex-1" onClick={() => setReviewing(false)}>Cancel</button>
+                          <button type="button" disabled={!canSend} className="wallet-primary flex-1" onClick={handleSend}>Confirm in wallet</button>
+                        </div>
+                      </div> : null}
                     </div>
                   )}
                 </div>
               </section>
 
-              <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="wallet-panel p-5 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Timeline</p>
-                      <h2 className="mt-2 text-xl font-semibold text-white">Transaction history</h2>
-                    </div>
-                    <div className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-white/50">Live</div>
-                  </div>
-
-                  <div className="mt-5 space-y-4">
-                    <TimelineItem icon={<ArrowDownLeft className="h-4 w-4" />} method="Received" amount="+$250.00" detail="Jean • 10:42 AM" tone="positive" />
-                    <TimelineItem icon={<ArrowUpRight className="h-4 w-4" />} method="Sent" amount="-$75.00" detail="Marie • 09:12 AM" tone="neutral" />
-                    <TimelineItem icon={<Clock3 className="h-4 w-4" />} method="Pending" amount="-$35.00" detail="Agent payment • 07:54 AM" tone="warning" />
-                  </div>
-                </div>
-
-                <div className="wallet-panel p-5 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Impact</p>
-                      <h2 className="mt-2 text-xl font-semibold text-white">Your CeloHT Impact</h2>
-                    </div>
-                    <WalletCards className="text-[#f8dc8f]" size={18} aria-hidden="true" />
-                  </div>
-
-                  <div className="mt-5 space-y-3">
-                    <ImpactCard label="USDm transferred" value="$1,280.50" />
-                    <ImpactCard label="Transactions completed" value="18" />
-                    <ImpactCard label="Education progress" value="72%" />
-                    <ImpactCard label="Trees supported" value="640" />
-                  </div>
-                </div>
+              <section className="wallet-panel p-5 sm:p-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Activity</p>
+                <h2 className="mt-2 text-xl font-semibold text-white">Transaction history</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">An indexed history service is not configured. This page does not display sample transactions or estimated impact.</p>
+                <Link href="/wallet/activity" className="mt-4 inline-flex text-sm font-semibold text-[#f8dc8f] hover:text-white">Open activity history</Link>
               </section>
             </>
           )}
@@ -398,7 +413,7 @@ export default function WalletPage() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">Amount</div>
-                  <div className="mt-2 text-xl font-semibold text-white">{amount ? `$${amount}` : "—"} {asset}</div>
+                  <div className="mt-2 text-xl font-semibold text-white">{amount || "—"} {asset}</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">Recipient</div>
@@ -411,10 +426,7 @@ export default function WalletPage() {
                   View transaction <ExternalLink size={14} aria-hidden="true" />
                 </a>
                 {txState === "success" ? (
-                  <button type="button" onClick={() => {
-                    setAmount("");
-                    setRecipient("");
-                  }} className="inline-flex items-center gap-2 rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f]">
+                    <button type="button" onClick={clearTransaction} className="inline-flex items-center gap-2 rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f]">
                     <Check size={14} aria-hidden="true" />
                     Payment sent
                   </button>
@@ -427,7 +439,6 @@ export default function WalletPage() {
     </div>
   );
 }
-
 function AssetRow({ label, value, hint, tone }: { label: string; value: string; hint: string; tone: "gold" | "green" }) {
   return (
     <div className="flex items-center gap-3 rounded-[22px] border border-white/10 bg-black/10 p-3.5">
@@ -443,30 +454,3 @@ function AssetRow({ label, value, hint, tone }: { label: string; value: string; 
   );
 }
 
-function TimelineItem({ icon, method, amount, detail, tone }: { icon: ReactNode; method: string; amount: string; detail: string; tone: "positive" | "neutral" | "warning" }) {
-  const toneClass = tone === "positive" ? "text-[#9ae0bd]" : tone === "warning" ? "text-[#f7b267]" : "text-white/80";
-
-  return (
-    <div className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/10 p-3.5">
-      <div className={`mt-0.5 rounded-xl border border-white/10 bg-black/10 p-2 ${toneClass}`}>
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <div className="text-sm font-medium text-white">{method}</div>
-          <div className={`font-mono text-sm ${toneClass}`}>{amount}</div>
-        </div>
-        <div className="mt-1 text-xs text-white/45">{detail}</div>
-      </div>
-    </div>
-  );
-}
-
-function ImpactCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-[20px] border border-white/10 bg-black/10 p-3.5">
-      <div className="text-sm text-white/55">{label}</div>
-      <div className="font-mono text-base font-semibold text-white">{value}</div>
-    </div>
-  );
-}

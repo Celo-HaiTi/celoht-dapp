@@ -10,6 +10,7 @@ Apply migrations in order:
 
 1. `supabase/migrations/20260909000000_notifications.sql`
 2. `supabase/migrations/20261030000000_pilot_pillars.sql`
+3. `supabase/migrations/20261031000000_pilot_security_hardening.sql`
 
 Use Supabase's SQL editor or migration tooling. Keep service-role credentials out of browser code and logs.
 
@@ -19,18 +20,23 @@ Use Supabase's SQL editor or migration tooling. Keep service-role credentials ou
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: public browser key. It is not an administrative secret.
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used by `/api/pilot/*` routes.
 - `PILOT_SESSION_SECRET`: random server-only secret at least 32 bytes of entropy.
+- `PILOT_AGENT_MAX_SIMULATION_AMOUNT`: server-side positive amount ceiling required when a simulated cash-in/cash-out includes an amount.
 
 ## Wallet setup
 
-Configure WalletConnect only after a project ID is approved. The existing app supports direct injected wallets regardless. The pilot authentication route signs:
+Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` to an approved Reown project ID to enable WalletConnect and Valora. Without it, those connectors remain unavailable; direct injected wallets and MiniPay's supported injected provider remain separate options. The pilot authentication route signs:
 
 `CeloHT pilot login nonce: <nonce>`
 
 Sessions expire after 24 hours.
 
+## Hosting requirement
+
+The controlled pilot requires a Next.js server deployment so `/api/pilot/*` routes can run. The Vercel custom-domain configuration uses `npm run build`; the GitHub Pages static export omits API routes and is browse-only. Configure the required Supabase and session variables as server environment variables in the hosting project; do not put server secrets in `NEXT_PUBLIC_*` variables.
+
 ## Education operations
 
-Publish courses through an authorized database/admin process. Course lessons must be complete for the authenticated wallet before certificate issuance. Quiz attempts must contain an actual passing score. Certificate identifiers are unique and database-backed; they are not accreditation.
+Publish courses through an authorized database/admin process. Course lessons must be complete for the authenticated wallet before certificate issuance. Quiz scores are computed server-side against the private answer key. Certificate identifiers are unique and database-backed; they are not accreditation.
 
 ## Agent operations
 
@@ -43,7 +49,7 @@ On-chain agent registration creates an unverified registry record. Database iden
 - additional information required
 - suspended
 
-Cash-in and cash-out in `/pilot` are labeled simulations and never claim physical cash movement or blockchain settlement.
+Cash-in and cash-out in `/pilot` are labeled simulations and never claim physical cash movement or blockchain settlement. Amounts are rejected unless the server simulation ceiling is configured. Application approval alone does not grant the verified-agent role; identity verification and secure document storage are not integrated in this repository.
 
 ## Reforestation operations
 
