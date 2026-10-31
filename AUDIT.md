@@ -4,7 +4,7 @@
 
 This repository is the CeloHT DApp frontend. It is not a smart-contract repository, not a blockchain, and not a token project. Its role is to provide a wallet-connected web application for CeloHT education, agent registration, USDm donations, governance visibility, wallet/network configuration, and public-facing ecosystem information on Celo.
 
-The repository depends on the official CeloHT smart-contract repository for synchronized ABIs and deployment metadata, and it can optionally connect to a separately deployed CeloHT backend for authenticated profile, notification, evidence, and indexing workflows.
+The repository depends on the official CeloHT smart-contract repository for synchronized ABIs and deployment metadata. Static GitHub Pages connects to the separate official `celoht-backend` for authenticated profile, notification, course-progress, agent, and indexed-data workflows. The browser does not connect directly to Supabase.
 
 ## Architecture
 
@@ -14,13 +14,13 @@ The current architecture is a static Next.js app that uses:
 - wagmi and viem for wallet connectivity and on-chain reads/writes
 - public Celo RPCs for wallet/network interactions
 - synchronized contract ABIs and deployment metadata under `abis/` and `deployments/`
-- optional backend integration through `NEXT_PUBLIC_BACKEND_URL` / `NEXT_PUBLIC_API_BASE_URL`
-- optional Supabase browser configuration for non-blockchain data only
+- official backend integration through `NEXT_PUBLIC_BACKEND_URL` / `NEXT_PUBLIC_API_BASE_URL`
+- canonical Supabase schema and migrations owned by `Celo-HaiTi/celoht-supabase`
 
 The repository intentionally separates:
 
 - blockchain state: read directly from the connected Celo network via official ABIs
-- off-chain data: optional Supabase/browser-backed content where configured
+- off-chain data: official backend API backed by the canonical Supabase project
 - privileged operations: expected to happen in the backend, not in this static frontend
 
 ## Existing Functionality
@@ -54,7 +54,7 @@ The following are partially implemented or intentionally unavailable until exter
 The following areas are clearly not production-backed and are intentionally represented as unavailable or sample-only:
 
 - backend-driven profile data, governance feeds, notifications, and evidence workflows when `NEXT_PUBLIC_BACKEND_URL` is unset
-- Supabase-backed off-chain content when public Supabase variables are absent
+- backend-backed off-chain content when `NEXT_PUBLIC_BACKEND_URL` is unset or unhealthy
 - wallet activity screens that are local/demo-oriented unless a live backend/indexer is configured
 - any Mainnet product features until the official smart-contract repository publishes verified deployment metadata
 
@@ -64,8 +64,8 @@ Required external systems and repositories:
 
 - `Celo-HaiTi/celoht-smart-contracts` for official deployment metadata and ABIs
 - public Celo RPC endpoints for wallet/network reads
-- optional deployed `celoht-backend` for authenticated APIs and server-side authorization
-- optional Supabase project for non-blockchain data
+- deployed `celoht-backend` for authenticated APIs and server-side authorization
+- canonical Supabase project and indexer for persisted/indexed data
 - GitHub Pages for deployment of the static frontend
 
 ## Security
@@ -79,7 +79,9 @@ Current strengths:
 
 Current risks / unresolved issues:
 
-- production dependency audit still reports remaining high and moderate vulnerabilities in the transitive walletconnect/reown/axios stack
+- production dependency audit passes its configured high-severity gate, but this is not an independent security audit
+- live Render backend health currently returns 503; `api.celoht.com` DNS and credentialed CORS are not operational
+- the backend API does not expose course enrollment/quizzes, agent cash simulations, or planting evidence submission
 - the repository relies on external services and must treat missing backend or missing deployment metadata as unsafe to claim as production-ready
 - server-side authorization must remain outside the browser for any privileged workflows
 
@@ -108,11 +110,7 @@ The repository already includes useful documentation, including:
 - `DATABASE.md`
 - `MAINNET_ACTIVATION.md`
 
-Remaining documentation gaps:
-
-- the repository lacks a consolidated `AUDIT.md` summary of the actual production state
-- deployment and integration requirements for the optional backend/indexer are spread across multiple documents
-- security risk status for the remaining dependency audit findings is not yet summarized in a single repository-level artifact
+Keep deployment and integration requirements synchronized with the official backend and Supabase repositories. Document external service health and unsupported API workflows whenever their status changes.
 
 ## Production Blockers
 
@@ -120,7 +118,7 @@ Remaining documentation gaps:
 
 1. No verified Celo Mainnet CeloHT contract or USDm deployment metadata exists in this repository; Celo Mainnet financial flows remain blocked.
 2. The optional backend is not configured in this repository by default, so backend-authenticated features remain unavailable and must not be described as production-ready.
-3. The current dependency audit still reports high-severity transitive vulnerabilities in the production stack and therefore prevents a clean production security claim.
+3. The official backend is not configured for the custom domain: Render health returns 503, DNS for `api.celoht.com` is absent, and credentialed CORS does not allow the Pages origin.
 
 ### P1 — Important production issue
 
@@ -135,9 +133,9 @@ Remaining documentation gaps:
 
 ## Current Status
 
-READY FOR TESTING
+NOT READY — BLOCKING ISSUES REMAIN
 
-This repository is ready for testnet-oriented validation and review, but it is not ready for production deployment claims because the external deployment and dependency/security prerequisites are not fully satisfied.
+The static frontend builds and its local checks pass, but authenticated pilot use is unavailable until the official backend is configured, healthy, reachable at `api.celoht.com`, and allows credentialed requests from `https://app.celoht.com`. Several requested learner/agent/reforestation writes are not supported by the current official backend API.
 
 ## Organization Terminology Audit
 

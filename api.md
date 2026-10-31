@@ -6,7 +6,7 @@ Balances, allowances, transaction receipts, agent registry state, USDm donation 
 
 ## Backend source of truth
 
-Profiles, course progress, indexed events, evidence records, and authentication are backend concerns. This repository has no server API or indexer. `client.ts` can create a Supabase browser client only when public URL and anonymous key variables are configured; it never uses service-role credentials.
+Profiles, course progress, indexed events, evidence records, and authentication are backend concerns. This repository has no server API or indexer. `lib/backend.ts` calls the official `celoht-backend` over HTTPS with credentialed requests; it never connects to Supabase directly and never receives service-role credentials. Configure `NEXT_PUBLIC_BACKEND_URL` in the GitHub Pages build and allow only `https://app.celoht.com` in the backend CORS origin.
 
 ## Synchronization
 

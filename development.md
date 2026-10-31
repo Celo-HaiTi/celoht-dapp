@@ -22,7 +22,7 @@ npm audit
 
 ## Public environment variables
 
-Copy `.env.example` to `.env.local` for optional local configuration. WalletConnect, RPC, community links, and optional Supabase browser variables are public frontend configuration. Do not add private keys, service-role keys, deployment credentials, or database passwords.
+Copy `.env.example` to `.env.local` for optional local configuration. WalletConnect, RPC, community links, and the public backend URL are frontend configuration. Database access and wallet-auth session secrets belong in the official backend runtime, never in the browser or this repository.
 
 ## Architecture boundary
 

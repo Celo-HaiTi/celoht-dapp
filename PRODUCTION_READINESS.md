@@ -4,9 +4,9 @@
 
 Repository: CeloHT dApp
 
-Date: 2026-09-15
+Date: 2026-10-31
 
-Final status: NOT READY — remaining blockers: verified Celo Mainnet deployment metadata missing; backend/indexer/auth flows not configured; dependency audit still includes unresolved production vulnerabilities.
+Final status: NOT READY — the GitHub Pages frontend builds, but the official Render backend returns 503, `api.celoht.com` is not configured, credentialed CORS is not enabled for `https://app.celoht.com`, and several requested workflow APIs are not implemented.
 
 ## Verification Matrix
 
@@ -14,15 +14,15 @@ Final status: NOT READY — remaining blockers: verified Celo Mainnet deployment
 | --- | --- | --- |
 | Build | READY | `npm run build` completed successfully on the current checkout. |
 | Typecheck | READY | `npm run typecheck` passed cleanly. |
-| Tests | READY | `npm test` passed with 13 tests passing, 0 failing. |
-| Security | NOT READY | `npm audit --omit=dev --audit-level=high` still reports remaining transitive issues affecting walletconnect/reown/axios. |
-| Dependencies | NOT READY | Production dependency audit remains unresolved. |
-| Auth | NOT VERIFIED | No live backend auth flow or session layer is configured locally. |
+| Tests | READY | `npm test` passed with 22 tests passing, 0 failing. |
+| Security | NOT VERIFIED | `npm audit --omit=dev --audit-level=high` reports 0 vulnerabilities; live backend auth/CORS and an independent contract audit remain unverified. |
+| Dependencies | READY WITH CONDITIONS | The configured high-severity production dependency audit passes; this is not an independent security audit. |
+| Auth | BLOCKED | The official backend is not fully configured; live health returns HTTP 503. |
 | Authorization | NOT VERIFIED | No server-side admin/auth service is present in this repository. |
 | Database | NOT VERIFIED | No live Supabase database or RLS verification was performed because no production database is configured. |
 | Blockchain | READY WITH CONDITIONS | Celo Sepolia contract metadata and ABIs are synchronized and validated; Celo Mainnet remains intentionally unavailable. |
 | External integrations | BLOCKED | Optional backend and external indexer or Supabase services are not configured or verified. |
-| CI/CD | READY WITH CONDITIONS | GitHub Pages workflow includes lint, typecheck, tests, guard checks, and build; production dependency audit is enforced as a failing gate. |
+| CI/CD | READY WITH CONDITIONS | GitHub Pages workflow includes lint, typecheck, tests, guard checks, and static build; backend secrets remain external. |
 | Documentation | READY WITH CONDITIONS | Core docs are present and mostly consistent; external constraints are documented explicitly. |
 | Production deployment | NOT READY | No verified production deployment metadata or live production services were available to validate. |
 
@@ -39,21 +39,21 @@ Final status: NOT READY — remaining blockers: verified Celo Mainnet deployment
 
 ### ID-002
 - severity: P0
-- file/path: [client.ts](client.ts), [lib/backend.ts](lib/backend.ts), [.env.example](.env.example)
-- problem: Backend authentication and privileged data flows are intentionally optional and unavailable unless explicitly configured. This repository does not host a server-side auth/session layer.
+- file/path: [lib/backend.ts](lib/backend.ts), [app/pilot/page.tsx](app/pilot/page.tsx), [.env.example](.env.example)
+- problem: GitHub Pages is static and cannot host authenticated APIs. The frontend calls the official backend, but the current Render service is not configured or reachable for the custom domain.
 - security/business impact: Prevents unsafe browser-side secret handling and avoids fake or unauthorized access, but also means authenticated production features cannot be certified locally.
-- repair performed: Documented the explicit unavailable state and removed stale instructions that could imply a built-in production backend.
-- verification performed: Reviewed env contract and backend accessor behavior; no live backend was configured for verification.
-- remaining dependency: A deployed backend with verified health checks and auth/session issuance is required for authenticated workflows.
+- repair performed: Removed the duplicate local pilot API/Supabase client and connected supported UI operations to the canonical backend client. Missing integrations are shown as unavailable.
+- verification performed: Static build, tests, TypeScript, and lint passed. Live `GET /api/v1/health` returned HTTP 503; CORS preflight returned 204 without `Access-Control-Allow-Origin`.
+- remaining dependency: Configure the Render service, attach `api.celoht.com`, allow `https://app.celoht.com` with credentials, and set `NEXT_PUBLIC_BACKEND_URL` in the Pages build.
 
 ### ID-003
 - severity: P1
-- file/path: [package.json](package.json), [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml), [scripts/check-no-mock-data.mjs](scripts/check-no-mock-data.mjs)
-- problem: Production dependencies still include transitive advisories in the walletconnect/reown/axios chain, and the repository previously permitted a silent audit failure path in CI.
-- security/business impact: Unresolved vulnerabilities in a production dependency tree can weaken wallet UX/security and should block production certification.
-- repair performed: Added a dedicated mock-data guard and made the CI workflow fail on prohibited mock imports while enforcing the dependency audit as a required gate.
-- verification performed: `npm run guard:mock-data`, `npm test`, `npm run typecheck`, `npm run lint`, and `npm run build` passed. `npm audit --omit=dev --audit-level=high` still reports unresolved advisories.
-- remaining dependency: The underlying walletconnect/reown/axios chain must be upgraded or documented with a verified compatibility assessment and independent security approval.
+- file/path: [lib/backend.ts](lib/backend.ts), [app/pilot/page.tsx](app/pilot/page.tsx), official backend API contract
+- problem: The official API currently lacks enrollment, quiz, cash-service simulation, and planting-evidence submission endpoints.
+- security/business impact: These user journeys cannot be truthfully shown as operational or persisted.
+- repair performed: Removed the disconnected controls and display only supported backend records and explicit unavailable states.
+- verification performed: Static-backend tests assert the frontend uses official API helpers and contains no local same-origin pilot fetch route.
+- remaining dependency: Implement and independently test those workflows in the official backend and canonical Supabase schema before exposing their controls.
 
 ### ID-004
 - severity: P2
@@ -70,7 +70,7 @@ Final status: NOT READY — remaining blockers: verified Celo Mainnet deployment
 - problem: There was no automated protection against production code importing prohibited mock/demo data modules.
 - security/business impact: This could silently allow non-production data to be treated as authoritative.
 - repair performed: Added a CI-safe guard and a matching unit test to detect forbidden mock/demo imports while allowing valid app data modules.
-- verification performed: Executed the guard and the full test suite; the guard passed and the suite passed with 13 tests.
+- verification performed: Executed the guard and the full test suite; the guard passed and the suite passed with 22 tests.
 - remaining dependency: CI must keep this guard in place for all future changes.
 
 ## External Blockers
@@ -82,24 +82,24 @@ Final status: NOT READY — remaining blockers: verified Celo Mainnet deployment
 - exact command/test that should be run once available: `OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync && npm test`
 
 ### Blocker 2
-- exact requirement: Authenticated backend service and health check must be deployed and validated for nonce/signature flows, session handling, and profile APIs.
-- exact environment variable or external service required: `NEXT_PUBLIC_BACKEND_URL` and the corresponding deployed backend service with working `/api/v1/auth/*` routes.
-- why it cannot be verified locally: No deployed backend is available in this container or workspace.
-- exact command/test that should be run once available: `curl -fS https://<backend>/api/v1/health && curl -fS -X POST https://<backend>/api/v1/auth/nonce -H 'Content-Type: application/json' -d '{"walletAddress":"0x..."}'`
+- exact requirement: The official Render backend must pass health checks and accept credentialed browser requests from the Pages custom domain.
+- exact environment variable or external service required: Render Supabase/RPC/auth secrets, `CELOHT_ALLOWED_ORIGIN=https://app.celoht.com`, DNS/TLS for `api.celoht.com`, and `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` in GitHub Actions variables.
+- why it cannot be completed locally: Render currently returns HTTP 503, the API custom domain is not in DNS, and repository Actions variables/secrets are not accessible from this environment.
+- exact command/test that should be run once configured: `curl -fS https://api.celoht.com/api/v1/health`, followed by browser tests for `/api/v1/auth/nonce`, `/api/v1/auth/verify`, and authenticated reads.
 
 ### Blocker 3
-- exact requirement: Production dependency advisories must be resolved or explicitly waived by the project owner with independent security review for the walletconnect/reown/axios chain.
-- exact environment variable or external service required: None; package manager and repository audit outputs.
-- why it cannot be verified locally: The dependency tree is installed and audited locally, but the upstream advisories are not fully remediated in the current dependency set.
-- exact command/test that should be run once available: `npm audit --omit=dev --audit-level=high`
+- exact requirement: Full education, agent-service, and planting-evidence workflows must be implemented in the official backend before the UI can enable them.
+- exact external system required: `celoht-backend` API changes and canonical `celoht-supabase` migrations/RLS.
+- why it cannot be completed in this frontend repository: Those services have separate ownership and the current API contract does not expose these writes.
+- exact verification after implementation: Authenticated browser integration tests against staging Supabase/Render, plus admin/reviewer authorization tests.
 
 ## Residual Risks
 
 - Celo Mainnet launch remains blocked until official verified contract metadata is published.
 - Backend-authenticated flows cannot be certified without a live backend and health verification.
-- Remaining transitive dependencies in the walletconnect/reown/axios chain retain unresolved advisories.
+- Automated dependency audit passes, but an independent smart-contract security audit remains an external approval gate.
 - Any production deployment beyond Sepolia should be treated as a controlled external verification gate rather than a default repo capability.
 
 ## Final Certification
 
-NOT READY — remaining blockers: verified Celo Mainnet deployment metadata missing; backend/indexer/auth flows not configured; dependency audit still includes unresolved production vulnerabilities.
+NOT READY — blocking issues remain: Render backend configuration/DNS/CORS is unavailable, and required enrollment/quiz, agent simulation, and planting evidence APIs are not implemented.

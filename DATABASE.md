@@ -1,10 +1,10 @@
 # Database Boundary
 
-There is currently no database connection in the static GitHub Pages application.
+The static GitHub Pages application does not connect directly to the database. It calls the official CeloHT backend, which owns server-side database access.
 
 ## Required production service
 
-Use PostgreSQL, preferably through Supabase if that remains the chosen platform. The browser must use only the public anonymous key. Service-role keys and database credentials belong in a server-side API or worker, never in `NEXT_PUBLIC_*` variables.
+Use the canonical PostgreSQL schema in `Celo-HaiTi/celoht-supabase`. The browser must never connect with a service-role credential. The official backend owns application queries and authorization; the indexer owns blockchain event writes. Secrets remain in their respective server runtime secret stores.
 
 ## Minimum tables
 
@@ -16,7 +16,7 @@ Blockchain state is authoritative for money and contract events. PostgreSQL stor
 
 ## Activation checklist
 
-- Create migrations, foreign keys, unique event identifiers, timestamps, and indexes.
+- Create migrations, foreign keys, unique event identifiers, timestamps, and indexes in `celoht-supabase` only.
 - Enable Row Level Security and test policies with non-admin accounts.
 - Add a server-side API with input validation and rate limits.
 - Keep migrations and seed fixtures separate from production data.
