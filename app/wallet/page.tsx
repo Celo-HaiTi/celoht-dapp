@@ -148,11 +148,12 @@ export default function WalletPage() {
   };
 
   const handleSend = () => {
-    if (!canSend || !parsedAmount) return;
+    if (!isConnected || chainId !== celoSepolia.id || !canSend || !parsedAmount) return;
     setReviewing(false);
 
     if (asset === "CELO") {
       sendTransaction({
+        chainId: celoSepolia.id,
         to: recipient as Address,
         value: parsedAmount,
       });
@@ -162,6 +163,7 @@ export default function WalletPage() {
     if (!usdmAddress) return;
 
     writeContract({
+      chainId: celoSepolia.id,
       address: usdmAddress,
       abi: erc20Abi,
       functionName: "transfer",

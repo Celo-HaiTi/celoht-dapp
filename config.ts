@@ -1,6 +1,8 @@
 import { http, createConfig } from "wagmi";
 import { celoSepolia } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
+import { getMiniPayProvider } from "./lib/web3/minipay";
+import { resolveWalletConnectProjectId } from "./lib/web3/walletconnect-project-id";
 
 /**
  * WalletConnect requires a Project ID from https://cloud.reown.com
@@ -9,12 +11,23 @@ import { injected, walletConnect } from "wagmi/connectors";
  * desktop browser via QR code) is disabled. MiniPay connects through its
  * injected provider when the dApp is opened inside MiniPay.
  */
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() || "";
+export const walletConnectProjectIdConfig = resolveWalletConnectProjectId(
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+  process.env.NEXT_PUBLIC_REOWN_PROJECT_ID,
+);
+const walletConnectProjectId = walletConnectProjectIdConfig.projectId;
 const celoSepoliaRpcUrl = process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || "https://forno.celo-sepolia.celo-testnet.org";
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://celo-haiti.github.io/celoht-dapp/";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.celoht.com/";
 
 const connectors = [
   injected({ shimDisconnect: true }),
+  injected({
+    shimDisconnect: true,
+    target: () => {
+      const provider = getMiniPayProvider();
+      return provider ? { id: "minipay", name: "MiniPay", provider } : undefined;
+    },
+  }),
   ...(walletConnectProjectId
     ? [
         walletConnect({

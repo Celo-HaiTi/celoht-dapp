@@ -1,27 +1,25 @@
 export type WalletConnectionStatus =
-  | "Disconnected"
-  | "Connecting"
-  | "Connected"
-  | "Wrong Network"
-  | "Network Offline"
-  | "Provider Unavailable"
-  | "Connection Error";
+  | "disconnected"
+  | "connecting"
+  | "connected"
+  | "wrong_network"
+  | "reconnecting"
+  | "disconnecting"
+  | "error";
 
 export function getWalletConnectionStatus(input: {
-  online?: boolean;
-  isConnecting?: boolean;
-  isPending?: boolean;
-  error?: boolean;
+  accountStatus?: "connected" | "connecting" | "reconnecting" | "disconnected";
+  isDisconnecting?: boolean;
+  hasError?: boolean;
   isConnected?: boolean;
   chainId?: number;
-  supportedChainIds?: number[];
-  providerAvailable?: boolean;
+  supportedChainId: number;
 }): WalletConnectionStatus {
-  if (input.online === false) return "Network Offline";
-  if (input.error) return "Connection Error";
-  if (input.providerAvailable === false) return "Provider Unavailable";
-  if (input.isConnecting || input.isPending) return "Connecting";
-  if (!input.isConnected) return "Disconnected";
-  if (input.supportedChainIds && input.chainId && !input.supportedChainIds.includes(input.chainId)) return "Wrong Network";
-  return "Connected";
+  if (input.hasError) return "error";
+  if (input.isDisconnecting) return "disconnecting";
+  if (input.accountStatus === "reconnecting") return "reconnecting";
+  if (input.accountStatus === "connecting") return "connecting";
+  if (!input.isConnected || input.accountStatus === "disconnected") return "disconnected";
+  if (input.chainId !== input.supportedChainId) return "wrong_network";
+  return "connected";
 }

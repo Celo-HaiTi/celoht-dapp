@@ -1,70 +1,169 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { LoaderCircle, ShieldAlert, Sprout, Wallet } from "lucide-react";
 import { parseUnits } from "viem";
-import { useAccount, useChainId, useReadContract, useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useChainId,
+  useReadContract,
+  useReadContracts,
+  useSwitchChain,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Button } from "@/components/ui/Button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { abis, erc20Abi, getContractAddress, getUsdmAddress } from "@/lib/contracts";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import {
+  abis,
+  erc20Abi,
+  getContractAddress,
+  getUsdmAddress,
+} from "@/lib/contracts";
 import { celoSepolia } from "wagmi/chains";
 
-const explorerUrl = (hash: string) => `https://celo-sepolia.blockscout.com/tx/${hash}`;
+const explorerUrl = (hash: string) =>
+  `https://celo-sepolia.blockscout.com/tx/${hash}`;
 
 export default function DonationsPage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
   const [amount, setAmount] = useState("10");
   const [approvalHash, setApprovalHash] = useState<`0x${string}`>();
   const [donationHash, setDonationHash] = useState<`0x${string}`>();
   const [error, setError] = useState<string>();
   const [simulationResult, setSimulationResult] = useState<string>();
-  const approvalStarted = useRef(false);
-  const reforestationAddress = getContractAddress(celoSepolia.id, "CeloHTReforestation");
+  const reforestationAddress = getContractAddress(
+    celoSepolia.id,
+    "CeloHTReforestation",
+  );
   const usdmAddress = getUsdmAddress(celoSepolia.id);
   const { writeContractAsync, isPending } = useWriteContract();
   const approvalReceipt = useWaitForTransactionReceipt({ hash: approvalHash });
   const donationReceipt = useWaitForTransactionReceipt({ hash: donationHash });
   const tokenReads = useReadContracts({
-    contracts: usdmAddress && address ? [
-      { address: usdmAddress, abi: erc20Abi, functionName: "balanceOf", args: [address] },
-      { address: usdmAddress, abi: erc20Abi, functionName: "allowance", args: [address, reforestationAddress ?? usdmAddress] },
-      { address: usdmAddress, abi: erc20Abi, functionName: "decimals" },
-    ] : [],
+    contracts:
+      usdmAddress && address
+        ? [
+            {
+              address: usdmAddress,
+              abi: erc20Abi,
+              functionName: "balanceOf",
+              args: [address],
+            },
+            {
+              address: usdmAddress,
+              abi: erc20Abi,
+              functionName: "allowance",
+              args: [address, reforestationAddress ?? usdmAddress],
+            },
+            { address: usdmAddress, abi: erc20Abi, functionName: "decimals" },
+          ]
+        : [],
     query: { enabled: Boolean(usdmAddress && address && reforestationAddress) },
   });
-  const totalDonated = useReadContract({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "totalDonated", query: { enabled: Boolean(reforestationAddress) } });
-  const decimals = typeof tokenReads.data?.[2]?.result === "number" ? tokenReads.data[2].result : 18;
+  const totalDonated = useReadContract({
+    address: reforestationAddress,
+    abi: abis.CeloHTReforestation,
+    functionName: "totalDonated",
+    query: { enabled: Boolean(reforestationAddress) },
+  });
+  const decimals =
+    typeof tokenReads.data?.[2]?.result === "number"
+      ? tokenReads.data[2].result
+      : 18;
   let parsedAmount: bigint | undefined;
-  try { parsedAmount = amount ? parseUnits(amount, decimals) : undefined; } catch { parsedAmount = undefined; }
+  try {
+    parsedAmount = amount ? parseUnits(amount, decimals) : undefined;
+  } catch {
+    parsedAmount = undefined;
+  }
   const balance = tokenReads.data?.[0]?.result as bigint | undefined;
   const allowance = tokenReads.data?.[1]?.result as bigint | undefined;
   const validAmount = parsedAmount !== undefined && parsedAmount > 0n;
-  const sufficient = parsedAmount !== undefined && parsedAmount > 0n && balance !== undefined && parsedAmount <= balance;
+  const sufficient =
+    parsedAmount !== undefined &&
+    parsedAmount > 0n &&
+    balance !== undefined &&
+    parsedAmount <= balance;
   const wrongNetwork = isConnected && chainId !== celoSepolia.id;
-  const canDonate = Boolean(isConnected && !wrongNetwork && reforestationAddress && usdmAddress && validAmount && sufficient && !isPending && !approvalHash && !donationHash);
+  const canDonate = Boolean(
+    isConnected &&
+    !wrongNetwork &&
+    reforestationAddress &&
+    usdmAddress &&
+    validAmount &&
+    sufficient &&
+    !isPending &&
+    (!approvalHash || approvalReceipt.isSuccess) &&
+    !donationHash,
+  );
 
   async function donate() {
-    if (!canDonate || !parsedAmount || !usdmAddress || !reforestationAddress) return;
+    if (chainId !== celoSepolia.id) {
+      setError(
+        "Switch to Celo Sepolia (11142220) before submitting this transaction.",
+      );
+      return;
+    }
+    if (!canDonate || !parsedAmount || !usdmAddress || !reforestationAddress)
+      return;
     setError(undefined);
     try {
-      if (allowance === undefined || allowance < parsedAmount) {
-        setApprovalHash(await writeContractAsync({ address: usdmAddress, abi: erc20Abi, functionName: "approve", args: [reforestationAddress, parsedAmount] }));
+      if (approvalHash) {
+        setDonationHash(
+          await writeContractAsync({
+            chainId: celoSepolia.id,
+            address: reforestationAddress,
+            abi: abis.CeloHTReforestation,
+            functionName: "donate",
+            args: [parsedAmount],
+          }),
+        );
         return;
       }
-      setDonationHash(await writeContractAsync({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "donate", args: [parsedAmount] }));
+      if (allowance === undefined || allowance < parsedAmount) {
+        setApprovalHash(
+          await writeContractAsync({
+            chainId: celoSepolia.id,
+            address: usdmAddress,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [reforestationAddress, parsedAmount],
+          }),
+        );
+        return;
+      }
+      setDonationHash(
+        await writeContractAsync({
+          chainId: celoSepolia.id,
+          address: reforestationAddress,
+          abi: abis.CeloHTReforestation,
+          functionName: "donate",
+          args: [parsedAmount],
+        }),
+      );
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The transaction was rejected or failed.");
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The transaction was rejected or failed.",
+      );
     }
   }
 
   function resetTransaction() {
     setApprovalHash(undefined);
     setDonationHash(undefined);
-    approvalStarted.current = false;
     setError(undefined);
   }
 
@@ -74,23 +173,205 @@ export default function DonationsPage() {
     setSimulationResult(message);
   }
 
-  useEffect(() => {
-    if (!approvalReceipt.isSuccess || donationHash || approvalStarted.current || !parsedAmount || !reforestationAddress) return;
-    approvalStarted.current = true;
-    void writeContractAsync({ address: reforestationAddress, abi: abis.CeloHTReforestation, functionName: "donate", args: [parsedAmount] })
-      .then(setDonationHash)
-      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "The donation transaction failed."));
-  }, [approvalReceipt.isError, approvalReceipt.isSuccess, donationHash, parsedAmount, reforestationAddress, writeContractAsync]);
-
-  return <>
-    <Breadcrumbs items={[{ label: "Impact" }, { label: "Support reforestation" }]} />
-    <PageHero eyebrow="Impact · Reforestation" title="Support trees in Haiti" lead="CeloHTReforestation accepts USDm contributions and records confirmed donations on-chain. It does not claim a fixed tree conversion rate." />
-    <Section eyebrow="Safe test mode" title="Try the donation experience"><Card className="max-w-2xl"><CardHeader><Sprout size={18} aria-hidden="true" /><CardTitle>Test donation simulation</CardTitle></CardHeader><CardDescription>No wallet, approval, or transaction is required. This preparation does not represent a real contribution.</CardDescription><div className="mt-5 flex flex-wrap gap-2">{["1","5","10","25"].map((preset) => <Button key={preset} type="button" onClick={() => setAmount(preset)}>{preset} USDm</Button>)}</div><Button className="mt-4" type="button" onClick={simulateDonation} disabled={!validAmount}>Prepare simulation</Button>{simulationResult && <p className="mt-4 rounded-lg border border-gold-500/20 bg-gold-500/5 p-3 text-sm text-gold-300" role="status">{simulationResult}</p>}</Card></Section>
-    <Section eyebrow="Donation" title="Choose your contribution">
-      {!reforestationAddress || !usdmAddress ? <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Donations unavailable</CardTitle></CardHeader><CardDescription>The official reforestation contract is not configured for this network.</CardDescription></Card> : wrongNetwork ? <Card><CardHeader><ShieldAlert size={18} aria-hidden="true" /><CardTitle>Switch to Celo Sepolia</CardTitle></CardHeader><CardDescription>This deployed CeloHT integration is available on Celo Sepolia.</CardDescription></Card> : !isConnected ? <Card><CardHeader><Wallet size={18} aria-hidden="true" /><CardTitle>Connect your wallet to donate</CardTitle></CardHeader><CardDescription>USDm approval and donation transactions are signed by your wallet.</CardDescription></Card> : <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card><CardHeader><Sprout size={18} aria-hidden="true" /><CardTitle>Reforestation contribution</CardTitle></CardHeader><CardDescription>Funds transfer directly to the configured CeloHT treasury after the contract confirms your donation.</CardDescription><label htmlFor="donation-amount" className="mt-6 block text-sm font-medium">Amount in USDm</label><input id="donation-amount" type="number" min="0" step="any" value={amount} onChange={(event) => setAmount(event.target.value)} disabled={Boolean(approvalHash || donationHash)} className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-3 text-sm" /><p className="mt-2 text-xs">Available: {balance === undefined ? "Loading" : `${Number(balance) / 10 ** decimals} USDm`}</p>{amount && !validAmount && <p role="alert" className="mt-2 text-sm text-red-700">Enter an amount greater than zero.</p>}{validAmount && !sufficient && <p role="alert" className="mt-2 text-sm text-red-700">Your USDm balance is not enough.</p>}<Button className="mt-5 w-full" onClick={donate} disabled={!canDonate}>{isPending ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> Confirm in wallet</> : "Donate USDm"}</Button>{error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}</Card>
-        <Card><CardHeader><CardTitle>Donation status</CardTitle></CardHeader><CardDescription>{approvalReceipt.isError ? "USDm approval failed." : donationReceipt.isError ? "Donation failed on-chain." : approvalHash && !approvalReceipt.isSuccess ? "USDm approval submitted, waiting for confirmation." : donationHash && !donationReceipt.isSuccess ? "Donation submitted, waiting for confirmation." : donationReceipt.isSuccess && donationHash ? <><span className="font-semibold">Donation confirmed on-chain.</span> <a className="underline" href={explorerUrl(donationHash)} target="_blank" rel="noreferrer">View transaction</a></> : `Total recorded: ${totalDonated.data === undefined ? "Loading" : `${Number(totalDonated.data) / 10 ** decimals} USDm`}`}</CardDescription>{(approvalReceipt.isError || donationReceipt.isError) && <Button className="mt-4" onClick={resetTransaction}>Try again</Button>}</Card>
-      </div>}
-    </Section>
-  </>;
+  return (
+    <>
+      <Breadcrumbs
+        items={[{ label: "Impact" }, { label: "Support reforestation" }]}
+      />
+      <PageHero
+        eyebrow="Impact · Reforestation"
+        title="Support trees in Haiti"
+        lead="CeloHTReforestation accepts USDm contributions and records confirmed donations on-chain. It does not claim a fixed tree conversion rate."
+      />
+      <Section eyebrow="Safe test mode" title="Try the donation experience">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <Sprout size={18} aria-hidden="true" />
+            <CardTitle>Test donation simulation</CardTitle>
+          </CardHeader>
+          <CardDescription>
+            No wallet, approval, or transaction is required. This preparation
+            does not represent a real contribution.
+          </CardDescription>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {["1", "5", "10", "25"].map((preset) => (
+              <Button
+                key={preset}
+                type="button"
+                onClick={() => setAmount(preset)}
+              >
+                {preset} USDm
+              </Button>
+            ))}
+          </div>
+          <Button
+            className="mt-4"
+            type="button"
+            onClick={simulateDonation}
+            disabled={!validAmount}
+          >
+            Prepare simulation
+          </Button>
+          {simulationResult && (
+            <p
+              className="mt-4 rounded-lg border border-gold-500/20 bg-gold-500/5 p-3 text-sm text-gold-300"
+              role="status"
+            >
+              {simulationResult}
+            </p>
+          )}
+        </Card>
+      </Section>
+      <Section eyebrow="Donation" title="Choose your contribution">
+        {!reforestationAddress || !usdmAddress ? (
+          <Card>
+            <CardHeader>
+              <ShieldAlert size={18} aria-hidden="true" />
+              <CardTitle>Donations unavailable</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              The official reforestation contract is not configured for this
+              network.
+            </CardDescription>
+          </Card>
+        ) : wrongNetwork ? (
+          <Card>
+            <CardHeader>
+              <ShieldAlert size={18} aria-hidden="true" />
+              <CardTitle>Switch to Celo Sepolia</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              This deployed CeloHT integration is available on Celo Sepolia.
+            </CardDescription>
+            <Button
+              className="mt-4"
+              onClick={() => switchChain({ chainId: celoSepolia.id })}
+              disabled={isSwitching}
+            >
+              {isSwitching ? "Switching..." : "Switch to Celo Sepolia"}
+            </Button>
+          </Card>
+        ) : !isConnected ? (
+          <Card>
+            <CardHeader>
+              <Wallet size={18} aria-hidden="true" />
+              <CardTitle>Connect your wallet to donate</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              USDm approval and donation transactions are signed by your wallet.
+            </CardDescription>
+          </Card>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card>
+              <CardHeader>
+                <Sprout size={18} aria-hidden="true" />
+                <CardTitle>Reforestation contribution</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                Funds transfer directly to the configured CeloHT treasury after
+                the contract confirms your donation.
+              </CardDescription>
+              <label
+                htmlFor="donation-amount"
+                className="mt-6 block text-sm font-medium"
+              >
+                Amount in USDm
+              </label>
+              <input
+                id="donation-amount"
+                type="number"
+                min="0"
+                step="any"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+                disabled={Boolean((approvalHash && !approvalReceipt.isSuccess) || donationHash)}
+                className="mt-2 w-full rounded-xl border border-navy-700/15 bg-transparent px-3 py-3 text-sm"
+              />
+              <p className="mt-2 text-xs">
+                Available:{" "}
+                {balance === undefined
+                  ? "Loading"
+                  : `${Number(balance) / 10 ** decimals} USDm`}
+              </p>
+              {amount && !validAmount && (
+                <p role="alert" className="mt-2 text-sm text-red-700">
+                  Enter an amount greater than zero.
+                </p>
+              )}
+              {validAmount && !sufficient && (
+                <p role="alert" className="mt-2 text-sm text-red-700">
+                  Your USDm balance is not enough.
+                </p>
+              )}
+              <Button
+                className="mt-5 w-full"
+                onClick={donate}
+                disabled={!canDonate}
+              >
+                {isPending ? (
+                  <>
+                    <LoaderCircle
+                      size={16}
+                      className="animate-spin"
+                      aria-hidden="true"
+                    />{" "}
+                    Confirm in wallet
+                  </>
+                ) : (
+                  approvalHash && approvalReceipt.isSuccess
+                    ? "Continue donation"
+                    : "Donate USDm"
+                )}
+              </Button>
+              {error && (
+                <p role="alert" className="mt-3 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Donation status</CardTitle>
+              </CardHeader>
+              <CardDescription>
+                {approvalReceipt.isError ? (
+                  "USDm approval failed."
+                ) : donationReceipt.isError ? (
+                  "Donation failed on-chain."
+                ) : approvalHash && !approvalReceipt.isSuccess ? (
+                  "USDm approval submitted, waiting for confirmation."
+                ) : approvalHash && approvalReceipt.isSuccess && !donationHash ? (
+                  "USDm approval confirmed. Continue donation when ready."
+                ) : donationHash && !donationReceipt.isSuccess ? (
+                  "Donation submitted, waiting for confirmation."
+                ) : donationReceipt.isSuccess && donationHash ? (
+                  <>
+                    <span className="font-semibold">
+                      Donation confirmed on-chain.
+                    </span>{" "}
+                    <a
+                      className="underline"
+                      href={explorerUrl(donationHash)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View transaction
+                    </a>
+                  </>
+                ) : (
+                  `Total recorded: ${totalDonated.data === undefined ? "Loading" : `${Number(totalDonated.data) / 10 ** decimals} USDm`}`
+                )}
+              </CardDescription>
+              {(approvalReceipt.isError || donationReceipt.isError) && (
+                <Button className="mt-4" onClick={resetTransaction}>
+                  Try again
+                </Button>
+              )}
+            </Card>
+          </div>
+        )}
+      </Section>
+    </>
+  );
 }

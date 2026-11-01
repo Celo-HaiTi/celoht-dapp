@@ -1,88 +1,47 @@
 # Wallet Connection Test Report
 
-## Implementation status
+## Current implementation
 
-- Wagmi is restricted to Celo Sepolia chain ID 11142220.
-- WalletConnect and Valora use the official Wagmi/Reown WalletConnect connector.
-- MiniPay uses `ethereum.isMiniPay`, `eth_requestAccounts`, `eth_chainId`, and `wallet_switchEthereumChain` / `wallet_addEthereumChain`.
-- Account, chain, disconnect, and reconnect state are provided by one Wagmi configuration shared by the DApp.
-- The wallet modal displays WalletConnect, Valora App, and MiniPay separately.
-- MiniPay unavailable state is explicit: "Open this DApp inside MiniPay to connect your wallet."
+- The app uses its existing Wagmi/Viem architecture and configures only Celo Sepolia (chain ID `11142220`).
+- WalletConnect v2 uses Wagmi's supported connector and QR/deep-link modal. Valora uses the same wallet chooser and is not affiliated with CeloHT.
+- MiniPay is detected only from the documented `window.ethereum.isMiniPay === true` marker plus an EIP-1193 `request` method, then connected using a dedicated Wagmi connector.
+- Shared Wagmi state handles account changes, chain changes, reconnect, and disconnect across app routes.
+- Writes and native transfers check the active chain and pass `chainId: 11142220` to Wagmi.
+- No MiniPay provider, Reown dashboard, real wallet app, or production origin allowlist was available for live verification during implementation.
 
-## Provider configuration
+## Project ID and deployment
 
-Set this public deployment variable before enabling WalletConnect or Valora:
-
-```text
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<approved Reown project ID>
-```
-
-Create the project at https://cloud.reown.com/. Do not commit a private key or service credential. The project ID is public configuration, but it must be approved for the CeloHT deployment domain.
-
-Configure the Sepolia RPC with:
+Set either or both (with equal values) of these public build-time variables:
 
 ```text
-NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL=https://forno.celo-sepolia.celo-testnet.org
-NEXT_PUBLIC_CELO_NETWORK=celoSepolia
-NEXT_PUBLIC_CELO_CHAIN_ID=11142220
-NEXT_PUBLIC_APP_URL=https://app.celoht.com/
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<Reown project ID>
+NEXT_PUBLIC_REOWN_PROJECT_ID=<same Reown project ID>
 ```
 
-## Verified infrastructure evidence
+Create a project at https://cloud.reown.com/ and copy its 32-character Project ID. Invalid or conflicting values disable WalletConnect and Valora. Configure one value in GitHub Actions repository **Settings → Secrets and variables → Actions → Variables**, Vercel **Project Settings → Environment Variables**, or the Render service **Environment** settings. For static builds, it must be present at build time.
 
-- RPC `eth_chainId` returned `0xaa044c`, which is 11142220 decimal.
-- RPC returned bytecode for the Agent Registry, Service Payments, Education, Reforestation, and Governance contracts.
-- Production audit returned zero vulnerabilities.
-- Lint, TypeScript, 19 tests, static export, and server build passed.
+Add these allowed application origins in Reown Cloud:
 
-## Provider acceptance
+```text
+https://app.celoht.com
+http://localhost:3000
+```
 
-### WalletConnect: CONFIGURED / REAL-SESSION TEST REQUIRED
+The dashboard allowlist could not be inspected, so those origin permissions remain unverified. The Project ID is public configuration; never put private credentials in these variables.
 
-The public Reown/WalletConnect project ID is configured in the Pages deployment and the official Wagmi connector is enabled. Provider acceptance remains pending real desktop/mobile QR session evidence; build success alone is not sufficient for READY.
+The default Sepolia RPC is `https://forno.celo-sepolia.celo-testnet.org`; `NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL` can override it. The explorer and deployed addresses are sourced from the checked-in deployment manifest.
 
-### Valora: CONFIGURED / REAL-SESSION TEST REQUIRED
+## Verification classification
 
-Valora uses the configured WalletConnect connector. Mobile app connection, account detection, Sepolia validation, cancellation, and return behavior require real-device testing.
+- `npm run typecheck`, `npm run lint`, `npm test` (28/28), and `npm run build:custom-domain` passed.
+- The public RPC returned chain ID `0xaa044c`; public bytecode was present for all five contracts in `deployments/dapp-config.json`.
+- Automated tests cover lifecycle-state mapping, project ID validation, MiniPay provider-marker validation, Sepolia-pinned writes, and explicit post-approval user actions.
+- WalletConnect desktop/mobile session lifecycle, Valora selection/return, and MiniPay in-app authorization are **not verified** without the real wallet applications.
+- No real wallet transaction was submitted. Do not treat successful compilation or tests as evidence of live wallet operation.
 
-### MiniPay: NOT READY
+## Real-wallet checklist
 
-The provider implementation is present and rejects false claims, but real MiniPay permissions, accounts, chain switching, disconnection, and account changes require testing inside the MiniPay application/browser environment.
-
-## Real manual test checklist
-
-### WalletConnect
-
-1. Configure the approved project ID.
-2. Open app.celoht.com on desktop.
-3. Scan WalletConnect QR with a compatible wallet.
-4. Approve account permissions.
-5. Confirm the address and chain ID 11142220 in the modal.
-6. Reject the session and verify the error/retry state.
-7. Disconnect and reconnect.
-8. Change accounts and chains and verify the shared UI updates.
-
-### Valora
-
-1. Open WalletConnect in the Valora mobile environment.
-2. Approve the Valora session.
-3. Return to app.celoht.com.
-4. Verify the wallet address and Sepolia chain ID.
-5. Reject/cancel and verify the error state.
-
-### MiniPay
-
-1. Open app.celoht.com inside MiniPay.
-2. Choose MiniPay in the connection modal.
-3. Approve `eth_requestAccounts`.
-4. Verify `eth_chainId` and the returned address.
-5. If the provider is on another network, approve Sepolia switching or chain addition.
-6. Verify account and chain-change events.
-7. Disconnect and reconnect.
-
-## Remaining configuration blockers
-
-- Approved and configured Reown project ID.
-- GitHub Actions repository variable or equivalent production environment variable.
-- Real-wallet device evidence for WalletConnect, Valora, and MiniPay.
-- No database/API server is currently attached to GitHub Pages for signed pilot workflows.
+1. Connect a desktop WalletConnect wallet through the QR modal; approve, reject, wait for expiry, disconnect, reconnect, and change account/chain.
+2. Select Valora from the WalletConnect chooser on desktop and mobile; approve or reject, return to CeloHT, and verify address and chain.
+3. Open `https://app.celoht.com` inside MiniPay, authorize the account, test chain/account changes, disconnect, and reconnect.
+4. Confirm all writes use chain ID `11142220` and are reported successful only after receipt confirmation.

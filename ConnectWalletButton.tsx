@@ -2,147 +2,228 @@
 
 import { useState } from "react";
 import { useAccount, useBalance, useChainId, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { Wallet, LogOut, ShieldAlert, Copy, ExternalLink, Check, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
-import { formatTokenAmount, shortenAddress } from "@/lib/utils";
-import { getUsdmAddress } from "@/lib/contracts";
 import { celoSepolia } from "wagmi/chains";
+import { Check, Copy, ExternalLink, LoaderCircle, LogOut, ShieldAlert, Smartphone, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/Dialog";
+import { formatTokenAmount, shortenAddress } from "@/lib/utils";
+import { getExplorerUrlForChain } from "@/lib/network/config";
 import { useI18n } from "@/lib/i18n/context";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
-import { isWalletConnectConfigured } from "@/config";
-import { getMiniPayProvider, requestMiniPayAccount, switchMiniPayToSepolia } from "@/lib/web3/minipay";
+import { getWalletConnectionStatus } from "@/lib/web3/wallet-status";
+import { getMiniPayProvider } from "@/lib/web3/minipay";
+import { isWalletConnectConfigured, walletConnectProjectIdConfig } from "@/config";
 
 export function ConnectWalletButton() {
-  const { address, isConnected, chain, connector } = useAccount();
+  const { address, chain, connector, isConnected, status: accountStatus } = useAccount();
   const chainId = useChainId();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { connect, connectors, isPending: isConnecting } = useConnect();
+  const { disconnectAsync, isPending: isDisconnecting } = useDisconnect();
   const { switchChain, isPending: isSwitching, error: switchError } = useSwitchChain();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isMiniPay =
-    typeof window !== "undefined" &&
-    (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum?.isMiniPay === true;
-  const [connectorError, setConnectorError] = useState<string | null>(null);
-  const [providerName, setProviderName] = useState<string | null>(null);
-  const usdmAddress = getUsdmAddress(chainId);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmBalance = useUsdmBalance(address, chainId);
+  const connectionStatus = getWalletConnectionStatus({
+    accountStatus: isConnecting ? "connecting" : accountStatus,
+    isDisconnecting,
+    hasError: Boolean(connectionError),
+    isConnected,
+    chainId,
+    supportedChainId: celoSepolia.id,
+  });
+  const explorerUrl = getExplorerUrlForChain(chain?.id);
+  const isMiniPay = typeof window !== "undefined" && Boolean(getMiniPayProvider());
 
-  function describeConnectionError(message: string, connectorName: string) {
-    const normalized = message.toLowerCase();
-    if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
-      return `${connectorName}: ${t("errors.connectionCancelled")}`;
+  function describeError(error: Error, providerName: string) {
+    const code = "code" in error ? Number(error.code) : undefined;
+    const message = error.message.toLowerCase();
+    if (code === 4001 || message.includes("user rejected") || message.includes("user denied") || message.includes("rejected")) {
+      return `${providerName}: ${t("errors.connectionCancelled")}`;
     }
-    if (normalized.includes("provider not found") || normalized.includes("provider unavailable")) {
-      return connectorName === "MiniPay"
-        ? "Open CeloHT inside MiniPay to connect with its wallet provider."
-        : `${connectorName}: ${t("errors.providerUnavailable")}`;
+    if (message.includes("expired") || message.includes("timeout")) {
+      return `${providerName}: The connection request expired. Reopen the wallet prompt and try again.`;
     }
-    return `${connectorName}: ${t("errors.tryAgain")}`;
+    if (message.includes("project id") || message.includes("unauthorized domain") || message.includes("origin")) {
+      return `${providerName}: Check that the Reown project ID is valid and allows this site origin.`;
+    }
+    if (message.includes("provider not found") || message.includes("provider unavailable")) {
+      return providerName === "MiniPay"
+        ? "MiniPay is unavailable. Open CeloHT inside the MiniPay app to connect."
+        : `${providerName}: ${t("errors.providerUnavailable")}`;
+    }
+    if (message.includes("session") || message.includes("pairing") || message.includes("qr")) {
+      return `${providerName}: The wallet session was not approved. Reopen the QR or wallet link and try again.`;
+    }
+    return `${providerName}: ${t("errors.tryAgain")}`;
   }
 
-  function connectWallet(connector: (typeof connectors)[number], connectorName: string) {
-    setConnectorError(null);
-    setProviderName(connectorName);
+  function connectWith(walletConnector: (typeof connectors)[number], providerName: string) {
+    setConnectionError(null);
     connect(
-      { connector },
+      { connector: walletConnector },
       {
         onSuccess: () => {
-          setConnectorError(null);
+          setConnectionError(null);
           setOpen(false);
         },
-        onError: (connectionError) => setConnectorError(describeConnectionError(connectionError.message, connectorName)),
+        onError: (error) => setConnectionError(describeError(error, providerName)),
       },
     );
   }
 
-  async function connectMiniPay() {
-    const provider = getMiniPayProvider();
-    if (!provider) {
-      setConnectorError("Open this DApp inside MiniPay to connect your wallet.");
+  function connectMiniPay() {
+    setConnectionError(null);
+    if (!getMiniPayProvider()) {
+      setConnectionError("MiniPay is not available in this browser. Open CeloHT inside MiniPay to connect.");
       return;
     }
-    setConnectorError(null);
-    setProviderName("MiniPay");
-    try {
-      const account = await requestMiniPayAccount(provider);
-      if (account.chainId !== celoSepolia.id) await switchMiniPayToSepolia(provider);
-      const injectedConnector = connectors.find((item) => item.id === "injected");
-      if (!injectedConnector) throw new Error("Provider unavailable: MiniPay injected connector is not configured.");
-      connectWallet(injectedConnector, "MiniPay");
-    } catch (cause) {
-      setConnectorError(cause instanceof Error ? cause.message : "MiniPay connection was rejected or failed.");
+    const miniPayConnector = connectors.find((item) => item.id === "minipay");
+    if (!miniPayConnector) {
+      setConnectionError("MiniPay's verified wallet connector is unavailable. Reload CeloHT inside MiniPay and try again.");
+      return;
     }
+    connectWith(miniPayConnector, "MiniPay");
+  }
+
+  function connectBrowserWallet() {
+    const injectedConnector = connectors.find((item) => item.id === "injected");
+    if (!injectedConnector) {
+      setConnectionError("No injected browser wallet connector is available.");
+      return;
+    }
+    connectWith(injectedConnector, "Browser wallet");
+  }
+
+  function disconnectWallet() {
+    setConnectionError(null);
+    void disconnectAsync().catch((error: unknown) => {
+      setConnectionError(describeError(error instanceof Error ? error : new Error("Wallet disconnection failed."), connector?.name ?? "Wallet"));
+    });
   }
 
   async function copyAddress() {
     if (!address) return;
-    await navigator.clipboard.writeText(address);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setConnectionError("Unable to copy the address from this browser.");
+    }
   }
 
-  const walletName = isMiniPay || connector?.id === "injected" && typeof window !== "undefined" && (window as Window & { ethereum?: { isMiniPay?: boolean } }).ethereum?.isMiniPay
-    ? "MiniPay"
-    : connector?.name === "WalletConnect"
-      ? "WalletConnect"
-      : connector?.name ?? "Connected wallet";
-  const explorer = chain?.id === celoSepolia.id ? "https://celo-sepolia.blockscout.com" : undefined;
+  const walletName = connector?.id === "minipay" ? "MiniPay" : connector?.name ?? "Connected wallet";
 
   if (isConnected && address) {
-    return <div className="flex items-center gap-2"><button type="button" onClick={() => setOpen(true)} className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-left sm:flex" aria-label="Open wallet details"><span className={`h-2 w-2 rounded-full ${chain?.id === celoSepolia.id ? "bg-emerald-400" : "bg-amber-400"}`} /><span><span className="block text-[10px] uppercase tracking-[0.14em] text-parchment-100/45">{walletName}</span><span className="font-mono text-xs text-white">{shortenAddress(address)}</span></span></button><Button variant="secondary" size="sm" onClick={() => disconnect()}><span className="font-mono sm:hidden">{shortenAddress(address)}</span><LogOut size={14} aria-hidden="true" /><span className="sr-only">Disconnect wallet</span></Button><Dialog open={open} onOpenChange={setOpen}><DialogContent aria-describedby="wallet-details-description"><DialogTitle className="font-display text-xl font-semibold">{walletName}</DialogTitle><DialogDescription id="wallet-details-description" className="mt-1 text-sm text-parchment-100/65">Connected through {providerName ?? connector?.name ?? "your wallet provider"} on {chain?.name ?? "an unknown network"}. Chain ID: {chainId || "unavailable"}. A wallet must be on Celo Sepolia (11142220) for pilot actions.</DialogDescription>{chain?.id !== celoSepolia.id && <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100"><p>This wallet is on an unsupported network.</p><Button size="sm" className="mt-3" onClick={() => switchChain({ chainId: celoSepolia.id })} disabled={isSwitching}>{isSwitching ? "Switching..." : "Switch to Celo Sepolia"}</Button>{switchError && <p role="alert" className="mt-2 text-xs text-amber-100/80">Network switch was rejected. Change networks in your wallet to continue.</p>}</div>}<div className="mt-5 grid grid-cols-2 gap-3"><div className="rounded-xl border border-white/10 bg-white/[0.05] p-3"><p className="text-xs text-parchment-100/45">CELO</p><p className="mt-2 font-mono text-sm text-white">{celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : celoBalance.isLoading ? "Loading" : "Unavailable"}</p></div><div className="rounded-xl border border-white/10 bg-white/[0.05] p-3"><p className="text-xs text-parchment-100/45">USDm</p><p className="mt-2 font-mono text-sm text-white">{usdmAddress ? usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : usdmBalance.isLoading ? "Loading" : "Unavailable" : "Unavailable"}</p></div></div><p className="mt-5 break-all rounded-xl border border-white/10 bg-black/10 p-3 font-mono text-xs text-parchment-100/65">{address}</p><div className="mt-4 flex flex-wrap gap-2"><Button size="sm" variant="secondary" onClick={copyAddress}>{copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}{copied ? "Copied" : "Copy address"}</Button>{explorer && <Button asChild size="sm" variant="secondary"><a href={`${explorer}/address/${address}`} target="_blank" rel="noreferrer">Explorer <ExternalLink size={14} aria-hidden="true" /></a></Button>}<Button size="sm" variant="destructive" onClick={() => { disconnect(); setOpen(false); }}><LogOut size={14} aria-hidden="true" />Disconnect</Button></div></DialogContent></Dialog></div>;
-  }
-
-  if (isMiniPay) {
     return (
-      <Button size="sm" disabled={isPending} onClick={() => {
-        const injectedConnector = connectors.find((connector) => connector.id === "injected");
-        if (injectedConnector) connectWallet(injectedConnector, "MiniPay");
-      }}>
-        <Smartphone size={16} aria-hidden="true" />
-        {isPending ? "Connecting to MiniPay" : "Connect MiniPay"}
-      </Button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-left sm:flex"
+          aria-label="Open wallet details"
+        >
+          <span className={`h-2 w-2 rounded-full ${connectionStatus === "connected" ? "bg-emerald-400" : "bg-amber-400"}`} />
+          <span>
+            <span className="block text-[10px] uppercase tracking-[0.14em] text-parchment-100/45">{walletName}</span>
+            <span className="font-mono text-xs text-white">{shortenAddress(address)}</span>
+          </span>
+        </button>
+        <Button variant="secondary" size="sm" onClick={disconnectWallet} disabled={isDisconnecting}>
+          <span className="font-mono sm:hidden">{shortenAddress(address)}</span>
+          {isDisconnecting ? <LoaderCircle size={14} className="animate-spin" aria-label="Disconnecting" /> : <LogOut size={14} aria-hidden="true" />}
+          <span className="sr-only">Disconnect wallet</span>
+        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent aria-describedby="wallet-details-description">
+            <DialogTitle className="font-display text-xl font-semibold">{walletName}</DialogTitle>
+            <DialogDescription id="wallet-details-description" className="mt-1 text-sm text-parchment-100/65">
+              Connected through {connector?.name ?? "your wallet provider"} on {chain?.name ?? "an unknown network"}. Chain ID: {chainId || "unavailable"}. CeloHT supports Celo Sepolia (11142220) only.
+            </DialogDescription>
+            {connectionStatus === "wrong_network" && (
+              <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
+                <p>This wallet is on an unsupported network.</p>
+                <Button size="sm" className="mt-3" onClick={() => switchChain({ chainId: celoSepolia.id })} disabled={isSwitching}>
+                  {isSwitching ? "Switching..." : "Switch to Celo Sepolia"}
+                </Button>
+                {switchError && <p role="alert" className="mt-2 text-xs text-amber-100/80">Network switch was not supported or was rejected. Change networks in your wallet, then return here.</p>}
+              </div>
+            )}
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-white/10 bg-white/[0.05] p-3">
+                <p className="text-xs text-parchment-100/45">CELO</p>
+                <p className="mt-2 font-mono text-sm text-white">{celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : celoBalance.isLoading ? "Loading" : "Unavailable"}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.05] p-3">
+                <p className="text-xs text-parchment-100/45">USDm</p>
+                <p className="mt-2 font-mono text-sm text-white">{usdmBalance.data ? formatTokenAmount(usdmBalance.data.value, usdmBalance.data.decimals) : usdmBalance.isLoading ? "Loading" : "Unavailable"}</p>
+              </div>
+            </div>
+            <p className="mt-5 break-all rounded-xl border border-white/10 bg-black/10 p-3 font-mono text-xs text-parchment-100/65">{address}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button size="sm" variant="secondary" onClick={copyAddress}>
+                {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+                {copied ? "Copied" : "Copy address"}
+              </Button>
+              {explorerUrl && <Button asChild size="sm" variant="secondary"><a href={`${explorerUrl}/address/${address}`} target="_blank" rel="noreferrer">Explorer <ExternalLink size={14} aria-hidden="true" /></a></Button>}
+              <Button size="sm" variant="destructive" onClick={() => { disconnectWallet(); setOpen(false); }} disabled={isDisconnecting}>
+                <LogOut size={14} aria-hidden="true" />{isDisconnecting ? "Disconnecting" : "Disconnect"}
+              </Button>
+            </div>
+            {connectionError && <p className="mt-3 text-xs text-red-300" role="alert">{connectionError}</p>}
+          </DialogContent>
+        </Dialog>
+      </div>
     );
   }
 
   return (
     <>
-      <Button size="sm" onClick={() => setOpen(true)}>
-        <Wallet size={16} aria-hidden="true" />
-        {t("wallet.connect")}
+      <Button size="sm" onClick={() => setOpen(true)} disabled={isConnecting}>
+        {isConnecting ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <Wallet size={16} aria-hidden="true" />}
+        {isConnecting ? "Connecting" : t("wallet.connect")}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent aria-describedby="connect-wallet-description">
           <DialogTitle className="font-display text-xl font-semibold">{t("wallet.connect")}</DialogTitle>
-          <DialogDescription
-            id="connect-wallet-description"
-            className="text-ink-soft dark:text-parchment-100/70 mt-1 text-sm"
-          >
-            CeloHT works with Valora-compatible wallets and MiniPay. {t("settings.walletSafety")}
+          <DialogDescription id="connect-wallet-description" className="mt-1 text-sm text-parchment-100/70">
+            Wallet approvals happen in your selected wallet. Never share a recovery phrase or private key. {t("settings.walletSafety")}
           </DialogDescription>
-
           <div className="mt-6 grid gap-3">
-            <Button variant="secondary" className="min-h-14 justify-start" disabled={isPending || !isWalletConnectConfigured} onClick={() => {
-              const walletConnectConnector = connectors.find((connector) => connector.id === "walletConnect");
-              if (!walletConnectConnector) { setConnectorError("WalletConnect is unavailable. Configure NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID."); return; }
-              connectWallet(walletConnectConnector, "WalletConnect");
-            }}><Wallet size={18} aria-hidden="true" /><span className="flex flex-col items-start"><span>WalletConnect</span><span className="text-xs font-normal text-parchment-100/55">Scan QR or connect a compatible mobile wallet.</span></span></Button>
-            {!isWalletConnectConfigured && <p className="text-xs text-amber-200" role="alert">WalletConnect and Valora require NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID. Add the Reown project ID to deployment variables.</p>}
-            <Button variant="secondary" className="min-h-14 justify-start" disabled={isPending || !isWalletConnectConfigured} onClick={() => {
-              const walletConnectConnector = connectors.find((connector) => connector.id === "walletConnect");
-              if (!walletConnectConnector) { setConnectorError("Valora uses WalletConnect, but the connector is not configured."); return; }
-              connectWallet(walletConnectConnector, "Valora App");
-            }}><Smartphone size={18} aria-hidden="true" /><span className="flex flex-col items-start"><span>Valora App</span><span className="text-xs font-normal text-parchment-100/55">Open Valora through the supported WalletConnect flow.</span></span></Button>
-            <Button variant="secondary" className="min-h-14 justify-start" disabled={isPending} onClick={() => void connectMiniPay()}><Smartphone size={18} aria-hidden="true" /><span className="flex flex-col items-start"><span>MiniPay</span><span className="text-xs font-normal text-parchment-100/55">{isMiniPay ? "Use MiniPay's native provider." : "Open this DApp inside MiniPay to connect your wallet."}</span></span></Button>
+            <Button variant="secondary" className="min-h-14 justify-start" disabled={isConnecting || !isWalletConnectConfigured} onClick={() => {
+              const walletConnectConnector = connectors.find((item) => item.id === "walletConnect");
+              if (!walletConnectConnector) { setConnectionError("WalletConnect is unavailable. Configure a valid Reown project ID."); return; }
+              connectWith(walletConnectConnector, "WalletConnect");
+            }}>
+              <Wallet size={18} aria-hidden="true" />
+              <span className="flex flex-col items-start"><span>WalletConnect</span><span className="text-xs font-normal text-parchment-100/55">Scan a QR code or choose a compatible mobile wallet.</span></span>
+            </Button>
+            {!isWalletConnectConfigured && <p className="text-xs text-amber-200" role="alert">{walletConnectProjectIdConfig.error === "invalid" ? "The Reown project ID is invalid. Use the 32-character ID from cloud.reown.com." : walletConnectProjectIdConfig.error === "conflict" ? "The WalletConnect and Reown project ID variables differ. Set them to the same ID or configure only one." : "WalletConnect and Valora require NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID or NEXT_PUBLIC_REOWN_PROJECT_ID."}</p>}
+            <Button variant="secondary" className="min-h-14 justify-start" disabled={isConnecting || !isWalletConnectConfigured} onClick={() => {
+              const walletConnectConnector = connectors.find((item) => item.id === "walletConnect");
+              if (!walletConnectConnector) { setConnectionError("Valora connects through WalletConnect; configure a valid Reown project ID first."); return; }
+              connectWith(walletConnectConnector, "WalletConnect");
+            }}>
+              <Smartphone size={18} aria-hidden="true" />
+              <span className="flex flex-col items-start"><span>Valora App</span><span className="text-xs font-normal text-parchment-100/55">Choose Valora from the WalletConnect wallet chooser. Not affiliated with CeloHT.</span></span>
+            </Button>
+            <Button variant="secondary" className="min-h-14 justify-start" disabled={isConnecting} onClick={connectMiniPay}>
+              <Smartphone size={18} aria-hidden="true" />
+              <span className="flex flex-col items-start"><span>MiniPay</span><span className="text-xs font-normal text-parchment-100/55">{isMiniPay ? "Connect MiniPay's in-app wallet provider." : "Open CeloHT inside MiniPay to connect."}</span></span>
+            </Button>
+            <Button variant="secondary" className="min-h-14 justify-start" disabled={isConnecting} onClick={connectBrowserWallet}>
+              <Wallet size={18} aria-hidden="true" />
+              <span className="flex flex-col items-start"><span>Browser wallet</span><span className="text-xs font-normal text-parchment-100/55">Connect an installed EIP-1193 wallet.</span></span>
+            </Button>
           </div>
-
-          {connectorError && (
+          <p className="mt-3 text-xs text-parchment-100/55" aria-live="polite">Connection status: {connectionStatus.replaceAll("_", " ")}</p>
+          {connectionError && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-700 dark:text-red-300">
               <ShieldAlert size={14} aria-hidden="true" className="mt-0.5" />
-              <p role="alert">{connectorError}</p>
+              <p role="alert">{connectionError}</p>
             </div>
           )}
         </DialogContent>

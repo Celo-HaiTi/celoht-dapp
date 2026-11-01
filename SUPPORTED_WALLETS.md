@@ -13,20 +13,20 @@ Other WalletConnect-compatible mobile wallets| WalletConnect (QR code)
 
 Network Support
 
-The dApp supports the following Celo networks:
-
-- Celo Mainnet
-- Celo Sepolia
-
-The dApp does not support other networks.
+The dApp supports Celo Sepolia only (chain ID `11142220`). Wallet writes on another chain are rejected.
 
 WalletConnect Requirements
 
 WalletConnect requires a Project ID to be configured:
 
-"NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"
+`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` or `NEXT_PUBLIC_REOWN_PROJECT_ID`. If both are set, they must match.
 
-See ""docs/development.md"" (docs/development.md) for configuration instructions.
+Create a project at https://cloud.reown.com/ and add these allowed origins in its dashboard:
+
+- `https://app.celoht.com`
+- `http://localhost:3000`
+
+See [WALLET_CONNECTION_TEST_REPORT.md](WALLET_CONNECTION_TEST_REPORT.md) for deployment instructions. Valora is recommended but is not affiliated with CeloHT. Real wallet compatibility has not been verified by the automated tests.
 
 Adding Celo or Celo Sepolia to a Wallet
 

@@ -1,25 +1,21 @@
 # Wallet Compatibility
 
-| Capability | Valora | MiniPay | WalletConnect |
-| --- | --- | --- | --- |
-| Connect | PASS | PASS | PASS |
-| Disconnect | PASS | PASS | PASS |
-| Reconnect | PASS | PASS | PASS |
-| Celo detection | PASS | PASS | PASS |
-| Wrong network | PASS | PASS | PASS |
-| CELO balance | PASS | PASS | PASS |
-| USDm balance | PASS | PASS | PASS |
-| Transaction signing | PASS | PASS | PASS |
-| Confirmation | PASS | PASS | PASS |
-| Rejection | PASS | PASS | PASS |
-| Error handling | PASS | PASS | PASS |
+| Capability | Implementation | Real-wallet verification |
+| --- | --- | --- |
+| WalletConnect QR and mobile handoff | Wagmi WalletConnect v2 connector | Not performed |
+| Valora selection | WalletConnect wallet chooser | Not performed |
+| MiniPay authorization | MiniPay-marked injected provider through Wagmi | Not performed |
+| Session restore and disconnect | Shared Wagmi connection state | Not performed |
+| Account and chain changes | Wagmi connector events | Not performed |
+| Wrong-network handling | Sepolia-only config and explicit switch action | Not performed |
+| Reads and balances | Viem/Wagmi against configured Sepolia RPC | Automated RPC evidence only; not a wallet test |
+| Transaction signing and confirmation | Explicit wallet approval and receipt wait | No wallet transaction performed |
 
 ## Notes
 
-- The wallet support is implemented at the app layer using wagmi and viem and is consistent with browser/mobile wallet flows on Celo.
-- Real wallet interoperability is dependent on the user’s wallet configuration and the presence of a valid WalletConnect project ID when the QR-code/mobile flow is used.
-- These results reflect the actual codepath and configuration, not a guarantee of production success on every device or wallet version.
+- Unit tests and compilation do not establish interoperability with a live wallet application.
+- WalletConnect, Valora, and MiniPay require real desktop/mobile sessions before they can be classified as verified.
 
 ## Status
 
-The repository has real wallet support configured for the active Celo network environment, but it is still NOT READY for production financial use because live contract deployment, backend services, and production authorization are not yet in place.
+This matrix describes implemented paths, not verified compatibility or production readiness. See [WALLET_CONNECTION_TEST_REPORT.md](WALLET_CONNECTION_TEST_REPORT.md) for deployment configuration and real-wallet checks.
