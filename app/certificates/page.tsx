@@ -1,15 +1,16 @@
 "use client";
 
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
 import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function CertificatesPage() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const deployed = isContractDeployed(chainId, "CeloHTEducation");
   const educationAddress = getContractAddress(chainId, "CeloHTEducation");
   const eligiblePayments = useReadContract({ address: educationAddress, abi: abis.CeloHTEducation, functionName: "eligiblePayments", args: address ? [address] : undefined, query: { enabled: Boolean(address && deployed) } });

@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { Check, Copy, GraduationCap, ShieldCheck, Users, WalletCards } from "lucide-react";
-import { useAccount, useBalance, useChainId, useReadContract } from "wagmi";
+import { useAccount, useBalance, useReadContract } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { abis, getContractAddress, getUsdmAddress, isContractDeployed } from "@/lib/contracts";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function ProfilePage() {
   const { address, chain, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const [copied, setCopied] = useState(false);
   const usdmAddress = getUsdmAddress(chainId);
   const agentAddress = getContractAddress(chainId, "CeloHTAgentRegistry");

@@ -1,17 +1,18 @@
 "use client";
 
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
 import { abis, getContractAddress, isContractDeployed } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18n/context";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function DashboardPage() {
   const { address, isConnected } = useAccount();
   const { t } = useI18n();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const agentDeployed = isContractDeployed(chainId, "CeloHTAgentRegistry");
   const agentId = useReadContract({ address: getContractAddress(chainId, "CeloHTAgentRegistry"), abi: abis.CeloHTAgentRegistry, functionName: "agentIdOf", args: address ? [address] : undefined, query: { enabled: Boolean(address && agentDeployed) } });
 

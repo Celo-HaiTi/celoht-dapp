@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount, useBalance, useChainId, useConnect, useDisconnect, useSwitchChain } from "wagmi";
+import { useAccount, useBalance, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { celoSepolia } from "wagmi/chains";
 import { Check, Copy, ExternalLink, LoaderCircle, LogOut, ShieldAlert, Smartphone, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -12,11 +12,12 @@ import { useI18n } from "@/lib/i18n/context";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 import { getWalletConnectionStatus } from "@/lib/web3/wallet-status";
 import { getMiniPayProvider } from "@/lib/web3/minipay";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 import { isWalletConnectConfigured, walletConnectProjectIdConfig } from "@/config";
 
 export function ConnectWalletButton() {
   const { address, chain, connector, isConnected, status: accountStatus } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { connect, connectors, isPending: isConnecting } = useConnect();
   const { disconnectAsync, isPending: isDisconnecting } = useDisconnect();
   const { switchChain, isPending: isSwitching, error: switchError } = useSwitchChain();

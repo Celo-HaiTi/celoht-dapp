@@ -15,12 +15,13 @@ import {
   Users,
   WalletCards,
 } from "lucide-react";
-import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { HeroBackground } from "@/components/home/HeroBackground";
 import { courses } from "@/lib/data/courses";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 const modules = [
   { label: "Learn", eyebrow: "Education", description: "Build practical confidence with short, focused lessons.", href: "/learn", icon: GraduationCap, action: "Continue learning", tone: "gold" },
@@ -34,7 +35,7 @@ const progressCache = new Map<string, { raw: string; value: string[] }>();
 export default function HomePage() {
   const { address, isConnected } = useAccount();
   const completedCourses = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const celoBalance = useBalance({ address, query: { enabled: Boolean(address) } });
   const usdmBalance = useUsdmBalance(address, chainId);
   const celoAmount = celoBalance.data ? formatTokenAmount(celoBalance.data.value, celoBalance.data.decimals) : "—";

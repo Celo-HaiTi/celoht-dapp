@@ -6,7 +6,6 @@ import { CircleAlert, UserRound, Users } from "lucide-react";
 import { formatUnits } from "viem";
 import {
   useAccount,
-  useChainId,
   useReadContract,
   useSwitchChain,
   useWaitForTransactionReceipt,
@@ -30,10 +29,11 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { celoSepolia } from "wagmi/chains";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function AgentsPage() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const wrongNetwork = isConnected && chainId !== celoSepolia.id;
   const registryAddress = getContractAddress(chainId, "CeloHTAgentRegistry");

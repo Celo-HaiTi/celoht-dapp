@@ -1,15 +1,16 @@
 "use client";
 
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { abis, getContractAddress, getUsdmAddress, isContractDeployed } from "@/lib/contracts";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function GovernancePage() {
   const { isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const governanceAddress = getContractAddress(chainId, "CeloHTGovernance");
   const configured = isContractDeployed(chainId, "CeloHTGovernance") && Boolean(getUsdmAddress(chainId));
   const participationFee = useReadContract({ address: governanceAddress, abi: abis.CeloHTGovernance, functionName: "participationFee", query: { enabled: configured } });

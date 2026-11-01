@@ -1,6 +1,6 @@
 "use client";
 
-import { useChainId } from "wagmi";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -11,7 +11,7 @@ import { isContractDeployed } from "@/lib/contracts";
 import { projects } from "@/lib/data/projects";
 
 function ProjectCard({ project }: { project: (typeof projects)[number] }) {
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const deployed = isContractDeployed(chainId, "CeloHTReforestation");
 
   const verifiedImpactAvailable = false;

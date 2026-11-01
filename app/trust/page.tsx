@@ -2,8 +2,10 @@
 
 import { ExternalLink, FileCode2, Globe2, Landmark, Network, RefreshCw, ShieldCheck } from "lucide-react";
 import { celoSepolia } from "wagmi/chains";
-import { useAccount, useBlockNumber, useChainId } from "wagmi";
+import { useAccount, useBlockNumber } from "wagmi";
 import { getContractAddress, getTreasuryAddress, getUsdmAddress, type ContractName } from "@/lib/contracts";
+import { getExplorerUrlForChain } from "@/lib/network/config";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 const contracts: { name: ContractName; purpose: string }[] = [
   { name: "CeloHTAgentRegistry", purpose: "Agent registration and status" },
@@ -15,7 +17,7 @@ const contracts: { name: ContractName; purpose: string }[] = [
 
 export default function TrustCenterPage() {
   const { chain, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const block = useBlockNumber({ watch: false, query: { enabled: isConnected } });
   const networkSupported = chainId === celoSepolia.id;
   const usdmAddress = getUsdmAddress(celoSepolia.id);
@@ -29,4 +31,4 @@ function PanelHeading({ icon, title, id }: { icon: React.ReactNode; title: strin
 function StatusItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="trust-status-item"><span className="trust-status-icon trust-tone-neutral">{icon}</span><div><p>{label}</p><strong>{value}</strong></div></div>; }
 function DataPoint({ label, value, mono }: { label: string; value: string; mono?: boolean }) { return <div className="trust-data-point"><span>{label}</span><strong className={mono ? "break-all font-mono text-xs" : ""}>{value}</strong></div>; }
 function ContractRow({ name, purpose, address, chainId }: { name: ContractName; purpose: string; address?: `0x${string}`; chainId: number }) { return <div className="contract-row"><div><strong>{name}</strong><p>{purpose}</p></div><div className="contract-address">{address ? <><span className="font-mono text-xs">{address}</span><a className="trust-link" href={`${explorerBase(chainId)}/address/${address}`} target="_blank" rel="noreferrer">Explorer <ExternalLink size={13} aria-hidden="true" /></a></> : <span className="trust-unavailable">Unavailable on this network</span>}</div></div>; }
-function explorerBase(chainId: number) { return chainId === celoSepolia.id ? "https://celo-sepolia.blockscout.com" : "https://celoscan.io"; }
+function explorerBase(chainId: number) { return getExplorerUrlForChain(chainId) ?? "https://celo-sepolia.blockscout.com"; }

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { encodeFunctionData, isAddress, parseUnits, type Address } from "viem";
-import { useAccount, useBalance, useChainId, useEstimateGas, useGasPrice, useSendTransaction, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useAccount, useBalance, useEstimateGas, useGasPrice, useSendTransaction, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { celoSepolia } from "wagmi/chains";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { erc20Abi } from "@/lib/contracts";
@@ -26,14 +26,15 @@ import { useI18n } from "@/lib/i18n/context";
 import { createNotification } from "@/lib/notifications/service";
 import { transactionDeduplicationKey } from "@/lib/notifications/dedupe";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
+import { getTransactionStatus } from "@/lib/web3/transaction-status";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 type Asset = "CELO" | "USDm";
-type TxState = "idle" | "signing" | "pending" | "success" | "failed";
 
 export default function WalletPage() {
   const { address, connector, isConnected } = useAccount();
   const { t } = useI18n();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const networkConfig = isConnected ? getNetworkConfig(chainId) : getNetworkConfig();
   const usdmAddress = networkConfig?.tokens.usdm.address;
   const wrongNetwork = isConnected && !isSupportedWalletNetwork(chainId);
@@ -79,33 +80,31 @@ export default function WalletPage() {
     to: asset === "CELO" ? (recipientValid ? recipient as Address : undefined) : usdmAddress,
     value: asset === "CELO" ? parsedAmount : undefined,
     data: usdmTransferData,
-    chainId,
+    chainId: celoSepolia.id,
     query: { enabled: estimateEnabled },
   });
-  const gasPrice = useGasPrice({ chainId, query: { enabled: estimateEnabled } });
+  const gasPrice = useGasPrice({ chainId: celoSepolia.id, query: { enabled: estimateEnabled } });
   const estimatedFee = gasEstimate.data !== undefined && gasPrice.data !== undefined ? gasEstimate.data * gasPrice.data : undefined;
   const hasEnoughGas = Boolean(estimatedFee !== undefined && celoBalance.data && (asset === "CELO" ? celoBalance.data.value >= (parsedAmount ?? 0n) + estimatedFee : celoBalance.data.value >= estimatedFee));
   const canSend = Boolean(
     isConnected && !wrongNetwork && recipientValid && amountValid && enoughBalance && hasEnoughGas && !isSendingCelo && !isSendingUsdm && !txHash && (asset === "CELO" || usdmAddress),
   );
 
-  const txState: TxState = txHash
-    ? txReceipt.isPending
-      ? "pending"
-      : txReceipt.isSuccess
-        ? "success"
-        : txReceipt.isError || txError
-          ? "failed"
-          : "idle"
-    : "idle";
+  const txState = getTransactionStatus({
+    isAwaitingApproval: isSendingCelo || isSendingUsdm,
+    transactionHash: txHash,
+    isReceiptPending: txReceipt.isPending,
+    receiptStatus: txReceipt.data?.status,
+    error: txError ?? txReceipt.error,
+  });
 
   const amountError = amount && (!amountValid ? `Enter a valid ${asset} amount.` : !enoughBalance ? `Insufficient ${asset} balance.` : undefined);
   const feeDisplay = estimatedFee === undefined ? undefined : `${formatTokenAmount(estimatedFee, 18, 6)} CELO`;
 
   useEffect(() => {
     if (!address || !txHash || !isConnected) return;
-    const failed = Boolean(txReceipt.isError || txError) && !txReceipt.isSuccess;
-    const confirmed = txReceipt.isSuccess;
+    const confirmed = txReceipt.data?.status === "success";
+    const failed = Boolean(txReceipt.isError || txError || txReceipt.data?.status === "reverted") && !confirmed;
     if (!failed && !confirmed) return;
     const state = confirmed ? "confirmed" : "failed";
     void createNotification({
@@ -121,7 +120,7 @@ export default function WalletPage() {
       deduplicationKey: transactionDeduplicationKey(chainId, txHash, state),
       deepLink: `/wallet?tx=${txHash}`,
     });
-  }, [address, amount, asset, chainId, isConnected, t, txError, txHash, txReceipt.isError, txReceipt.isSuccess]);
+  }, [address, amount, asset, chainId, isConnected, t, txError, txHash, txReceipt.data?.status, txReceipt.isError]);
 
   const handleCopy = async () => {
     if (!address) return;
@@ -394,21 +393,23 @@ export default function WalletPage() {
             </>
           )}
 
-          {txHash && (
-            <section className={`celoht-state-panel ${txState === "success" ? "success" : txState === "failed" ? "error" : txState === "pending" ? "loading" : "idle"}`}>
+          {(txHash || txState === "awaiting_approval" || txState === "failed" || txState === "rejected") && (
+            <section className={`celoht-state-panel ${txState === "confirmed" ? "success" : txState === "failed" || txState === "rejected" ? "error" : txState === "pending" || txState === "submitted" ? "loading" : "idle"}`}>
               <div className="celoht-state-header">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f8dc8f]">Transaction status</p>
                   <h2 className="mt-2 text-xl font-semibold text-white">
-                    {txState === "pending" && "Transaction submitted"}
-                    {txState === "success" && "Payment sent"}
+                    {txState === "awaiting_approval" && "Awaiting wallet approval"}
+                    {txState === "submitted" && "Transaction submitted"}
+                    {txState === "pending" && "Transaction pending"}
+                    {txState === "confirmed" && "Payment confirmed"}
                     {txState === "failed" && "Transaction failed"}
-                    {txState === "idle" && "Ready for signature"}
+                    {txState === "rejected" && "Wallet approval rejected"}
                   </h2>
                 </div>
                 <div className="celoht-state-badge">
-                  {txState === "success" ? <CheckCircle2 className="h-4 w-4 text-[#4dd39b]" aria-hidden="true" /> : txState === "failed" ? <ShieldAlert className="h-4 w-4 text-[#f7b267]" aria-hidden="true" /> : txState === "pending" ? <Loader2 className="h-4 w-4 animate-spin text-[#f8dc8f]" aria-hidden="true" /> : <Clock3 className="h-4 w-4 text-white/60" aria-hidden="true" />}
-                  {txState === "success" ? "Confirmed" : txState === "failed" ? "Failed" : txState === "pending" ? "Pending" : "Awaiting"}
+                  {txState === "confirmed" ? <CheckCircle2 className="h-4 w-4 text-[#4dd39b]" aria-hidden="true" /> : txState === "failed" || txState === "rejected" ? <ShieldAlert className="h-4 w-4 text-[#f7b267]" aria-hidden="true" /> : txState === "pending" || txState === "submitted" || txState === "awaiting_approval" ? <Loader2 className="h-4 w-4 animate-spin text-[#f8dc8f]" aria-hidden="true" /> : <Clock3 className="h-4 w-4 text-white/60" aria-hidden="true" />}
+                  {txState === "confirmed" ? "Confirmed" : txState === "failed" ? "Failed" : txState === "rejected" ? "Rejected" : txState === "pending" ? "Pending" : txState === "submitted" ? "Submitted" : "Awaiting approval"}
                 </div>
               </div>
 
@@ -424,10 +425,10 @@ export default function WalletPage() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-3">
-                <a href={`${getExplorerUrlForChain(chainId) ?? "https://celoscan.io"}/tx/${txHash}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition hover:border-[#f8dc8f]/30 hover:bg-white/10">
+                {txHash && <a href={`${getExplorerUrlForChain(chainId) ?? "https://celo-sepolia.blockscout.com"}/tx/${txHash}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition hover:border-[#f8dc8f]/30 hover:bg-white/10">
                   View transaction <ExternalLink size={14} aria-hidden="true" />
-                </a>
-                {txState === "success" ? (
+                </a>}
+                {txState === "confirmed" ? (
                     <button type="button" onClick={clearTransaction} className="inline-flex items-center gap-2 rounded-2xl bg-[#f5c842] px-4 py-3 text-sm font-semibold text-[#08131f] transition hover:bg-[#f8dc8f]">
                     <Check size={14} aria-hidden="true" />
                     Payment sent

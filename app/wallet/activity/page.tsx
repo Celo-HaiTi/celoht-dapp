@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import { Activity, ArrowDownLeft, ArrowUpRight, Check, Clock3, Copy, ExternalLink, Filter, History, RefreshCw, ShieldAlert, WalletCards } from "lucide-react";
 import { celoSepolia } from "wagmi/chains";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 import { useRouter } from "next/navigation";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { shortenAddress } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
 import { formatLocalizedDate } from "@/lib/i18n/format";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 const filters = ["All", "Sent", "Received", "Donations", "Agent", "Reforestation", "Pending", "Failed"] as const;
 type FilterName = (typeof filters)[number];
@@ -16,7 +17,7 @@ type FilterName = (typeof filters)[number];
 export default function ActivityPage() {
   const { address, chain, isConnected } = useAccount();
   const { language, t } = useI18n();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const [filter, setFilter] = useState<FilterName>("All");
   const [query, setQuery] = useState("");
@@ -47,5 +48,114 @@ function matchesQuery(item: ActivityItem, query: string) { const normalized = qu
 function OverviewItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="overview-item"><span>{icon}</span><div><p>{label}</p><strong>{value}</strong></div></div>; }
 function ActivityCard({ item, onSelect, language }: { item: ActivityItem; onSelect: (item: ActivityItem) => void; language: "ht" | "en" | "fr" | "es" }) { const outgoing = item.type === "sent" || item.type === "donation" || item.type === "agent" || item.type === "reforestation"; return <button type="button" className="activity-card" onClick={() => onSelect(item)}><span className={`activity-type-icon activity-type-${item.type}`}>{outgoing ? <ArrowUpRight size={17} aria-hidden="true" /> : <ArrowDownLeft size={17} aria-hidden="true" />}</span><span className="activity-card-main"><strong>{item.type}</strong><small>{item.asset} · {formatLocalizedDate(item.timestamp, language)}</small></span><span className="activity-card-amount"><strong>{outgoing ? "-" : "+"}{item.amount} {item.asset}</strong><small className={`activity-status activity-status-${item.status}`}>{item.status}</small></span></button>; }
 function EmptyState({ icon, title, description, action }: { icon: React.ReactNode; title: string; description: string; action?: React.ReactNode }) { return <section className="activity-empty" role="status"><span className="activity-empty-icon">{icon}</span><div><h2 className="font-display text-lg font-semibold text-white">{title}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-parchment-100/55">{description}</p>{action && <div className="mt-4">{action}</div>}</div></section>; }
-function ActivityDetails({ item, onClose }: { item: ActivityItem; onClose: () => void }) { const [copied, setCopied] = useState(false); async function copyHash() { await navigator.clipboard.writeText(item.hash); setCopied(true); window.setTimeout(() => setCopied(false), 1400); } return <div className="activity-drawer-backdrop" role="presentation" onClick={onClose}><aside className="activity-drawer" role="dialog" aria-modal="true" aria-labelledby="activity-detail-heading" onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="section-kicker">Transaction details</p><h2 id="activity-detail-heading" className="mt-1 font-display text-xl font-semibold text-white">{item.type}</h2></div><button type="button" className="activity-close" onClick={onClose} aria-label="Close details">×</button></div><div className="mt-6 space-y-3"><DetailLine label="Status" value={item.status} /><DetailLine label="Asset / amount" value={`${item.amount} ${item.asset}`} /><DetailLine label="From" value={item.from} mono /><DetailLine label="To" value={item.to} mono /><DetailLine label="Network" value={item.network} /><DetailLine label="Block" value={item.block ?? "Unavailable"} /><DetailLine label="Gas fee" value={item.gasFee ?? "Unavailable"} /><DetailLine label="Timestamp" value={new Date(item.timestamp).toLocaleString()} /></div><div className="mt-6 border-t border-white/10 pt-5"><p className="text-xs text-parchment-100/45">Transaction hash</p><p className="mt-2 break-all font-mono text-xs text-parchment-100/68">{item.hash}</p><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={copyHash} className="activity-secondary">{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? "Copied" : "Copy hash"}</button><a className="activity-secondary" href={`${item.network === "Celo Sepolia" ? "https://sepolia.celoscan.io" : "https://celoscan.io"}/tx/${item.hash}`} target="_blank" rel="noreferrer">View explorer <ExternalLink size={14} aria-hidden="true" /></a></div></div></aside></div>; }
-function DetailLine({ label, value, mono }: { label: string; value: string; mono?: boolean }) { return <div className="detail-line"><span>{label}</span><strong className={mono ? "break-all text-right font-mono text-xs" : "text-right"}>{value}</strong></div>; }
+function ActivityDetails({
+  item,
+  onClose,
+}: {
+  item: ActivityItem;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  async function copyHash() {
+    await navigator.clipboard.writeText(item.hash);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  }
+  return (
+    <div
+      className="activity-drawer-backdrop"
+      role="presentation"
+      onClick={onClose}
+    >
+      <aside
+        className="activity-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="activity-detail-heading"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="section-kicker">Transaction details</p>
+            <h2
+              id="activity-detail-heading"
+              className="mt-1 font-display text-xl font-semibold text-white"
+            >
+              {item.type}
+            </h2>
+          </div>
+          <button
+            type="button"
+            className="activity-close"
+            onClick={onClose}
+            aria-label="Close details"
+          >
+            ×
+          </button>
+        </div>
+        <div className="mt-6 space-y-3">
+          <DetailLine label="Status" value={item.status} />
+          <DetailLine
+            label="Asset / amount"
+            value={`${item.amount} ${item.asset}`}
+          />
+          <DetailLine label="From" value={item.from} mono />
+          <DetailLine label="To" value={item.to} mono />
+          <DetailLine label="Network" value={item.network} />
+          <DetailLine label="Block" value={item.block ?? "Unavailable"} />
+          <DetailLine label="Gas fee" value={item.gasFee ?? "Unavailable"} />
+          <DetailLine
+            label="Timestamp"
+            value={new Date(item.timestamp).toLocaleString()}
+          />
+        </div>
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <p className="text-xs text-parchment-100/45">Transaction hash</p>
+          <p className="mt-2 break-all font-mono text-xs text-parchment-100/68">
+            {item.hash}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={copyHash}
+              className="activity-secondary"
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? "Copied" : "Copy hash"}
+            </button>
+            <a
+              className="activity-secondary"
+              href={`https://celo-sepolia.blockscout.com/tx/${item.hash}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View explorer <ExternalLink size={14} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+function DetailLine({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="detail-line">
+      <span>{label}</span>
+      <strong
+        className={
+          mono ? "break-all text-right font-mono text-xs" : "text-right"
+        }
+      >
+        {value}
+      </strong>
+    </div>
+  );
+}

@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useAccount, useChainId, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Button } from "@/components/ui/Button";
@@ -29,6 +29,7 @@ import {
   type BackendReforestationProject,
   type BackendTransaction,
 } from "@/lib/backend";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 type Session = { walletAddress: string };
 type Course = {
@@ -43,7 +44,7 @@ type Course = {
 
 export default function PilotPage() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { signMessageAsync } = useSignMessage();
   const [session, setSession] = useState<Session | null>(null);
   const [authError, setAuthError] = useState<string>();

@@ -1,15 +1,16 @@
 "use client";
 
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { shortenAddress } from "@/lib/utils";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function ProfilePage() {
   const { address, isConnected, chain } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
 
   return (
     <>

@@ -5,7 +5,6 @@ import { LoaderCircle, ShieldAlert, Sprout, Wallet } from "lucide-react";
 import { parseUnits } from "viem";
 import {
   useAccount,
-  useChainId,
   useReadContract,
   useReadContracts,
   useSwitchChain,
@@ -29,13 +28,14 @@ import {
   getUsdmAddress,
 } from "@/lib/contracts";
 import { celoSepolia } from "wagmi/chains";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 const explorerUrl = (hash: string) =>
   `https://celo-sepolia.blockscout.com/tx/${hash}`;
 
 export default function DonationsPage() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const [amount, setAmount] = useState("10");
   const [approvalHash, setApprovalHash] = useState<`0x${string}`>();

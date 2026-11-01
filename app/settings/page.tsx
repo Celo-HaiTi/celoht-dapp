@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Activity, Check, CircleAlert, Copy, ExternalLink, Globe2, Info, Languages, LockKeyhole, LogOut, Network, ShieldCheck, SlidersHorizontal, WalletCards } from "lucide-react";
 import { celoSepolia } from "wagmi/chains";
-import { useAccount, useBlockNumber, useChainId, useDisconnect, useSwitchChain } from "wagmi";
+import { useAccount, useBlockNumber, useDisconnect, useSwitchChain } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { getUsdmAddress } from "@/lib/contracts";
 import { shortenAddress } from "@/lib/utils";
@@ -15,12 +15,13 @@ import type { Language } from "@/lib/i18n/types";
 import { useNotificationPreferences } from "@/lib/notifications/hooks";
 import type { NotificationPreferences } from "@/lib/notifications/types";
 import { isBackendConfigured } from "@/lib/backend";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 type NotificationKey = keyof NotificationPreferences;
 
 export default function SettingsPage() {
   const { address, chain, connector, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching, error: switchError } = useSwitchChain();
   const { language, setLanguage, t } = useI18n();

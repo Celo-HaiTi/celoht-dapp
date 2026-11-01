@@ -22,7 +22,7 @@ USDm is read from the centralized `addresses.ts` configuration. The configured c
 
 Both addresses were checked through public Celo RPC reads and report `USDm` with 18 decimals. The frontend uses `balanceOf`, `decimals`, and `transfer` through the ERC-20 ABI.
 
- Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` or its alias `NEXT_PUBLIC_REOWN_PROJECT_ID` in the build environment. If both are set, they must match. Create the ID at https://cloud.reown.com/ and authorize `https://app.celoht.com` and `http://localhost:3000` in the Reown project. Dashboard access was not available to verify those origins here.
+ Set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` or its alias `NEXT_PUBLIC_REOWN_PROJECT_ID` in the build environment. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is canonical; `NEXT_PUBLIC_REOWN_PROJECT_ID` is used only when the canonical variable is blank. If both are non-empty, they must match or WalletConnect is disabled. Create the ID at https://cloud.reown.com/ and authorize `https://app.celoht.com` and `http://localhost:3000` in the Reown project. Dashboard access was not available to verify those origins here.
 
  For GitHub Actions, configure either value under repository **Settings → Secrets and variables → Actions → Variables**. For Vercel, use **Project Settings → Environment Variables**; for Render, use the service **Environment** settings. Static exports require the variable at build time. The project ID is public client configuration, not a private credential.
 

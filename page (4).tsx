@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { celoSepolia } from "wagmi/chains";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
@@ -9,10 +9,11 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { BalanceDisplay } from "@/components/web3/BalanceDisplay";
 import { abis, getContractAddress } from "@/lib/contracts";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 export default function TransactionsPage() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const servicePaymentsAddress = getContractAddress(chainId, "CeloHTServicePayments");
   const educationPrice = useReadContract({
     address: servicePaymentsAddress,

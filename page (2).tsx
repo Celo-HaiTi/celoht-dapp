@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useAccount, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
@@ -12,12 +12,13 @@ import { Button } from "@/components/ui/Button";
 import { agents } from "@/lib/data/agents";
 import { shortenAddress } from "@/lib/utils";
 import { abis, erc20Abi, getContractAddress, getUsdmAddress } from "@/lib/contracts";
+import { useWalletChainId } from "@/lib/web3/useWalletChainId";
 
 const statusTone = { Active: "forest", Pending: "warning", Suspended: "danger" } as const;
 
 function RegistrationPanel() {
   const { isConnected, address } = useAccount();
-  const chainId = useChainId();
+  const chainId = useWalletChainId();
   const registryAddress = getContractAddress(chainId, "CeloHTAgentRegistry");
   const usdmAddress = getUsdmAddress(chainId);
   const [approvalHash, setApprovalHash] = useState<`0x${string}`>();
