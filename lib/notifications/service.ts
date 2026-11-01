@@ -1,7 +1,6 @@
-import { getBackendNotificationPreferences, getBackendNotifications, markBackendNotificationRead, markBackendNotificationsRead, saveBackendNotificationPreferences, isBackendConfigured } from "@/lib/backend";
 import { NOTIFICATION_EVENT } from "./config";
 import { readAllLocalNotifications, readLocalNotifications, readLocalPreferences, normalizeWalletAddress, writeLocalNotifications, writeLocalPreferences } from "./storage";
-import { defaultNotificationPreferences, type CreateNotificationInput, type NotificationPreferences, type NotificationRecord } from "./types";
+import { type CreateNotificationInput, type NotificationPreferences, type NotificationRecord } from "./types";
 
 function notifyChanged() {
   if (typeof window !== "undefined") window.dispatchEvent(new Event(NOTIFICATION_EVENT));
@@ -12,41 +11,18 @@ function localId() {
 }
 
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  const local = readLocalPreferences(typeof window === "undefined" ? undefined : window.localStorage);
-  if (!isBackendConfigured()) return local;
-  try {
-    const remote = await getBackendNotificationPreferences();
-    const preferences = { ...defaultNotificationPreferences, ...remote };
-    writeLocalPreferences(window.localStorage, preferences);
-    return preferences;
-  } catch {
-    return local;
-  }
+  return readLocalPreferences(typeof window === "undefined" ? undefined : window.localStorage);
 }
 
 export async function saveNotificationPreferences(preferences: NotificationPreferences) {
   writeLocalPreferences(typeof window === "undefined" ? undefined : window.localStorage, preferences);
   notifyChanged();
-  if (!isBackendConfigured()) return { persisted: false };
-  try {
-    await saveBackendNotificationPreferences(preferences);
-    return { persisted: true };
-  } catch {
-    return { persisted: false };
-  }
+  return { persisted: false };
 }
 
 export async function listNotifications(walletAddress: string): Promise<NotificationRecord[]> {
   const normalized = normalizeWalletAddress(walletAddress);
-  const local = readLocalNotifications(typeof window === "undefined" ? undefined : window.localStorage, normalized);
-  if (!isBackendConfigured()) return local;
-  try {
-    const remote = await getBackendNotifications();
-    writeLocalNotifications(window.localStorage, remote);
-    return remote;
-  } catch {
-    return local;
-  }
+  return readLocalNotifications(typeof window === "undefined" ? undefined : window.localStorage, normalized);
 }
 
 export async function createNotification(input: CreateNotificationInput): Promise<NotificationRecord | null> {
@@ -63,16 +39,10 @@ export async function createNotification(input: CreateNotificationInput): Promis
 }
 
 export async function markNotificationRead(id: string) {
-  if (isBackendConfigured()) {
-    try { await markBackendNotificationRead(id); } catch { /* local fallback below */ }
-  }
   updateLocalRecords((records) => records.map((item) => item.id === id ? { ...item, readAt: new Date().toISOString() } : item));
 }
 
 export async function markAllNotificationsRead(walletAddress: string) {
-  if (isBackendConfigured()) {
-    try { await markBackendNotificationsRead(); } catch { /* local fallback below */ }
-  }
   const now = new Date().toISOString();
   updateLocalRecords((records) => records.map((item) => normalizeWalletAddress(item.recipientWalletAddress) === normalizeWalletAddress(walletAddress) ? { ...item, readAt: item.readAt ?? now } : item));
 }

@@ -22,8 +22,15 @@ test("network layer exposes a supported testnet configuration without fake mainn
   assert.equal(getTokenConfig(11142220, "USDm")?.symbol, "USDm");
 });
 
-test("environment mode resolves safely even before mainnet activation", () => {
-  const mode = resolveEnvironmentMode();
-  assert.ok(["testnet", "mainnet"].includes(mode));
-  assert.equal(mode, "testnet");
+test("environment variables cannot enable another chain", () => {
+  process.env.NEXT_PUBLIC_APP_ENV = "mainnet";
+  process.env.NEXT_PUBLIC_CELO_NETWORK = "celo";
+  process.env.NEXT_PUBLIC_CELO_CHAIN_ID = "42220";
+  process.env.NEXT_PUBLIC_CELO_RPC_URL = "https://forno.celo.org";
+  process.env.NEXT_PUBLIC_USDM_ADDRESS = "0x0000000000000000000000000000000000000001";
+
+  assert.equal(resolveEnvironmentMode(), "testnet");
+  assert.deepEqual(getSupportedChainIds(), [11142220]);
+  assert.equal(getNetworkConfig(42220), undefined);
+  assert.equal(isSupportedWalletNetwork(42220), false);
 });

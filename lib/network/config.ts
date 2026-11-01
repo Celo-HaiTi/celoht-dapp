@@ -1,5 +1,5 @@
 import { type Address } from "viem";
-import { celo, celoSepolia } from "wagmi/chains";
+import { celoSepolia } from "wagmi/chains";
 import deploymentConfig from "../../deployments/dapp-config.json";
 
 export type EnvironmentMode = "testnet" | "mainnet";
@@ -66,75 +66,18 @@ const testnetConfig: NetworkConfig = {
   },
 };
 
-const resolvedMainnetStatus = (() => {
-  const appEnv = process.env.NEXT_PUBLIC_APP_ENV?.trim().toLowerCase();
-  const configuredNetwork = process.env.NEXT_PUBLIC_CELO_NETWORK?.trim().toLowerCase();
-  const chainId = Number(process.env.NEXT_PUBLIC_CELO_CHAIN_ID ?? "");
-  const hasMainnetRpc = Boolean(process.env.NEXT_PUBLIC_CELO_RPC_URL?.trim());
-  const hasMainnetUsdm = Boolean(process.env.NEXT_PUBLIC_USDM_ADDRESS?.trim());
-
-  if ((appEnv === "mainnet" || configuredNetwork === "mainnet" || configuredNetwork === "celo") && chainId === celo.id && hasMainnetRpc && hasMainnetUsdm) {
-    return true;
-  }
-
-  return false;
-})();
-
-const mainnetConfig: NetworkConfig | undefined = resolvedMainnetStatus
-  ? {
-      id: celo.id,
-      name: "Celo Mainnet",
-      network: "mainnet",
-      rpcUrl: process.env.NEXT_PUBLIC_CELO_RPC_URL?.trim() || "https://forno.celo.org",
-      explorerUrl: process.env.NEXT_PUBLIC_CELO_EXPLORER_URL?.trim() || "https://celoscan.io",
-      isConfigured: true,
-      tokens: {
-        celo: { symbol: "CELO", name: "CELO", decimals: 18, displayName: "CELO" },
-        usdm: {
-          symbol: "USDm",
-          name: "USDm",
-          decimals: 18,
-          displayName: "USDm",
-          address: process.env.NEXT_PUBLIC_USDM_ADDRESS?.trim() as Address | undefined,
-          explorerUrl: process.env.NEXT_PUBLIC_CELO_EXPLORER_URL?.trim() ? `${process.env.NEXT_PUBLIC_CELO_EXPLORER_URL?.trim()}/token/${process.env.NEXT_PUBLIC_USDM_ADDRESS}` : undefined,
-        },
-      },
-      contracts: {
-        agentRegistry: process.env.NEXT_PUBLIC_CELOHT_AGENT_REGISTRY_ADDRESS?.trim() as Address | undefined,
-        servicePayments: process.env.NEXT_PUBLIC_CELOHT_SERVICE_PAYMENTS_ADDRESS?.trim() as Address | undefined,
-        education: process.env.NEXT_PUBLIC_CELOHT_EDUCATION_ADDRESS?.trim() as Address | undefined,
-        reforestation: process.env.NEXT_PUBLIC_CELOHT_REFORESTATION_ADDRESS?.trim() as Address | undefined,
-        governance: process.env.NEXT_PUBLIC_CELOHT_GOVERNANCE_ADDRESS?.trim() as Address | undefined,
-      },
-    }
-  : undefined;
-
 export function resolveEnvironmentMode(): EnvironmentMode {
-  const appEnv = process.env.NEXT_PUBLIC_APP_ENV?.trim().toLowerCase();
-  const networkName = process.env.NEXT_PUBLIC_CELO_NETWORK?.trim().toLowerCase();
-
-  if (networkName === "mainnet" || appEnv === "mainnet") {
-    return mainnetConfig ? "mainnet" : "testnet";
-  }
-
-  if (networkName === "celo" || appEnv === "production") {
-    return mainnetConfig ? "mainnet" : "testnet";
-  }
-
   return "testnet";
 }
 
 export function getNetworkConfig(chainId?: number): NetworkConfig | undefined {
   if (chainId === celoSepolia.id) return testnetConfig;
-  if (chainId === celo.id && mainnetConfig) return mainnetConfig;
   if (!chainId) return testnetConfig;
   return undefined;
 }
 
 export function getSupportedChainIds(): number[] {
-  const supported = [testnetConfig.id];
-  if (mainnetConfig) supported.push(mainnetConfig.id);
-  return supported;
+  return [testnetConfig.id];
 }
 
 export function isSupportedWalletNetwork(chainId?: number): boolean {

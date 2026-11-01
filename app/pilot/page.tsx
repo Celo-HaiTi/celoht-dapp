@@ -64,7 +64,7 @@ export default function PilotPage() {
       return () => { active = false; };
     }
     void getBackendCourses()
-      .then((result) => { if (active) setCourses(result.map((course) => ({ id: course.id, title: course.title, summary: course.description }))); })
+      .then((result) => { if (active) setCourses(result.map((course) => ({ id: course.id, title: course.title, summary: course.description ?? "" }))); })
       .catch((cause) => { if (active) setStatus(cause instanceof Error ? cause.message : "Unable to load courses."); });
     void getBackendReforestation()
       .then((result) => { if (active) setProjects(result); })

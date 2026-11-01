@@ -4,56 +4,80 @@
 
 Repository: CeloHT dApp
 
-Date: 2026-10-31
+Date: 2026-11-01
 
-Final status: NOT READY — the GitHub Pages frontend builds, but the official Render backend returns 503, `api.celoht.com` is not configured, credentialed CORS is not enabled for `https://app.celoht.com`, and several requested workflow APIs are not implemented.
+Final status: NOT READY — backend health/CORS work, but the live indexer `/readyz` returns 503 with six unsynchronized checkpoints, null successful-sync timestamps, and an errored agent-registry cursor. Public application data is empty and wallet/transaction journeys have not been exercised end to end.
 
 ## Verification Matrix
 
 | Area | Status | Evidence |
 | --- | --- | --- |
-| Build | READY | `npm run build` completed successfully on the current checkout. |
-| Typecheck | READY | `npm run typecheck` passed cleanly. |
-| Tests | READY | `npm test` passed with 22 tests passing, 0 failing. |
-| Security | NOT VERIFIED | `npm audit --omit=dev --audit-level=high` reports 0 vulnerabilities; live backend auth/CORS and an independent contract audit remain unverified. |
-| Dependencies | READY WITH CONDITIONS | The configured high-severity production dependency audit passes; this is not an independent security audit. |
-| Auth | BLOCKED | The official backend is not fully configured; live health returns HTTP 503. |
-| Authorization | NOT VERIFIED | No server-side admin/auth service is present in this repository. |
-| Database | NOT VERIFIED | No live Supabase database or RLS verification was performed because no production database is configured. |
-| Blockchain | READY WITH CONDITIONS | Celo Sepolia contract metadata and ABIs are synchronized and validated; Celo Mainnet remains intentionally unavailable. |
-| External integrations | BLOCKED | Optional backend and external indexer or Supabase services are not configured or verified. |
-| CI/CD | READY WITH CONDITIONS | GitHub Pages workflow includes lint, typecheck, tests, guard checks, and static build; backend secrets remain external. |
-| Documentation | READY WITH CONDITIONS | Core docs are present and mostly consistent; external constraints are documented explicitly. |
-| Production deployment | NOT READY | No verified production deployment metadata or live production services were available to validate. |
+| Build | VERIFIED WORKING | `npm run build:custom-domain` completed; deployed home and five primary pages returned HTTP 200. |
+| Typecheck / lint | VERIFIED WORKING | `npm run typecheck` and `npm run lint` passed. |
+| Unit tests | VERIFIED WORKING | `npm test`: 27 passed, 0 failed; API transport/schema mocks pass. |
+| Dependency audit | VERIFIED WORKING | `npm run audit`: 0 high-severity production vulnerabilities. |
+| Sepolia RPC | VERIFIED WORKING | RPC reports chain ID `11142220`; configured addresses return code; selected ABI reads succeeded. |
+| Wallet providers | IMPLEMENTED BUT NOT VERIFIED | Injected, WalletConnect/Valora, and MiniPay paths exist; no live wallet/device session was tested. WalletConnect requires a public project ID. |
+| Backend health, discovery, public reads, and CORS | VERIFIED WORKING | `api.celoht.com` returns health/discovery 200; credentialed CORS preflight returns 204; documented public reads return valid envelopes. |
+| Backend auth session | IMPLEMENTED BUT NOT VERIFIED | Unauthenticated profile/agent/progress reads return 401 as expected; no wallet signed in or session mutation was tested. |
+| Indexer synchronization / dataset | BLOCKED BY BACKEND / INDEXER / CONTRACT | `/readyz` returns 503 at head `40273483`; five deployed contracts lag about 4.93M blocks, USDm remains at block 0, all six `lastSuccessfulSync` values are null, and AgentRegistry is in `error`. |
+| Production deployment | IMPLEMENTED BUT NOT VERIFIED | The existing deployment serves the current app, but these local changes have not been deployed. |
+
+## Feature Classification
+
+| Feature | Status | Evidence / limitation |
+| --- | --- | --- |
+| Celo Sepolia network selection | VERIFIED WORKING | Resolver is now Sepolia-only even when mainnet-looking public environment values are set; regression test passes. |
+| Backend request transport and response schemas | VERIFIED WORKING | Live reads pass the new per-route guards; mock tests cover malformed data, error mapping, bounded timeouts, safe GET retry, and write non-retry. |
+| Configured contract addresses and selected read methods | VERIFIED WORKING | Read-only RPC confirmed code and successful calls for USDm decimals, agent fee/lookup, service price, education eligibility, reforestation totals/count, and governance fee. |
+| Learn catalog and lesson pages | IMPLEMENTED BUT NOT VERIFIED | Static course content is present; production pages returned 200, but no browser journey was run. |
+| Persisted learner progress | NOT IMPLEMENTED | Current Learn progress uses guest `localStorage`; backend progress is only surfaced in Pilot Center and could not be verified. |
+| Wallet connection, switching, balances, and transactions | IMPLEMENTED BUT NOT VERIFIED | UI and transaction receipt handling exist; no wallet was connected and no transaction was submitted. |
+| Agent self-status and registration | IMPLEMENTED BUT NOT VERIFIED | Contract reads/write flow exist; on-chain read methods were verified, but approval/registration transactions were not run. |
+| Indexed agent directory and activity | BLOCKED BY BACKEND / INDEXER / CONTRACT | Registry does not expose a searchable profile directory; indexer/backend unavailable. |
+| Reforestation contract totals and donation flow | IMPLEMENTED BUT NOT VERIFIED | Read methods succeeded; donation approval/write/receipt flow was not exercised. |
+| Project feed, planting evidence, and contribution history | BLOCKED BY BACKEND / INDEXER / CONTRACT | Public routes respond but return no projects/evidence; contribution history depends on indexer-owned records. Evidence submission is documented as unavailable. |
+| Governance proposal feed and voting | BLOCKED BY BACKEND / INDEXER / CONTRACT | The API returns a valid Celo Sepolia `{ contract, proposals }` object with zero proposals; the current dApp page is not wired to this API. |
+| Durable notifications | NOT IMPLEMENTED | Backend notification routes return 404 and are absent from its API contract; the dApp now keeps preferences/history local instead of issuing unsupported requests. |
+| English, Haitian Creole, Spanish, and French translations | IMPLEMENTED BUT NOT VERIFIED | Translation resources and language tests exist; complete page-by-page localization was not tested. |
+
+## Prioritized Remediation Plan
+
+1. P0: Have the indexer owner diagnose the failed AgentRegistry cursor and catch up all six checkpoints to the confirmed head. Use the reviewed recovery diagnostics/migration 003 only when its guarded bootstrap conditions match; do not reset or manually advance checkpoints. Resolve and regression-test public health-error redaction.
+2. P0: Populate canonical published course/project records through the authorized backend/admin workflow and verify that indexed transactions/evidence/proposals appear through the API. Do not seed demo data or reset checkpoints.
+3. P1: Wire the dApp governance page to the verified `{ contract, proposals }` API and show the current real empty state; add wallet voting only after proposal eligibility/receipt behavior is browser-tested.
+4. P1: Connect lesson completion to the authenticated `/progress` API only after a wallet session and published backend lesson IDs are available; keep local progress clearly separate.
+5. P1: Run browser wallet journeys and controlled Sepolia agent/donation transactions with a disposable funded test wallet.
+6. P2: Verify locales/accessibility, then commit/push and deploy through the existing GitHub Pages workflow only after the external gates pass.
 
 ## Findings
 
 ### ID-001
 - severity: P0
 - file/path: [addresses.ts](addresses.ts), [lib/network/config.ts](lib/network/config.ts), [deployments/dapp-config.json](deployments/dapp-config.json)
-- problem: Celo Mainnet remains intentionally unconfigured and all Mainnet assumptions are blocked by design. The app exposes a safe Sepolia-only configuration and refuses to fabricate a Mainnet contract or USDm deployment.
-- security/business impact: Prevents false or unsafe Mainnet financial claims; preserves integrity but also means no production Mainnet launch is available yet.
-- repair performed: Enforced explicit Sepolia-only address resolution and blocked unsupported network assumptions in the network config layer.
-- verification performed: Verified by the repository tests and by the static config validation in [tests/contracts-sync.test.mjs](tests/contracts-sync.test.mjs).
-- remaining dependency: Official Celo Mainnet deployment metadata from the canonical smart-contract repository must be published and validated before any Mainnet launch.
+- problem: The wallet connector was Sepolia-only, but the network resolver could enable Celo Mainnet from public environment variables.
+- security/business impact: A production build could advertise a network outside the testnet-only pilot requirement.
+- repair performed: Removed the mainnet resolver and made supported-chain resolution unconditionally return Celo Sepolia.
+- verification performed: `tests/network-config.test.mjs` sets mainnet-looking public env values and confirms only chain `11142220` is supported; TypeScript check passes.
+- remaining dependency: None for the network restriction; do not enable Mainnet for this pilot.
 
 ### ID-002
 - severity: P0
 - file/path: [lib/backend.ts](lib/backend.ts), [app/pilot/page.tsx](app/pilot/page.tsx), [.env.example](.env.example)
-- problem: GitHub Pages is static and cannot host authenticated APIs. The frontend calls the official backend, but the current Render service is not configured or reachable for the custom domain.
+- problem: GitHub Pages is static; it relies on the separate backend. The API is now reachable at the configured custom domain, but the OpenAPI file is not served as `/openapi.json` or `/api-docs` and live authenticated routes were not exercised.
 - security/business impact: Prevents unsafe browser-side secret handling and avoids fake or unauthorized access, but also means authenticated production features cannot be certified locally.
-- repair performed: Removed the duplicate local pilot API/Supabase client and connected supported UI operations to the canonical backend client. Missing integrations are shown as unavailable.
-- verification performed: Static build, tests, TypeScript, and lint passed. Live `GET /api/v1/health` returned HTTP 503; CORS preflight returned 204 without `Access-Control-Allow-Origin`.
-- remaining dependency: Configure the Render service, attach `api.celoht.com`, allow `https://app.celoht.com` with credentials, and set `NEXT_PUBLIC_BACKEND_URL` in the Pages build.
+- repair performed: The Pages workflow now defaults `NEXT_PUBLIC_BACKEND_URL` to `https://api.celoht.com`; the centralized client uses bounded, status-aware requests and route-specific payload guards. Unsupported notification requests were removed.
+- verification performed: `GET /api/v1/health` and service discovery return 200; CORS preflight from `https://app.celoht.com` returns 204 with credentials. Documented public reads return valid schemas but empty arrays; unauthenticated profile/agent/progress return 401. OpenAPI is available in the backend repository, not served at the probed docs paths.
+- remaining dependency: Test wallet nonce/signature/session flows with a disposable wallet, populate canonical records through authorized backend workflows, and verify authenticated persistence. The source contract is documented in the official backend [OPENAPI.md](https://github.com/Celo-HaiTi/celoht-backend/blob/main/OPENAPI.md).
 
 ### ID-003
 - severity: P1
 - file/path: [lib/backend.ts](lib/backend.ts), [app/pilot/page.tsx](app/pilot/page.tsx), official backend API contract
-- problem: The official API currently lacks enrollment, quiz, cash-service simulation, and planting-evidence submission endpoints.
+- problem: The backend contract supports courses, lesson progress, applications, and read-only evidence metadata, but has no notification routes, no cash-service simulation, and no planting-evidence submission route; public course/project records currently return empty lists.
 - security/business impact: These user journeys cannot be truthfully shown as operational or persisted.
-- repair performed: Removed the disconnected controls and display only supported backend records and explicit unavailable states.
-- verification performed: Static-backend tests assert the frontend uses official API helpers and contains no local same-origin pilot fetch route.
-- remaining dependency: Implement and independently test those workflows in the official backend and canonical Supabase schema before exposing their controls.
+- repair performed: Existing UI reports unavailable workflows instead of creating local records or asserting completion.
+- verification performed: The official API source/OpenAPI contract was inspected read-only; live public GET routes and unauthenticated 401 boundaries were tested. Evidence submission is documented as unavailable; notification GETs return 404 and dApp calls were removed.
+- remaining dependency: Authorized course/project records, authenticated wallet/session E2E, indexer history, and a supported evidence upload contract remain external requirements.
 
 ### ID-004
 - severity: P2
@@ -76,30 +100,34 @@ Final status: NOT READY — the GitHub Pages frontend builds, but the official R
 ## External Blockers
 
 ### Blocker 1
-- exact requirement: Verified official Celo Mainnet CeloHT contract metadata and USDm address must be published in the canonical smart-contract repository and synced here.
-- exact environment variable or external service required: `NEXT_PUBLIC_CELO_NETWORK`, `NEXT_PUBLIC_CELO_CHAIN_ID`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_USDM_ADDRESS`, and the official smart-contract deployment metadata source.
-- why it cannot be verified locally: No live Mainnet deployment metadata or contract verification artifact is available in this workspace or repository checkout.
-- exact command/test that should be run once available: `OFFICIAL_CONTRACTS_PATH=/path/to/celoht-smart-contracts npm run contracts:sync && npm test`
+- exact requirement: Recover and synchronize all indexer targets, then verify the public monitoring response does not expose credential-bearing error details.
+- exact external system required: `celoht-indexer` Render deployment and its operator-controlled logs/checkpoint data.
+- why it cannot be completed locally: Safe-field inspection of `/readyz` returned HTTP 503, `ready=false`, chain `11142220`, six checkpoints with `lastSuccessfulSync=null`, approximately 4.93M-block lag for five contracts, USDm at block 0, and AgentRegistry at `35343239` with `syncStatus=error` (deployment block `35343240`). `/health` timed out. No secret/error field was printed. The canonical indexer audit flags possible unauthenticated health-detail disclosure.
+- exact verification after recovery: Use operator-controlled diagnostics, apply reviewed guarded recovery only if its preconditions match, verify all cursors/last-success timestamps advance, then reconcile representative events with receipts and test sanitized health output.
 
 ### Blocker 2
-- exact requirement: The official Render backend must pass health checks and accept credentialed browser requests from the Pages custom domain.
-- exact environment variable or external service required: Render Supabase/RPC/auth secrets, `CELOHT_ALLOWED_ORIGIN=https://app.celoht.com`, DNS/TLS for `api.celoht.com`, and `NEXT_PUBLIC_BACKEND_URL=https://api.celoht.com` in GitHub Actions variables.
-- why it cannot be completed locally: Render currently returns HTTP 503, the API custom domain is not in DNS, and repository Actions variables/secrets are not accessible from this environment.
-- exact command/test that should be run once configured: `curl -fS https://api.celoht.com/api/v1/health`, followed by browser tests for `/api/v1/auth/nonce`, `/api/v1/auth/verify`, and authenticated reads.
+- exact requirement: Publish real courses and reforestation projects in canonical records and populate indexed activity before users are told those feeds are live.
+- exact external system required: Backend admin workflow and canonical Supabase data; course/project rows must be published through authorized operations.
+- why it cannot be completed locally: Live public `GET /courses`, `/transactions`, `/reforestation`, `/reforestation/evidence`, and governance returned valid but empty data. No records were inserted or fabricated.
+- exact verification after recovery: Confirm published records and indexed transaction/evidence/proposal rows appear through documented API reads and agree with verified chain state.
 
 ### Blocker 3
-- exact requirement: Full education, agent-service, and planting-evidence workflows must be implemented in the official backend before the UI can enable them.
-- exact external system required: `celoht-backend` API changes and canonical `celoht-supabase` migrations/RLS.
-- why it cannot be completed in this frontend repository: Those services have separate ownership and the current API contract does not expose these writes.
-- exact verification after implementation: Authenticated browser integration tests against staging Supabase/Render, plus admin/reviewer authorization tests.
+- exact requirement: Verify wallet lifecycle and controlled Sepolia transactions; connect Learn completion only when published backend lesson IDs and a user session exist.
+- exact external system required: Disposable funded Celo Sepolia wallet/browser, configured WalletConnect project ID for QR/Valora, published course records, and a working authenticated session.
+- why it cannot be completed locally: No wallet was connected and no transaction was signed; authenticated route checks were intentionally limited to expected 401 responses.
+- exact verification after implementation: Browser E2E for language, connect/switch, balances, Learn, agent/reforestation/governance reads, supported transaction pending/confirmed/reverted states, and disconnect.
 
 ## Residual Risks
 
-- Celo Mainnet launch remains blocked until official verified contract metadata is published.
-- Backend-authenticated flows cannot be certified without a live backend and health verification.
-- Automated dependency audit passes, but an independent smart-contract security audit remains an external approval gate.
-- Any production deployment beyond Sepolia should be treated as a controlled external verification gate rather than a default repo capability.
+- Backend health, discovery, credentialed CORS, public route envelopes, and selected live payload schemas are verified; authenticated persistence/RLS and all mutation paths are not.
+- The indexer is not ready: live `/readyz` is 503, AgentRegistry is errored, and sync timestamps are null. The public health-detail redaction finding also needs regression verification.
+- Courses, transactions, projects, evidence, and governance proposals currently have no published records in the live API responses.
+- Notifications are local-only; the backend notification URLs return 404 and are no longer called.
+- WalletConnect/Valora requires a production public project ID; no wallet was available for live testing.
+- Transactions, role permissions, reverted transactions, and event indexing were not exercised.
+- Automated dependency audit passes, but it is not an independent smart-contract security audit.
+- Local changes are not deployed; production page availability does not prove these changes are live.
 
 ## Final Certification
 
-NOT READY — blocking issues remain: Render backend configuration/DNS/CORS is unavailable, and required enrollment/quiz, agent simulation, and planting evidence APIs are not implemented.
+NOT READY — frontend, Sepolia reads, backend health/CORS, and documented public API shapes are verified, but live data is empty, indexer synchronization/security is unresolved, and wallet/transaction workflows have not passed browser E2E. Do not push/deploy as a fully operational pilot yet.

@@ -6,9 +6,19 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 test("static frontend configuration uses the public backend URL without server credentials", () => {
   const env = read("../.env.example");
+  const workflow = read("../.github/workflows/deploy-pages.yml");
   assert.match(env, /NEXT_PUBLIC_BACKEND_URL=/);
+  assert.match(env, /NEXT_PUBLIC_BACKEND_URL=https:\/\/api\.celoht\.com/);
+  assert.match(workflow, /NEXT_PUBLIC_BACKEND_URL: \$\{\{ vars\.NEXT_PUBLIC_BACKEND_URL \|\| 'https:\/\/api\.celoht\.com' \}\}/);
   assert.doesNotMatch(env, /NEXT_PUBLIC_SUPABASE_(?:URL|ANON_KEY)=/);
   assert.doesNotMatch(env, /(?:^|\n)(?:SUPABASE_SERVICE_ROLE_KEY|PILOT_SESSION_SECRET|AUTH_SESSION_SECRET)=/);
+});
+
+test("notifications do not call undocumented backend routes", () => {
+  const service = read("../lib/notifications/service.ts");
+  const backend = read("../lib/backend.ts");
+  assert.doesNotMatch(service, /getBackendNotification|saveBackendNotification|markBackendNotification/);
+  assert.doesNotMatch(backend, /\/notifications/);
 });
 
 test("Pilot Center uses supported official API helpers without local browser fetch", () => {
