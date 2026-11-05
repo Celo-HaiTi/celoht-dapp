@@ -6,13 +6,13 @@ Repository: CeloHT dApp
 
 Date: 2026-11-05
 
-Final status: NOT READY — local tests, lint, typecheck, production builds, the contract snapshot, and the dependency audit pass. Current public backend health, CORS, authentication boundary, and governance read were verified; the governance API reports zero proposals. The indexer readiness result recorded on 2026-11-01 was 503, and wallet/transaction journeys remain unverified.
+Final status: NOT READY — local tests, lint, typecheck, production builds, the contract snapshot, and the dependency audit pass. Commit `b7aaf39` is deployed to GitHub Pages; its live governance route and JavaScript bundle were verified. Current public backend health, CORS, authentication boundary, and governance read were verified; the governance API reports zero proposals. The indexer readiness result recorded on 2026-11-01 was 503, and wallet/transaction journeys remain unverified.
 
 ## Verification Matrix
 
 | Area | Status | Evidence |
 | --- | --- | --- |
-| Build | VERIFIED WORKING | `npm run build` and `npm run build:custom-domain` completed on 2026-11-05; all 38 routes generated. This local build is not deployed. |
+| Build | VERIFIED WORKING | `npm run build` and `npm run build:custom-domain` completed on 2026-11-05; all 38 routes generated. The governance UI is deployed to GitHub Pages. |
 | Typecheck / lint | VERIFIED WORKING | `npm run typecheck` and `npm run lint` passed on 2026-11-05. |
 | Unit tests | VERIFIED WORKING | `npm test`: 33 passed, 0 failed on 2026-11-05. |
 | Dependency audit | VERIFIED WORKING | `npm run audit`: 0 high-severity production vulnerabilities on 2026-11-05. |
@@ -21,7 +21,7 @@ Final status: NOT READY — local tests, lint, typecheck, production builds, the
 | Backend health, public governance read, and CORS | VERIFIED WORKING | On 2026-11-05, health returned 200; credentialed CORS preflight returned 204 for `https://app.celoht.com`; governance returned chain `11142220`, manifest-matching governance/USDm addresses, and zero proposals. |
 | Backend auth session | IMPLEMENTED BUT NOT VERIFIED | An unauthenticated profile read returned 401 with the expected CORS origin. No wallet signed in or session mutation was tested. |
 | Indexer synchronization / dataset | BLOCKED BY BACKEND / INDEXER / CONTRACT | Last recorded check on 2026-11-01: `/readyz` returned 503 at head `40273483`; five deployed contracts lagged about 4.93M blocks, USDm remained at block 0, all six `lastSuccessfulSync` values were null, and AgentRegistry was in `error`. Not rechecked on 2026-11-05. |
-| Production deployment | IMPLEMENTED BUT NOT VERIFIED | The existing deployment serves the current app, but these local changes have not been deployed. |
+| Production deployment | VERIFIED WORKING | Commit `b7aaf39` deployed successfully in GitHub Actions run `41953465971`; `https://app.celoht.com/governance/` returned 200 and its referenced JavaScript bundle contains the updated governance UI. Browser execution was not tested. |
 
 ## Feature Classification
 
@@ -37,7 +37,7 @@ Final status: NOT READY — local tests, lint, typecheck, production builds, the
 | Indexed agent directory and activity | BLOCKED BY BACKEND / INDEXER / CONTRACT | Registry does not expose a searchable profile directory; indexer/backend unavailable. |
 | Reforestation contract totals and donation flow | IMPLEMENTED BUT NOT VERIFIED | Read methods succeeded; donation approval/write/receipt flow was not exercised. |
 | Project feed, planting evidence, and contribution history | BLOCKED BY BACKEND / INDEXER / CONTRACT | Public routes respond but return no projects/evidence; contribution history depends on indexer-owned records. Evidence submission is documented as unavailable. |
-| Governance proposal feed | IMPLEMENTED BUT NOT VERIFIED | The page now reads the official API and checks chain ID plus governance/USDm addresses against the local Celo Sepolia manifest. Live API returned zero proposals on 2026-11-05; browser rendering was not tested. |
+| Governance proposal feed | IMPLEMENTED BUT NOT VERIFIED | The page reads the official API and checks chain ID plus governance/USDm addresses against the local Celo Sepolia manifest. Live API returned zero proposals; the deployed JavaScript bundle contains the new heading and empty-state text. Browser execution was not tested. |
 | Governance voting | NOT IMPLEMENTED | This page is intentionally read-only; no wallet vote submission is offered. |
 | Durable notifications | NOT IMPLEMENTED | Backend notification routes return 404 and are absent from its API contract; the dApp now keeps preferences/history local instead of issuing unsupported requests. |
 | English, Haitian Creole, Spanish, and French translations | IMPLEMENTED BUT NOT VERIFIED | Translation resources and language tests exist; complete page-by-page localization was not tested. |
@@ -125,10 +125,11 @@ Final status: NOT READY — local tests, lint, typecheck, production builds, the
 - Courses, transactions, projects, evidence, and governance proposals currently have no published records in the live API responses.
 - Notifications are local-only; the backend notification URLs return 404 and are no longer called.
 - WalletConnect/Valora requires a production public project ID; no wallet was available for live testing.
+- A local Next.js dev session logged an unhandled rejection during Wagmi config initialization (`removeListener` proxy invariant). The production build and static deployment passed, but browser JS execution was unavailable and the cause remains unverified.
 - Transactions, role permissions, reverted transactions, and event indexing were not exercised.
 - Automated dependency audit passes, but it is not an independent smart-contract security audit.
-- Local changes are not deployed; production page availability does not prove these changes are live.
+- Governance changes are deployed; successful asset delivery does not prove browser hydration or wallet workflows.
 
 ## Final Certification
 
-NOT READY — frontend checks and the custom-domain build pass; current backend health/CORS and the real empty governance API response are verified. The indexer status is unresolved (last recorded 503 on 2026-11-01), useful public datasets are empty, authenticated persistence and wallet/transaction workflows have not passed browser E2E, and these local changes are not deployed. Do not certify this as an operational pilot yet.
+NOT READY — frontend checks and the custom-domain build pass, and the governance page is deployed. Current backend health/CORS and the real empty governance API response are verified. The indexer status is unresolved (last recorded 503 on 2026-11-01), useful public datasets are empty, authenticated persistence and wallet/transaction workflows have not passed browser E2E, and the local Next dev wallet-runtime rejection needs investigation. Do not certify this as an operational pilot yet.
