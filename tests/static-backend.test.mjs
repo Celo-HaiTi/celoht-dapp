@@ -33,6 +33,19 @@ test("Pilot Center uses supported official API helpers without local browser fet
   assert.match(page, /Planting submissions are unavailable/);
 });
 
+test("governance page reads only proposals from the verified Celo Sepolia backend deployment", () => {
+  const route = read("../app/governance/page.tsx");
+  const page = read("../page (7).tsx");
+  assert.match(route, /page \(7\)/);
+  assert.match(page, /getBackendGovernance\(walletAddress\)/);
+  assert.match(page, /result\.contract\.chainId === supportedNetworkConfig\.id/);
+  assert.match(page, /expectedGovernance\?\.toLowerCase\(\)/);
+  assert.match(page, /expectedUsdm\?\.toLowerCase\(\)/);
+  assert.match(page, /verified governance API returned no proposals/);
+  assert.match(page, /does not grant proposer authority or submit votes/);
+  assert.doesNotMatch(page, /writeContract|voteOnProposal|createProposal/);
+});
+
 test("pilot does not ship a second local API or Supabase client", () => {
   assert.equal(existsSync(new URL("../app/api/pilot/education/route.ts", import.meta.url)), false);
   assert.equal(existsSync(new URL("../app/api/pilot/agents/route.ts", import.meta.url)), false);

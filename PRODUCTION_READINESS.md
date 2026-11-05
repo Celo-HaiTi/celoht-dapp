@@ -4,23 +4,23 @@
 
 Repository: CeloHT dApp
 
-Date: 2026-11-01
+Date: 2026-11-05
 
-Final status: NOT READY — backend health/CORS work, but the live indexer `/readyz` returns 503 with six unsynchronized checkpoints, null successful-sync timestamps, and an errored agent-registry cursor. Public application data is empty and wallet/transaction journeys have not been exercised end to end.
+Final status: NOT READY — local tests, lint, typecheck, production builds, the contract snapshot, and the dependency audit pass. Current public backend health, CORS, authentication boundary, and governance read were verified; the governance API reports zero proposals. The indexer readiness result recorded on 2026-11-01 was 503, and wallet/transaction journeys remain unverified.
 
 ## Verification Matrix
 
 | Area | Status | Evidence |
 | --- | --- | --- |
-| Build | VERIFIED WORKING | `npm run build:custom-domain` completed; deployed home and five primary pages returned HTTP 200. |
-| Typecheck / lint | VERIFIED WORKING | `npm run typecheck` and `npm run lint` passed. |
-| Unit tests | VERIFIED WORKING | `npm test`: 27 passed, 0 failed; API transport/schema mocks pass. |
-| Dependency audit | VERIFIED WORKING | `npm run audit`: 0 high-severity production vulnerabilities. |
-| Sepolia RPC | VERIFIED WORKING | RPC reports chain ID `11142220`; configured addresses return code; selected ABI reads succeeded. |
+| Build | VERIFIED WORKING | `npm run build` and `npm run build:custom-domain` completed on 2026-11-05; all 38 routes generated. This local build is not deployed. |
+| Typecheck / lint | VERIFIED WORKING | `npm run typecheck` and `npm run lint` passed on 2026-11-05. |
+| Unit tests | VERIFIED WORKING | `npm test`: 33 passed, 0 failed on 2026-11-05. |
+| Dependency audit | VERIFIED WORKING | `npm run audit`: 0 high-severity production vulnerabilities on 2026-11-05. |
+| Sepolia network / contract snapshot | VERIFIED WORKING | Sepolia-only regression tests pass; `npm run contracts:sync` verifies five official ABIs. The session did not re-run on-chain RPC reads. |
 | Wallet providers | IMPLEMENTED BUT NOT VERIFIED | Injected, WalletConnect/Valora, and MiniPay paths exist; no live wallet/device session was tested. WalletConnect requires a public project ID. |
-| Backend health, discovery, public reads, and CORS | VERIFIED WORKING | `api.celoht.com` returns health/discovery 200; credentialed CORS preflight returns 204; documented public reads return valid envelopes. |
-| Backend auth session | IMPLEMENTED BUT NOT VERIFIED | Unauthenticated profile/agent/progress reads return 401 as expected; no wallet signed in or session mutation was tested. |
-| Indexer synchronization / dataset | BLOCKED BY BACKEND / INDEXER / CONTRACT | `/readyz` returns 503 at head `40273483`; five deployed contracts lag about 4.93M blocks, USDm remains at block 0, all six `lastSuccessfulSync` values are null, and AgentRegistry is in `error`. |
+| Backend health, public governance read, and CORS | VERIFIED WORKING | On 2026-11-05, health returned 200; credentialed CORS preflight returned 204 for `https://app.celoht.com`; governance returned chain `11142220`, manifest-matching governance/USDm addresses, and zero proposals. |
+| Backend auth session | IMPLEMENTED BUT NOT VERIFIED | An unauthenticated profile read returned 401 with the expected CORS origin. No wallet signed in or session mutation was tested. |
+| Indexer synchronization / dataset | BLOCKED BY BACKEND / INDEXER / CONTRACT | Last recorded check on 2026-11-01: `/readyz` returned 503 at head `40273483`; five deployed contracts lagged about 4.93M blocks, USDm remained at block 0, all six `lastSuccessfulSync` values were null, and AgentRegistry was in `error`. Not rechecked on 2026-11-05. |
 | Production deployment | IMPLEMENTED BUT NOT VERIFIED | The existing deployment serves the current app, but these local changes have not been deployed. |
 
 ## Feature Classification
@@ -37,7 +37,8 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 | Indexed agent directory and activity | BLOCKED BY BACKEND / INDEXER / CONTRACT | Registry does not expose a searchable profile directory; indexer/backend unavailable. |
 | Reforestation contract totals and donation flow | IMPLEMENTED BUT NOT VERIFIED | Read methods succeeded; donation approval/write/receipt flow was not exercised. |
 | Project feed, planting evidence, and contribution history | BLOCKED BY BACKEND / INDEXER / CONTRACT | Public routes respond but return no projects/evidence; contribution history depends on indexer-owned records. Evidence submission is documented as unavailable. |
-| Governance proposal feed and voting | BLOCKED BY BACKEND / INDEXER / CONTRACT | The API returns a valid Celo Sepolia `{ contract, proposals }` object with zero proposals; the current dApp page is not wired to this API. |
+| Governance proposal feed | IMPLEMENTED BUT NOT VERIFIED | The page now reads the official API and checks chain ID plus governance/USDm addresses against the local Celo Sepolia manifest. Live API returned zero proposals on 2026-11-05; browser rendering was not tested. |
+| Governance voting | NOT IMPLEMENTED | This page is intentionally read-only; no wallet vote submission is offered. |
 | Durable notifications | NOT IMPLEMENTED | Backend notification routes return 404 and are absent from its API contract; the dApp now keeps preferences/history local instead of issuing unsupported requests. |
 | English, Haitian Creole, Spanish, and French translations | IMPLEMENTED BUT NOT VERIFIED | Translation resources and language tests exist; complete page-by-page localization was not tested. |
 
@@ -45,7 +46,7 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 
 1. P0: Have the indexer owner diagnose the failed AgentRegistry cursor and catch up all six checkpoints to the confirmed head. Use the reviewed recovery diagnostics/migration 003 only when its guarded bootstrap conditions match; do not reset or manually advance checkpoints. Resolve and regression-test public health-error redaction.
 2. P0: Populate canonical published course/project records through the authorized backend/admin workflow and verify that indexed transactions/evidence/proposals appear through the API. Do not seed demo data or reset checkpoints.
-3. P1: Wire the dApp governance page to the verified `{ contract, proposals }` API and show the current real empty state; add wallet voting only after proposal eligibility/receipt behavior is browser-tested.
+3. P1: Browser-test the read-only governance feed and its empty/error states. Do not implement vote submission until proposal eligibility, authorization, and transaction receipt behavior are verified.
 4. P1: Connect lesson completion to the authenticated `/progress` API only after a wallet session and published backend lesson IDs are available; keep local progress clearly separate.
 5. P1: Run browser wallet journeys and controlled Sepolia agent/donation transactions with a disposable funded test wallet.
 6. P2: Verify locales/accessibility, then commit/push and deploy through the existing GitHub Pages workflow only after the external gates pass.
@@ -75,8 +76,8 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 - file/path: [lib/backend.ts](lib/backend.ts), [app/pilot/page.tsx](app/pilot/page.tsx), official backend API contract
 - problem: The backend contract supports courses, lesson progress, applications, and read-only evidence metadata, but has no notification routes, no cash-service simulation, and no planting-evidence submission route; public course/project records currently return empty lists.
 - security/business impact: These user journeys cannot be truthfully shown as operational or persisted.
-- repair performed: Existing UI reports unavailable workflows instead of creating local records or asserting completion.
-- verification performed: The official API source/OpenAPI contract was inspected read-only; live public GET routes and unauthenticated 401 boundaries were tested. Evidence submission is documented as unavailable; notification GETs return 404 and dApp calls were removed.
+- repair performed: Existing UI reports unavailable workflows instead of creating local records or asserting completion. The governance page now reads the official governance endpoint and only displays it when chain ID and both contract addresses match the checked-in Celo Sepolia deployment.
+- verification performed: On 2026-11-05, live governance returned HTTP 200, chain `11142220`, governance address `0x7D384851FAbB912287206556479Dd30c740CAdA5`, USDm address `0xdE9e4C3ce781b4bA68120d6261cbad65ce0aB00b`, and zero proposals; the addresses match both local deployment manifests. Regression test, typecheck, lint, tests, and custom-domain build pass. Browser rendering is unverified.
 - remaining dependency: Authorized course/project records, authenticated wallet/session E2E, indexer history, and a supported evidence upload contract remain external requirements.
 
 ### ID-004
@@ -102,7 +103,7 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 ### Blocker 1
 - exact requirement: Recover and synchronize all indexer targets, then verify the public monitoring response does not expose credential-bearing error details.
 - exact external system required: `celoht-indexer` Render deployment and its operator-controlled logs/checkpoint data.
-- why it cannot be completed locally: Safe-field inspection of `/readyz` returned HTTP 503, `ready=false`, chain `11142220`, six checkpoints with `lastSuccessfulSync=null`, approximately 4.93M-block lag for five contracts, USDm at block 0, and AgentRegistry at `35343239` with `syncStatus=error` (deployment block `35343240`). `/health` timed out. No secret/error field was printed. The canonical indexer audit flags possible unauthenticated health-detail disclosure.
+- why it cannot be completed locally: The last recorded safe-field inspection on 2026-11-01 showed `/readyz` HTTP 503, `ready=false`, chain `11142220`, six checkpoints with `lastSuccessfulSync=null`, approximately 4.93M-block lag for five contracts, USDm at block 0, and AgentRegistry at `35343239` with `syncStatus=error` (deployment block `35343240`). `/health` timed out. This was not rechecked on 2026-11-05. No secret/error field was printed. The canonical indexer audit flags possible unauthenticated health-detail disclosure.
 - exact verification after recovery: Use operator-controlled diagnostics, apply reviewed guarded recovery only if its preconditions match, verify all cursors/last-success timestamps advance, then reconcile representative events with receipts and test sanitized health output.
 
 ### Blocker 2
@@ -120,7 +121,7 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 ## Residual Risks
 
 - Backend health, discovery, credentialed CORS, public route envelopes, and selected live payload schemas are verified; authenticated persistence/RLS and all mutation paths are not.
-- The indexer is not ready: live `/readyz` is 503, AgentRegistry is errored, and sync timestamps are null. The public health-detail redaction finding also needs regression verification.
+- The indexer's last recorded `/readyz` check (2026-11-01) was 503, with AgentRegistry errored and sync timestamps null; current status was not rechecked. The public health-detail redaction finding also needs regression verification.
 - Courses, transactions, projects, evidence, and governance proposals currently have no published records in the live API responses.
 - Notifications are local-only; the backend notification URLs return 404 and are no longer called.
 - WalletConnect/Valora requires a production public project ID; no wallet was available for live testing.
@@ -130,4 +131,4 @@ Final status: NOT READY — backend health/CORS work, but the live indexer `/rea
 
 ## Final Certification
 
-NOT READY — frontend, Sepolia reads, backend health/CORS, and documented public API shapes are verified, but live data is empty, indexer synchronization/security is unresolved, and wallet/transaction workflows have not passed browser E2E. Do not push/deploy as a fully operational pilot yet.
+NOT READY — frontend checks and the custom-domain build pass; current backend health/CORS and the real empty governance API response are verified. The indexer status is unresolved (last recorded 503 on 2026-11-01), useful public datasets are empty, authenticated persistence and wallet/transaction workflows have not passed browser E2E, and these local changes are not deployed. Do not certify this as an operational pilot yet.
