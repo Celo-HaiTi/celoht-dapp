@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, CircleHelp, Lightbulb, PlayCircle } from "luci
 import { useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
 import { courses } from "@/lib/data/courses";
+import { getAcademyState, markCourseComplete } from "@/lib/academy/state";
 
 type Lesson = { title: string; summary: string; modules: string[] };
 type KnowledgeCheck = { question: string; options: string[]; answer: number };
@@ -68,9 +69,7 @@ export default function CoursePageClient({ courseId }: { courseId: string }) {
   const lesson = content[currentModule] ?? { definition: "This lesson explains a practical idea in clear language.", example: "Connect the idea to a real situation in your daily life.", remember: "Pause and verify before taking action.", practice: "Explain the idea in your own words." };
 
   function completeLesson() {
-    const saved = new Set(readProgress(address));
-    saved.add(courseId);
-    localStorage.setItem(progressKey(address), JSON.stringify([...saved]));
+    markCourseComplete(courseId, undefined, address?.toLowerCase() ?? "guest");
     window.dispatchEvent(new Event("celoht-progress"));
   }
 
@@ -82,19 +81,8 @@ function progressKey(address?: string) {
 }
 
 function readProgress(address?: string): string[] {
-  try {
-    const key = progressKey(address);
-    const raw = localStorage.getItem(key) ?? "[]";
-    const cached = progressCache.get(key);
-    if (cached?.raw === raw) return cached.value;
-    const value: unknown = JSON.parse(raw);
-    const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-    progressCache.set(key, { raw, value: result });
-    return result;
-  } catch {
-    progressCache.set(progressKey(address), { raw: "[]", value: [] });
-    return [];
-  }
+  const studentId = address?.toLowerCase() ?? "guest";
+  return getAcademyState(undefined, studentId).completedCourseIds;
 }
 
 function subscribeProgress(onChange: () => void) {

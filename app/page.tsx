@@ -19,6 +19,7 @@ import { useAccount, useBalance } from "wagmi";
 import { ConnectWalletButton } from "@/ConnectWalletButton";
 import { HeroBackground } from "@/components/home/HeroBackground";
 import { courses } from "@/lib/data/courses";
+import { getAcademyState } from "@/lib/academy/state";
 import { formatTokenAmount, shortenAddress } from "@/lib/utils";
 import { useUsdmBalance } from "@/lib/web3/useUsdmBalance";
 import { useWalletChainId } from "@/lib/web3/useWalletChainId";
@@ -120,19 +121,7 @@ function progressKey(address?: string) {
 }
 
 function readProgress(address?: string): string[] {
-  const key = progressKey(address);
-  const raw = localStorage.getItem(key) ?? "[]";
-  const cached = progressCache.get(key);
-  if (cached?.raw === raw) return cached.value;
-  try {
-    const value: unknown = JSON.parse(raw);
-    const result = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-    progressCache.set(key, { raw, value: result });
-    return result;
-  } catch {
-    progressCache.set(key, { raw, value: [] });
-    return progressCache.get(key)?.value ?? [];
-  }
+  return getAcademyState(undefined, address?.toLowerCase() ?? "guest").completedCourseIds;
 }
 
 function subscribeProgress(onChange: () => void) {
