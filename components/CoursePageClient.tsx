@@ -2,78 +2,378 @@
 
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, CircleHelp, Lightbulb, PlayCircle } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
 import { courses } from "@/lib/data/courses";
 import { getAcademyState, markCourseComplete } from "@/lib/academy/state";
+import { buildLessonBlueprint, type LessonQuestion } from "@/lib/academy/lessons";
+import { isBackendConfigured, saveBackendProgress } from "@/lib/backend";
+import { useI18n } from "@/lib/i18n/context";
 
-type Lesson = { title: string; summary: string; modules: string[] };
-type KnowledgeCheck = { question: string; options: string[]; answer: number };
-type LessonContent = { definition: string; example: string; remember: string; practice: string };
+type LessonRecord = { id: string; title: string; summary: string };
 
-const extraLessons: Record<string, Lesson> = {
-  "digital-payments": { title: "Digital payments", summary: "Make everyday payments with clarity and confidence.", modules: ["Payment basics", "Fees and confirmation", "Keeping records"] },
-  "web3-safety": { title: "Web3 safety", summary: "Protect your wallet, identity, and assets online.", modules: ["Scam signals", "Safe approvals", "Getting help"] },
-};
-
-const content: Record<string, LessonContent> = {
-  "Budgeting basics": { definition: "A budget is a simple plan for the money that comes in and the money you need to spend. It helps you choose what matters before you make a payment.", example: "If you receive 10,000 goud, you might write down food, transport, school, savings, and an emergency amount before spending the rest.", remember: "Plan first, then spend. A budget should be realistic and easy to update.", practice: "Write down one source of income and three essential expenses. Which expense must be paid first?" },
-  "Saving habits": { definition: "Saving means keeping part of your money for a future need instead of spending it all today.", example: "Putting 500 goud aside each week can help pay for transport, school materials, or an unexpected repair.", remember: "Small, regular savings can create a useful safety cushion.", practice: "Choose a small amount you could save regularly without risking food, rent, or other essentials." },
-  "Understanding risk": { definition: "Risk is the possibility that an action may cause a loss or an unwanted result. Every financial decision deserves a careful look.", example: "If someone promises to double your money quickly but refuses to explain how, the risk is high and you should pause.", remember: "Never risk money you need for basic living, and verify before trusting a promise.", practice: "List one question you would ask before sending money to a new person or service." },
-  "Interest, simply explained": { definition: "Interest is money added to a loan or savings amount over time. It can help savings grow or make borrowing more expensive.", example: "A 1,000 goud loan with interest means you repay more than 1,000 goud, according to the agreed rate and time.", remember: "Always understand the total amount to repay, not only the amount received.", practice: "When comparing two loans, look for the total repayment and the payment schedule." },
-  "What is a blockchain": { definition: "A blockchain is a shared digital record. Many computers keep synchronized copies, and new records are grouped into blocks connected in order.", example: "When you send CELO, the network records the sender, recipient, amount, and result. Anyone can verify the record without needing one central bank to hold the list.", remember: "A blockchain is a public record maintained by a network, not a private message or a single company database.", practice: "Imagine three people each keeping the same notebook. If two notebooks agree on a new page, the group can check the record together." },
-  "How a transaction works": { definition: "A blockchain transaction is a signed instruction. The network checks it, includes it in a block, and later confirms that block.", example: "A CELO payment moves from your address to another address. Your wallet asks for approval, the network processes it, and a transaction hash lets you find its status.", remember: "Submitted is not the same as confirmed. Wait for the blockchain receipt.", practice: "Put these in order: wallet approval, network validation, block confirmation, recipient balance update." },
-  "Wallets vs. exchanges": { definition: "A wallet is a tool that lets you control blockchain accounts and sign actions. An exchange is a service where an organization manages accounts and trades assets for users.", example: "With a self-custody wallet, you approve a CELO transfer yourself. With an exchange account, the exchange may hold the assets and process withdrawals for you.", remember: "Know who controls the keys and who must approve a transaction.", practice: "Ask of any service: do I control the recovery method, or does the service control it?" },
-  "Public vs. private keys": { definition: "A public address is safe to share so someone can send you assets. A private key or recovery phrase proves control and must remain secret.", example: "You can put your public address on a receive QR code. You must never put your recovery phrase in a form, chat, or support request.", remember: "Public address to receive. Private key to protect.", practice: "Sort these: wallet address, recovery phrase, transaction hash. Only the recovery phrase must stay secret." },
-  "Installing Valora": { definition: "Valora is a mobile wallet that can connect to compatible Celo applications and ask you to approve transactions.", example: "You open CeloHT in a browser, choose WalletConnect, select Valora, approve the connection in Valora, and return to the app.", remember: "Install wallets only from an official app store and verify the application before using it.", practice: "Before connecting, check the app name, requested network, and the permissions shown by your wallet." },
-  "Your first wallet": { definition: "A wallet creates an account controlled by a secret recovery method. The address identifies the account publicly, while the recovery phrase restores control.", example: "Your first address may look like 0x followed by letters and numbers. That address can receive CELO or USDm on the correct Celo network.", remember: "Write the recovery phrase offline, protect it, and never photograph or share it.", practice: "Explain in your own words why a wallet address can be shared but a recovery phrase cannot." },
-  "Sending and receiving USDm": { definition: "USDm is a stable-value token on Celo. Sending it uses an ERC-20 token transfer, while receiving it means giving the sender your address and network.", example: "A sender selects USDm, checks the Celo network, enters your public address, and waits for the confirmed transaction before considering it received.", remember: "The asset and network must both be correct. A wrong network can make funds difficult to recover.", practice: "Before receiving, compare the sender's selected asset and network with your wallet's details." },
-  "Protecting your seed phrase": { definition: "A seed phrase is the master recovery secret for a wallet. Anyone who has it may control the wallet's assets.", example: "A real support agent will not need your seed phrase to investigate a transaction hash or public address.", remember: "No CeloHT message, wallet, or support agent should ask for your seed phrase.", practice: "Identify the safe response to a seed-phrase request: stop, do not share it, and report the request through an official channel." },
-  "Common scam patterns": { definition: "Scams often use urgency, guaranteed rewards, impersonation, or requests for secret information to make you act without checking.", example: "A message saying your wallet will be frozen unless you send funds immediately is a warning sign.", remember: "Pause, verify the source independently, and never approve a request you do not understand.", practice: "Circle the warning signs in a message: urgency, secret request, guaranteed profit, unknown link." },
-  "Volatility explained": { definition: "Volatility means an asset's value can change significantly over time. A price today does not guarantee a price tomorrow.", example: "An asset used for network fees may have a different value tomorrow, so plan payments carefully and keep only what you can afford to use.", remember: "Blockchain access is not a promise of profit or stable value.", practice: "Before using an asset, ask what you need it for and what loss you could safely handle." },
-  "Verifying official channels": { definition: "Verification means checking a message or link through a trusted source you already know, rather than using contact details supplied by the message itself.", example: "Open the official CeloHT site yourself, then compare its published community link instead of clicking an unexpected direct message.", remember: "Independent verification is stronger than a logo, name, or profile picture.", practice: "Name two details you would check before trusting a community announcement." },
-  "When to ask for help": { definition: "Asking for help early is a safety skill. A clear question and a public transaction hash can help others without exposing private information.", example: "If a payment is pending, share the network and transaction hash, never the recovery phrase or private key.", remember: "Good help never requires control of your wallet.", practice: "Write a safe support request containing the network, public address, and transaction hash only." },
-  "Payment basics": { definition: "A digital payment transfers value using an electronic system. A blockchain payment is recorded publicly and signed by the sender's wallet.", example: "You select CELO, enter a recipient address and amount, review the details, and approve the transaction in your wallet.", remember: "Always check the recipient and amount before signing.", practice: "Read a payment summary aloud before approving it. Which two fields must you verify first?" },
-  "Fees and confirmation": { definition: "A network fee pays validators or infrastructure for processing a transaction. Confirmation means the network has included and accepted the transaction.", example: "A payment may be submitted while the wallet waits. Only after the receipt is confirmed should you treat it as complete.", remember: "Keep enough CELO for network fees even when sending USDm.", practice: "Why might a USDm transfer need CELO in the same wallet?" },
-  "Keeping records": { definition: "A transaction record helps you remember what you sent, when, on which network, and to whom.", example: "Save the date, asset, amount, recipient, network, and transaction hash in a private record that does not contain your recovery phrase.", remember: "A transaction hash is useful for verification, but it is not a password.", practice: "Create a checklist for recording a confirmed payment." },
-  "Scam signals": { definition: "Scam signals are clues that a request may be unsafe, such as pressure, secrecy, impersonation, or an unexplained approval.", example: "A fake CeloHT account asks you to connect to a new site and approve an unlimited token allowance.", remember: "Stop when a request is urgent, unclear, or asks for secrets.", practice: "What would you do before approving an unfamiliar token allowance?" },
-  "Safe approvals": { definition: "An ERC-20 approval gives a contract permission to use a specified token amount. It is different from sending tokens directly.", example: "Before a donation contract can collect USDm, your wallet may ask you to approve the exact donation amount for that contract.", remember: "Read the spender and amount. Never approve an unknown contract.", practice: "Compare an exact amount approval with an unlimited approval. Which one limits potential exposure?" },
-  "Getting help": { definition: "Safe support uses public information such as a network, address, and transaction hash while protecting wallet secrets.", example: "You can ask why a transaction is pending without sharing a password, private key, or recovery phrase.", remember: "If someone asks for wallet secrets, stop communicating and report them.", practice: "Prepare a safe help message using only non-secret transaction details." },
-};
-
-const checks: Record<string, KnowledgeCheck> = {
-  "financial-literacy-101": { question: "What is the safest starting point for a budget?", options: ["Track income and essential expenses", "Borrow as much as possible", "Ignore unexpected costs"], answer: 0 },
-  "blockchain-web3-fundamentals": { question: "Which key should remain secret?", options: ["Your public address", "Your private key", "A transaction hash"], answer: 1 },
-  "hands-on-valora-usdm": { question: "What should you never share with support?", options: ["Your public address", "A transaction hash", "Your recovery phrase"], answer: 2 },
-  "crypto-risk-awareness": { question: "What is a useful response to an urgent investment message?", options: ["Pause and verify through an official channel", "Send funds immediately", "Share your recovery phrase"], answer: 0 },
-  "digital-payments": { question: "When is a payment complete on-chain?", options: ["When a message says sent", "After the transaction is confirmed", "When a form is submitted"], answer: 1 },
-  "web3-safety": { question: "What does a wallet approval allow?", options: ["A contract to use the approved token amount", "Anyone to know your private key", "A guaranteed refund"], answer: 0 },
+const extraLessons: Record<string, LessonRecord> = {
+  "digital-payments": {
+    id: "digital-payments",
+    title: "Digital payments",
+    summary: "Understand payment rails, transaction records, and risk-aware approval decisions.",
+  },
+  "web3-safety": {
+    id: "web3-safety",
+    title: "Web3 safety",
+    summary: "Protect your wallet, data, and approvals using safe digital practices.",
+  },
 };
 
 const progressCache = new Map<string, { raw: string; value: string[] }>();
 
 export default function CoursePageClient({ courseId }: { courseId: string }) {
+  const { language } = useI18n();
   const course = courses.find((item) => item.id === courseId) ?? extraLessons[courseId];
   const { address } = useAccount();
   const progress = useSyncExternalStore(subscribeProgress, () => readProgress(address), () => []);
-  const [activeStep, setActiveStep] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number>();
-  const [practice, setPractice] = useState(false);
-  const check = checks[courseId];
+  const lesson = useMemo(() => buildLessonBlueprint(course ?? {}, language), [course, language]);
 
-  if (!course) return <div className="mx-auto max-w-3xl px-4 py-16"><h1 className="font-display text-3xl font-semibold text-white">Lesson not found</h1><Link href="/learn" className="mt-5 inline-flex text-gold-300">Back to Academy</Link></div>;
+  const [activeStage, setActiveStage] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({});
+  const [results, setResults] = useState<Record<string, { correct: boolean; feedback: string }>>({});
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
-  const isComplete = progress.includes(courseId);
-  const quizStep = course.modules.length;
-  const currentModule = course.modules[activeStep];
-  const lesson = content[currentModule] ?? { definition: "This lesson explains a practical idea in clear language.", example: "Connect the idea to a real situation in your daily life.", remember: "Pause and verify before taking action.", practice: "Explain the idea in your own words." };
-
-  function completeLesson() {
-    markCourseComplete(courseId, undefined, address?.toLowerCase() ?? "guest");
-    window.dispatchEvent(new Event("celoht-progress"));
+  if (!course) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16">
+        <h1 className="font-display text-3xl font-semibold text-white">Lesson not found</h1>
+        <Link href="/learn" className="mt-5 inline-flex text-gold-300">
+          Back to Academy
+        </Link>
+      </div>
+    );
   }
 
-  return <div className="app-shell min-h-[calc(100dvh-64px)] px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:py-12"><article className="mx-auto max-w-3xl"><Link href="/learn" className="inline-flex items-center gap-2 text-sm text-parchment-100/60 hover:text-white"><ArrowLeft size={16} aria-hidden="true" /> Academy</Link><p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">Lesson</p><h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">{course.title}</h1><p className="mt-4 text-base leading-7 text-parchment-100/65">{course.summary}</p><div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-6"><div className="flex items-center justify-between gap-4"><h2 className="font-display text-xl font-semibold text-white">Lesson path</h2><span className="font-mono text-xs text-gold-300">{Math.min(activeStep + 1, course.modules.length + 1)} / {course.modules.length + 1}</span></div><ol className="mt-5 space-y-3">{course.modules.map((module, index) => <li key={module} className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${index <= activeStep ? "border-gold-500/40 text-white" : "border-white/10 text-parchment-100/55"}`}><span className="font-mono text-xs text-gold-300">{index + 1}</span>{module}{index < activeStep && <CheckCircle2 size={16} className="ml-auto text-emerald-300" aria-label="Step complete" />}</li>)}<li className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${activeStep >= quizStep ? "border-gold-500/40 text-white" : "border-white/10 text-parchment-100/55"}`}><CircleHelp size={16} className="text-gold-300" aria-hidden="true" />Knowledge check</li></ol></div><div className="mt-6 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm leading-6 text-cyan-100"><button type="button" className="flex w-full items-center gap-3 text-left font-semibold" onClick={() => setPractice((value) => !value)}><PlayCircle size={18} aria-hidden="true" />Practice Mode <span className="ml-auto text-xs font-normal">{practice ? "On" : "Off"}</span></button>{practice && <div className="mt-4 space-y-3 text-cyan-100/80"><p>{lesson.practice}</p><p className="border-t border-cyan-100/10 pt-3">This exercise is for learning only. No wallet opens and no funds move.</p></div>}</div>{activeStep < quizStep ? <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-300">Step {activeStep + 1}</p><h2 className="mt-3 font-display text-2xl font-semibold text-white">{currentModule}</h2><div className="mt-5 grid gap-4"><div><h3 className="flex items-center gap-2 font-semibold text-white"><CircleHelp size={17} className="text-gold-300" aria-hidden="true" />What it means</h3><p className="mt-2 text-sm leading-7 text-parchment-100/70">{lesson.definition}</p></div><div><h3 className="flex items-center gap-2 font-semibold text-white"><Lightbulb size={17} className="text-gold-300" aria-hidden="true" />Simple example</h3><p className="mt-2 text-sm leading-7 text-parchment-100/70">{lesson.example}</p></div><div className="rounded-lg border border-gold-300/20 bg-gold-300/5 p-4"><p className="text-xs font-semibold uppercase tracking-[0.15em] text-gold-300">Remember</p><p className="mt-2 text-sm leading-6 text-parchment-100/80">{lesson.remember}</p></div></div><button type="button" onClick={() => setActiveStep((step) => step + 1)} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gold-500 px-5 text-sm font-semibold text-navy-950 hover:bg-gold-300">Continue <PlayCircle size={17} aria-hidden="true" /></button></div> : <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-300">Knowledge check</p><h2 className="mt-3 font-display text-2xl font-semibold text-white">{check?.question ?? "What is one idea you will remember?"}</h2>{check ? <div className="mt-5 space-y-2">{check.options.map((option, index) => <button key={option} type="button" onClick={() => setSelectedAnswer(index)} className={`block w-full rounded-lg border px-4 py-3 text-left text-sm ${selectedAnswer === index ? index === check.answer ? "border-emerald-400 bg-emerald-400/10 text-emerald-100" : "border-red-400 bg-red-400/10 text-red-100" : "border-white/10 text-parchment-100/75 hover:border-gold-400"}`}>{option}</button>)}</div> : null}{selectedAnswer !== undefined && check && <p role="status" className="mt-4 text-sm text-parchment-100/75">{selectedAnswer === check.answer ? "Correct. You can complete this lesson." : "Not quite. Review the lesson path and try again."}</p>}<button type="button" onClick={completeLesson} disabled={Boolean(check && selectedAnswer !== check.answer)} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gold-500 px-5 text-sm font-semibold text-navy-950 enabled:hover:bg-gold-300 disabled:cursor-not-allowed disabled:opacity-50">{isComplete && <CheckCircle2 size={17} aria-hidden="true" />}{isComplete ? "Lesson completed" : "Complete lesson"}</button></div>}<p className="mt-5 text-xs text-parchment-100/45">Progress is stored locally on this device. No blockchain transaction is created by learning.</p></article></div>;
+  const allQuestions = lesson.stages.flatMap((stage) => stage.questions);
+  const correctCount = allQuestions.filter((question) => results[question.id]?.correct).length;
+  const score = allQuestions.length > 0 ? Math.round((correctCount / allQuestions.length) * 100) : 0;
+  const answeredCount = allQuestions.filter((question) => question.id in answers).length;
+  const isComplete = progress.includes(courseId);
+  const activeStageQuestions = lesson.stages[activeStage]?.questions ?? [];
+  const stageCompleted = activeStageQuestions.length === 0 || activeStageQuestions.every((question) => results[question.id]?.correct);
+  const canSubmitFinal = allQuestions.length > 0 && answeredCount === allQuestions.length && score >= lesson.passingScore;
+
+  function handleAnswer(question: LessonQuestion, value: string | number | boolean) {
+    setAnswers((previous) => ({ ...previous, [question.id]: value }));
+  }
+
+  function evaluateAnswer(question: LessonQuestion, value: string | number | boolean) {
+    if (question.type === "number") {
+      const isCorrect = Number(value) === Number(question.answer);
+      return {
+        correct: isCorrect,
+        feedback: isCorrect ? "Correct. " + question.explanation : `Incorrect. ${question.explanation}`,
+      };
+    }
+
+    if (question.type === "true-false") {
+      const isCorrect = String(value).toLowerCase() === String(question.answer).toLowerCase();
+      return {
+        correct: isCorrect,
+        feedback: isCorrect ? "Correct. " + question.explanation : `Incorrect. ${question.explanation}`,
+      };
+    }
+
+    if (question.type === "short-answer") {
+      const expected = String(question.answer).trim().toLowerCase();
+      const provided = String(value).trim().toLowerCase();
+      const isCorrect = expected.length > 0 && (provided.includes(expected) || expected.includes(provided));
+      return {
+        correct: isCorrect,
+        feedback: isCorrect ? "Correct. " + question.explanation : `Review the lesson material and try again. ${question.explanation}`,
+      };
+    }
+
+    const isCorrect = String(value) === String(question.answer);
+    return {
+      correct: isCorrect,
+      feedback: isCorrect ? "Correct. " + question.explanation : `Incorrect. ${question.explanation}`,
+    };
+  }
+
+  function submitAnswer(question: LessonQuestion) {
+    const value = answers[question.id];
+    if (value === undefined) {
+      setStatusMessage("Answer the question before submitting.");
+      return;
+    }
+
+    const result = evaluateAnswer(question, value);
+    setResults((previous) => ({ ...previous, [question.id]: result }));
+    setStatusMessage(result.correct ? "Answer recorded. Continue to the next section when ready." : result.feedback);
+  }
+
+  async function completeLesson() {
+    if (!canSubmitFinal) {
+      setStatusMessage("Complete all required assessment items and earn at least 80/100 before the course is marked complete.");
+      return;
+    }
+
+    try {
+      if (isBackendConfigured()) {
+        await saveBackendProgress(courseId, true).catch(() => undefined);
+      }
+      markCourseComplete(courseId, undefined, address?.toLowerCase() ?? "guest");
+      window.dispatchEvent(new Event("celoht-progress"));
+      setStatusMessage("Assessment submitted successfully. The next lesson is now unlocked.");
+    } catch {
+      markCourseComplete(courseId, undefined, address?.toLowerCase() ?? "guest");
+      window.dispatchEvent(new Event("celoht-progress"));
+      setStatusMessage("Assessment submitted locally because the backend is not configured for this learner session.");
+    }
+  }
+
+  const stage = lesson.stages[activeStage];
+
+  return (
+    <div className="app-shell min-h-[calc(100dvh-64px)] px-4 py-8 pb-28 sm:px-6 lg:px-8 lg:py-12">
+      <article className="mx-auto max-w-4xl">
+        <Link href="/learn" className="inline-flex items-center gap-2 text-sm text-parchment-100/60 hover:text-white">
+          <ArrowLeft size={16} aria-hidden="true" /> Academy
+        </Link>
+
+        <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">Lesson</p>
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl">{lesson.title}</h1>
+        <p className="mt-4 text-base leading-7 text-parchment-100/65">{lesson.summary}</p>
+
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-6">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="font-display text-xl font-semibold text-white">Lesson path</h2>
+            <span className="font-mono text-xs text-gold-300">
+              {Math.min(activeStage + 1, lesson.stages.length)} / {lesson.stages.length}
+            </span>
+          </div>
+
+          <ol className="mt-5 space-y-3">
+            {lesson.stages.map((item, index) => (
+              <li
+                key={item.id}
+                className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${
+                  index <= activeStage ? "border-gold-500/40 text-white" : "border-white/10 text-parchment-100/55"
+                }`}
+              >
+                <span className="font-mono text-xs text-gold-300">{index + 1}</span>
+                {item.title}
+                {index < activeStage && <CheckCircle2 size={16} className="ml-auto text-emerald-300" aria-label="Step complete" />}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm leading-6 text-cyan-100">
+          <button type="button" className="flex w-full items-center gap-3 text-left font-semibold" onClick={() => setActiveStage((value) => Math.min(value + 1, lesson.stages.length - 1))}>
+            <PlayCircle size={18} aria-hidden="true" /> Practice mode
+          </button>
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-white/10 bg-navy-950/60 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+          <div className="flex flex-col gap-3 border-b border-white/10 pb-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="section-kicker">Stage {activeStage + 1}</p>
+              <h2 className="mt-2 font-display text-2xl font-semibold text-white">{stage.title}</h2>
+            </div>
+            <div className="rounded-full border border-gold-400/30 bg-gold-400/8 px-3 py-1 text-xs font-medium text-gold-100">
+              {score}/100 assessment score
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-5 text-parchment-100/80">
+            {stage.body.map((paragraph) => (
+              <p key={paragraph} className="text-base leading-7">
+                {paragraph}
+              </p>
+            ))}
+
+            {stage.bullets && (
+              <ul className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-parchment-100/75">
+                {stage.bullets.map((bullet) => (
+                  <li key={bullet} className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-gold-300" aria-hidden="true" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {stage.table && (
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-white/[0.04] text-gold-200">
+                    <tr>
+                      {stage.table.headers.map((header) => (
+                        <th key={header} className="px-4 py-3 font-medium">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stage.table.rows.map((row, rowIndex) => (
+                      <tr key={`${stage.id}-row-${rowIndex}`} className="border-t border-white/10">
+                        {row.map((cell, cellIndex) => (
+                          <td key={`${stage.id}-cell-${cellIndex}`} className="px-4 py-3 text-parchment-100/75">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {stage.example && (
+              <div className="rounded-xl border border-gold-400/20 bg-gold-400/6 p-4">
+                <p className="font-display text-lg font-semibold text-white">{stage.example.title}</p>
+                {stage.example.content.map((item) => (
+                  <p key={item} className="mt-3 text-sm leading-6 text-parchment-100/75">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {activeStageQuestions.length > 0 && (
+            <div className="mt-8 space-y-6 border-t border-white/10 pt-6">
+              {activeStageQuestions.map((question) => {
+                const selectedValue = answers[question.id];
+                const result = results[question.id];
+
+                return (
+                  <div key={question.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-base font-medium text-white">{question.prompt}</p>
+                      {result && (
+                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold ${result.correct ? "bg-emerald-500/15 text-emerald-200" : "bg-red-500/15 text-red-200"}`}>
+                          {result.correct ? "Correct" : "Needs review"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {question.type === "multiple-choice" && question.options?.map((option, optionIndex) => {
+                        const optionId = `${question.id}-${optionIndex}`;
+                        return (
+                          <label key={optionId} className="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 bg-black/10 px-3 py-2 text-sm text-parchment-100/70">
+                            <input
+                              type="radio"
+                              name={question.id}
+                              checked={selectedValue === option}
+                              onChange={() => handleAnswer(question, option)}
+                              className="h-4 w-4 accent-gold-300"
+                            />
+                            <span>{option}</span>
+                          </label>
+                        );
+                      })}
+
+                      {question.type === "true-false" && (
+                        <div className="flex flex-wrap gap-3">
+                          {[true, false].map((option) => (
+                            <label key={String(option)} className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-black/10 px-3 py-2 text-sm text-parchment-100/70">
+                              <input
+                                type="radio"
+                                name={question.id}
+                                checked={selectedValue === option}
+                                onChange={() => handleAnswer(question, option)}
+                                className="h-4 w-4 accent-gold-300"
+                              />
+                              <span>{option ? "True" : "False"}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {(question.type === "number" || question.type === "short-answer") && (
+                        <input
+                          type={question.type === "number" ? "number" : "text"}
+                          value={typeof selectedValue === "number" || typeof selectedValue === "string" ? selectedValue : ""}
+                          onChange={(event) => handleAnswer(question, question.type === "number" ? Number(event.target.value) : event.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-navy-950 px-4 py-3 text-sm text-white placeholder:text-parchment-100/35 focus:border-gold-400/70 focus:outline-none"
+                          placeholder={question.type === "number" ? "Enter a number" : "Type your answer"}
+                        />
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => submitAnswer(question)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gold-400/30 bg-gold-400/12 px-3 py-2 text-sm font-medium text-gold-100 hover:bg-gold-400/20"
+                      >
+                        <CircleHelp size={16} aria-hidden="true" /> Check answer
+                      </button>
+
+                      {result && <p className="text-sm text-parchment-100/75">{result.feedback}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
+            <div className="text-sm text-parchment-100/60">
+              {statusMessage || "Complete each section and answer the required questions before moving to the next stage."}
+            </div>
+
+            <div className="flex gap-3">
+              {activeStage > 0 && (
+                <button type="button" onClick={() => setActiveStage((value) => value - 1)} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white">
+                  Previous
+                </button>
+              )}
+
+              {activeStage < lesson.stages.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!stageCompleted) {
+                      setStatusMessage("Answer the questions in this stage correctly before continuing.");
+                      return;
+                    }
+                    setActiveStage((value) => value + 1);
+                  }}
+                  disabled={!stageCompleted}
+                  className="rounded-lg border border-gold-400/30 bg-gold-400/12 px-4 py-2 text-sm font-medium text-gold-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={completeLesson}
+                  disabled={!canSubmitFinal}
+                  className="rounded-lg border border-emerald-400/30 bg-emerald-500/12 px-4 py-2 text-sm font-medium text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isComplete ? "Completed" : "Submit final assessment"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-parchment-100/65">
+          <div className="flex items-start gap-3">
+            <Lightbulb size={17} className="mt-0.5 text-gold-300" aria-hidden="true" />
+            <div>
+              <p className="font-medium text-white">Progress and persistence</p>
+              <p className="mt-1">
+                Progress is saved locally on this device when no authenticated backend session is active. If the CeloHT backend is configured and the learner is authenticated, completion is synced there as well.
+              </p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  );
 }
 
 function progressKey(address?: string) {
@@ -86,8 +386,16 @@ function readProgress(address?: string): string[] {
 }
 
 function subscribeProgress(onChange: () => void) {
-  const notify = () => { progressCache.clear(); onChange(); };
+  const notify = () => {
+    progressCache.clear();
+    onChange();
+  };
+
   window.addEventListener("storage", notify);
   window.addEventListener("celoht-progress", notify);
-  return () => { window.removeEventListener("storage", notify); window.removeEventListener("celoht-progress", notify); };
+
+  return () => {
+    window.removeEventListener("storage", notify);
+    window.removeEventListener("celoht-progress", notify);
+  };
 }
