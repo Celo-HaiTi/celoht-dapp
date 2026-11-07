@@ -1,6 +1,43 @@
 import Link from "next/link";
 import { LifeBuoy, ShieldCheck } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { PageHero } from "@/components/PageHero";
+import { Section } from "@/components/Section";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 
 export default function HelpPage() {
-  return <div className="mx-auto max-w-3xl px-4 py-10 pb-28 sm:px-6 lg:px-8"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-800">Support</p><h1 className="mt-2 text-3xl font-semibold text-navy-950">How can we help?</h1><div className="mt-8 grid gap-4 sm:grid-cols-2"><section className="rounded-2xl border border-navy-700/10 bg-white p-6 shadow-sm"><LifeBuoy className="text-gold-700" size={22} aria-hidden="true" /><h2 className="mt-5 font-semibold">Wallet support</h2><p className="mt-2 text-sm leading-6 text-ink-soft">Check that your wallet is unlocked and connected to Celo Mainnet or Celo Sepolia. CeloHT cannot recover funds or wallet credentials.</p></section><section className="rounded-2xl border border-navy-700/10 bg-white p-6 shadow-sm"><ShieldCheck className="text-forest-500" size={22} aria-hidden="true" /><h2 className="mt-5 font-semibold">Stay secure</h2><p className="mt-2 text-sm leading-6 text-ink-soft">Only confirm transactions you understand. Review the <Link className="font-semibold text-gold-800 underline" href="/education">Web3 security lesson</Link> before sending assets.</p></section></div></div>;
+  return (
+    <>
+      <Breadcrumbs items={[{ label: "Help" }]} />
+      <PageHero
+        eyebrow="Support"
+        title="How can we help?"
+        lead="Find wallet and account support while keeping control of your wallet and personal information."
+      />
+      <Section>
+        <div className="grid max-w-5xl gap-4 sm:grid-cols-2">
+          <Card className="help-card">
+            <CardHeader>
+              <span className="help-icon"><LifeBuoy size={19} aria-hidden="true" /></span>
+              <CardTitle>Wallet support</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              Connect to Celo Sepolia (chain ID 11142220) for supported CeloHT wallet actions. CeloHT cannot recover funds or wallet credentials.
+            </CardDescription>
+            <Link className="help-link mt-5" href="/wallet">Open Finance</Link>
+          </Card>
+          <Card className="help-card">
+            <CardHeader>
+              <span className="help-icon help-icon-forest"><ShieldCheck size={19} aria-hidden="true" /></span>
+              <CardTitle>Stay secure</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              Only confirm transactions you understand. Review the <Link className="help-inline-link" href="/education">Web3 security lessons</Link> before sending assets.
+            </CardDescription>
+            <Link className="help-link mt-5" href="/trust">Open Trust Center</Link>
+          </Card>
+        </div>
+      </Section>
+    </>
+  );
 }

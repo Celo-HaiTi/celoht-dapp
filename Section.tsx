@@ -4,14 +4,14 @@ type Props = { title?: string; eyebrow?: string; children: ReactNode; className?
 
 export function Section({ title, eyebrow, children, className = "" }: Props) {
   return (
-    <section className={`page-section mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10 ${className}`}>
+    <section className={`page-section mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8 lg:py-9 ${className}`}>
       {eyebrow && (
         <p className="section-kicker">
           {eyebrow}
         </p>
       )}
-      {title && <h2 className="mt-3 font-display text-2xl font-semibold tracking-[-0.01em] text-white sm:text-3xl">{title}</h2>}
-      <div className={title || eyebrow ? "mt-6" : ""}>{children}</div>
+      {title && <h2 className="page-section-title mt-2 font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h2>}
+      <div className={title || eyebrow ? "page-section-content mt-5 sm:mt-6" : "page-section-content"}>{children}</div>
     </section>
   );
 }
