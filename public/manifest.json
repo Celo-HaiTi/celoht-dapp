@@ -2,22 +2,30 @@
   "name": "CeloHT",
   "short_name": "CeloHT",
   "description": "CeloHT financial inclusion, education, and community impact tools on Celo.",
-  "start_url": "./",
-  "scope": "./",
+  "id": "https://app.celoht.com/",
+  "start_url": "https://app.celoht.com/",
+  "scope": "https://app.celoht.com/",
   "display": "standalone",
-  "background_color": "#F7F8FA",
+  "orientation": "portrait-primary",
+  "background_color": "#0B1120",
   "theme_color": "#0B1120",
   "icons": [
     {
-      "src": "./celoht-logo.png",
-      "sizes": "998x1000",
+      "src": "https://app.celoht.com/favicon-192x192.png?v=2026-11-07",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://app.celoht.com/favicon-512x512.png?v=2026-11-07",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./favicon.svg",
-      "sizes": "64x64",
-      "type": "image/svg+xml",
+      "src": "https://app.celoht.com/apple-touch-icon.png?v=2026-11-07",
+      "sizes": "180x180",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
