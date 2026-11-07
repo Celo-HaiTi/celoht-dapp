@@ -17,6 +17,7 @@ const workspaceNav = [
   { label: "Learn", href: "/learn", icon: BookOpen },
   { label: "Finance", href: "/wallet", icon: WalletCards },
   { label: "Agents", href: "/agents", icon: Users },
+  { label: "Governance", href: "/governance", icon: ShieldCheck },
   { label: "Reforest", href: "/reforestation", icon: Leaf },
 ];
 const secondaryNav = [

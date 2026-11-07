@@ -5,6 +5,7 @@ export const primaryNav: NavItem[] = [
   { label: "Learn", href: "/learn" },
   { label: "Finance", href: "/wallet" },
   { label: "Agents", href: "/agents" },
+  { label: "Governance", href: "/governance" },
   { label: "Reforest", href: "/reforestation" },
   { label: "Activity", href: "/wallet/activity" },
   { label: "Pilot Workspace", href: "/pilot" },
@@ -14,6 +15,6 @@ export const primaryNav: NavItem[] = [
 ];
 export const footerNav: { heading: string; items: NavItem[] }[] = [
   { heading: "Platform", items: [{ label: "Overview", href: "/" }, { label: "Activity", href: "/wallet/activity" }] },
-  { heading: "Pillars", items: [{ label: "Agents", href: "/agents" }, { label: "Learn", href: "/learn" }, { label: "Impact", href: "/impact" }] },
+  { heading: "Pillars", items: [{ label: "Agents", href: "/agents" }, { label: "Learn", href: "/learn" }, { label: "Governance", href: "/governance" }, { label: "Impact", href: "/impact" }] },
   { heading: "Support", items: [{ label: "Settings", href: "/settings" }, { label: "Help", href: "/help" }] },
 ];
