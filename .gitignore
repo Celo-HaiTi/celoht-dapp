@@ -10,3 +10,6 @@ typechain-types/
 *.log
 .DS_Store
 npm-debug.log*
+test-results/
+playwright-report/
+playwright/.cache/

@@ -124,6 +124,9 @@ test("Wagmi WalletConnect initialization is conditional and Sepolia-only", () =>
   assert.match(config, /walletConnectProjectIdConfig\.projectId/);
   assert.match(config, /\.\.\.\(walletConnectProjectId\s*\?/);
   assert.match(config, /walletConnect\(\{\s*projectId: walletConnectProjectId/);
+  assert.match(config, /from "wagmi\/connectors\/injected"/);
+  assert.match(config, /from "wagmi\/connectors\/walletConnect"/);
+  assert.doesNotMatch(config, /from "wagmi\/connectors"/);
   assert.match(config, /chains: \[celoSepolia\]/);
   assert.doesNotMatch(config, /chains:\s*\[[^\]]*celo\s*,/);
 });

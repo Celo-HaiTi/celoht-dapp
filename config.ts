@@ -1,6 +1,7 @@
 import { http, createConfig } from "wagmi";
 import { celoSepolia } from "wagmi/chains";
-import { injected, walletConnect } from "wagmi/connectors";
+import { injected } from "wagmi/connectors/injected";
+import { walletConnect } from "wagmi/connectors/walletConnect";
 import { getMiniPayProvider } from "./lib/web3/minipay";
 import { resolveWalletConnectProjectId } from "./lib/web3/walletconnect-project-id";
 

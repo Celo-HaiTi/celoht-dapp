@@ -68,6 +68,12 @@ jobs:
           COMMUNITY_LINKEDIN_URL: "https://www.linkedin.com/company/celoht/"
         run: npm run build:custom-domain
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser end-to-end tests
+        run: npm run test:e2e
+
       - name: Prepare Pages artifact
         run: |
           test -f out/index.html

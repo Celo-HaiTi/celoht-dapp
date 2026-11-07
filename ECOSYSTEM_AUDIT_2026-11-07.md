@@ -5,15 +5,15 @@ Scope: public Celo-HaiTi repositories available from the organization, current l
 
 ## Executive Result
 
-**Overall: NOT READY.** Several code repositories pass their local tests and builds, and public dApp, website, and backend health URLs respond. This does not establish operational readiness: production datasets are empty, the Render indexer endpoint did not respond, one indexer database integration test failed in this environment, authenticated and wallet mutations were not exercised, and three repositories have critical/high production dependency advisories. No service was deployed or changed by this audit.
+**Overall: NOT READY.** Several code repositories pass their local tests and builds, and public dApp, website, and backend health URLs respond. Subsequent dApp remediation fixed the browser-incompatible network-config import, restored the Next.js dev route runtime, added wallet/navigation Playwright coverage, and produced a clean production-only dependency audit. Ecosystem readiness remains blocked by empty production datasets, an unavailable Render indexer endpoint, a failing disposable indexer database integration, unverified authenticated workflows, and critical/high production advisories in three other repositories.
 
-No private keys, recovery phrases, service credentials, or database credentials were requested or used. No production writes, wallet transactions, contract deployments, or governance actions were performed. A secret-free Render static-site blueprint was added to the dApp repository, but no service was deployed. Mainnet activation remains disabled pending required approvals and an independent contract audit.
+No private keys, recovery phrases, service credentials, or database credentials were requested or used. No production writes, wallet transactions, contract deployments, or governance actions were performed. The dApp continues to use its existing GitHub Pages workflow; no hosting or production environment settings were changed. Mainnet activation remains disabled pending required approvals and an independent contract audit.
 
 ## Repository Classification
 
 | Repository | Status | Verified evidence and limitations |
 | --- | --- | --- |
-| `celoht-dapp` | BLOCKED | `npm ci`, lint, typecheck, 34 tests, both production builds, contract snapshot check, and mock-data guard pass. Production dependency audit finds zero advisories. Public app root returns 200. A Render static-site blueprint now publishes the existing custom-domain export. Browser, wallet, persisted-write journeys, and a Render deployment were not verified. |
+| `celoht-dapp` | BLOCKED | `npm ci`, lint, typecheck, 37 tests, custom-domain build, contract sync, mock-data guard, and production dependency audit pass. Playwright passes 3/3 Chromium checks for hydration, wallet choices, mobile navigation, and injected-wallet connect/disconnect without signing. The browser network-config `node:fs` regression is guarded by a test. Live WalletConnect/Valora pairing, MiniPay in-app session, signed transactions, authenticated persistence, and real deployment writes remain unverified. |
 | `celoht-siteweb` | FAIL | Lint, typecheck, 18 tests, 56-route production build, and brand-asset validation pass. Production dependency audit reports 2 high and 1 critical advisory. Its 177 configured Playwright cases could not launch because browser binaries are absent; no application assertions ran. |
 | `celoht-backend` | BLOCKED | Lint, typecheck, 116 tests, build, mock guard, and production dependency audit pass. Public `/api/v1/health` returns 200/`healthy`; unauthenticated profile returns 401; credentialed CORS preflight returns 204 with the exact app origin. Authenticated mutations, database readiness, and the credentialed smoke script were not run. |
 | `celoht-supabase` | BLOCKED | Static validation confirms 22 migrations, 43 required tables, and required RLS/idempotency safeguards. Disposable PostgreSQL migration/database verification passes. The live Supabase project, applied migration state, and production RLS were not inspected because no database credentials were available or requested. |
@@ -35,7 +35,7 @@ No private keys, recovery phrases, service credentials, or database credentials 
 
 | Repository | Results |
 | --- | --- |
-| dApp | 34/34 tests; lint, typecheck, `next build`, custom-domain build, contract sync, mock guard, and production audit pass. |
+| dApp | 37/37 tests and 3/3 Chromium E2E tests; lint, typecheck, custom-domain build, contract sync, mock guard, and production-only audit pass. |
 | Admin | 13/13 tests; lint, typecheck, build, and mock guard pass. |
 | Backend | 116/116 tests; lint, typecheck, build, mock guard, and production audit pass. |
 | Demo | 3/3 tests; lint, typecheck, build, and mock guard pass. |
@@ -45,7 +45,7 @@ No private keys, recovery phrases, service credentials, or database credentials 
 | Smart contracts | Compile passes; 109/109 Hardhat tests pass; mock guard and production dependency audit pass. |
 | Supabase | 22-migration static check and mock guard pass; disposable PostgreSQL verification reports `database tests passed`. |
 
-No authenticated production integration, browser-wallet transaction, production write, mobile-wallet session, or deployment smoke test was performed. Backend smoke tests require secret credentials and mutate a Redis counter, so they were intentionally not run against production.
+No authenticated production integration, signed browser-wallet transaction, production write, or mobile-wallet pairing was performed. The injected-wallet E2E uses a test-only EIP-1193 provider that refuses reads and cannot sign; it does not fabricate balances or transactions. Backend smoke tests require secret credentials and mutate a Redis counter, so they were intentionally not run against production.
 
 ## Live Endpoint Checks
 
@@ -85,11 +85,11 @@ Additional development-only advisories were reported by full `npm audit` in seve
 3. Repair or diagnose the indexer disposable-Postgres integration failure, then run its Postgres recovery/reorg suite. Verify the deployed indexer's `/readyz`, checkpoint freshness, persisted event counts, duplicate handling, and reorg recovery using operator-controlled logs and database access.
 4. Review the governance integration script/test layout and add or correct the intended integration tests; do not report the empty target as passing.
 5. Publish only authorized canonical course/project/proposal records. Reconcile them with database and chain evidence; do not seed fabricated activity or impact metrics.
-6. Run authenticated backend, RLS, wallet-auth, mobile wallet, and transaction lifecycle tests in a disposable/authorized environment. Use a disposable funded Sepolia test wallet; never share its private key or recovery phrase.
+6. The dApp browser shell and injected-wallet connect/disconnect are now covered by Playwright. Still run authenticated backend, RLS, wallet-auth, real WalletConnect/Valora/MiniPay sessions, and receipt-confirmed transaction lifecycle tests in an authorized test environment. Use a disposable funded Sepolia wallet; never share its private key or recovery phrase.
 7. Approve and execute the migration from the current Pages workflow to the prepared Render blueprint, including custom-domain routing and rollback ownership. Verify the actual Render deployment and live browser behavior before claiming deployment success.
 8. Complete independent external smart-contract security audits and resolve findings before any mainnet consideration. Keep unapproved mainnet operations disabled. Governance Council remains the highest ongoing collective decision-making body.
 9. Finish content/policy, workflow, and security audits for the repositories marked NOT TESTED, plus organization-level GitHub configuration.
 
 ## Final Acceptance
 
-**Overall status: NOT READY.** Local build/test success is useful evidence but does not close the live-data, indexer persistence, dependency security, browser E2E, authenticated workflow, Render deployment, or external-audit gates. Celo Sepolia remains the only verified chain target in the tested contract/dApp paths. Mainnet readiness: **FAIL / approval gates incomplete**. External audit: **BLOCKED / not evidenced**.
+**Overall status: NOT READY.** The dApp build and browser shell E2E pass, and the known Next.js dev runtime failure is resolved. This does not close the empty live-data, indexer persistence, ecosystem dependency-security, authenticated-workflow, actual wallet-session, deployment migration, or external-audit gates. Celo Sepolia remains the only verified chain target in the tested contract/dApp paths. Mainnet readiness: **FAIL / approval gates incomplete**. External audit: **BLOCKED / not evidenced**.

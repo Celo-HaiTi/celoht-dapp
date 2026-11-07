@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -33,4 +34,9 @@ test("environment variables cannot enable another chain", () => {
   assert.deepEqual(getSupportedChainIds(), [11142220]);
   assert.equal(getNetworkConfig(42220), undefined);
   assert.equal(isSupportedWalletNetwork(42220), false);
+});
+
+test("browser network config does not import server-only filesystem APIs", () => {
+  const source = readFileSync(new URL("../lib/network/config.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /node:fs|readFileSync/);
 });
