@@ -25,3 +25,14 @@ test("academy state can enroll, track completion, and issue certificate records"
   assert.ok(state.completedCourseIds.includes(targetCourse.id));
   assert.ok(getCertificateRecords(storage, "student-1").some((record) => record.courseId === targetCourse.id));
 });
+
+test("academy state snapshots are stable for external-store subscriptions", () => {
+  const storage = createMemoryStorage();
+  const first = getAcademyState(storage, "student-2");
+  const second = getAcademyState(storage, "student-2");
+
+  assert.equal(first, second);
+  assert.equal(first.completedCourseIds, second.completedCourseIds);
+  assert.equal(first.enrolledCourseIds, second.enrolledCourseIds);
+  assert.equal(first.certificateRecords, second.certificateRecords);
+});

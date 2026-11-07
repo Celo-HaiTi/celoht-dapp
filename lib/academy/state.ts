@@ -19,6 +19,34 @@ export type AcademyState = {
 export type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 const STORAGE_PREFIX = "celoht-academy-state";
+const fallbackStateCache = new Map<string, AcademyState>();
+const stateCache = new WeakMap<StorageLike, Map<string, AcademyState>>();
+
+function sameAcademyState(left: AcademyState, right: AcademyState) {
+  return left.studentId === right.studentId &&
+    left.enrolledCourseIds.length === right.enrolledCourseIds.length &&
+    left.enrolledCourseIds.every((courseId, index) => courseId === right.enrolledCourseIds[index]) &&
+    left.completedCourseIds.length === right.completedCourseIds.length &&
+    left.completedCourseIds.every((courseId, index) => courseId === right.completedCourseIds[index]) &&
+    left.certificateRecords.length === right.certificateRecords.length &&
+    left.certificateRecords.every((record, index) => {
+      const other = right.certificateRecords[index];
+      return !!other &&
+        record.id === other.id &&
+        record.courseId === other.courseId &&
+        record.title === other.title &&
+        record.studentId === other.studentId &&
+        record.issuedAt === other.issuedAt;
+    });
+}
+
+function getStateCache(storage: StorageLike) {
+  if (!stateCache.has(storage)) {
+    stateCache.set(storage, new Map());
+  }
+
+  return stateCache.get(storage)!;
+}
 
 export function createMemoryStorage(): StorageLike {
   const store = new Map<string, string>();
@@ -57,31 +85,43 @@ export function getAcademyState(storage?: StorageLike, studentId = "guest"): Aca
   const store = getStorage(storage);
   const key = studentKey(studentId);
   const raw = store?.getItem(key) ?? null;
+  const cache = store ? getStateCache(store) : fallbackStateCache;
 
   if (!raw) {
-    return defaultState(studentId);
+    const defaultValue = defaultState(studentId);
+    const cached = cache.get(key);
+    if (cached && sameAcademyState(cached, defaultValue)) return cached;
+    cache.set(key, defaultValue);
+    return defaultValue;
   }
 
   try {
     const parsed = JSON.parse(raw) as Partial<AcademyState>;
-    return {
+    const normalized = {
       studentId: (parsed.studentId ?? studentId).toLowerCase(),
       enrolledCourseIds: Array.isArray(parsed.enrolledCourseIds) ? parsed.enrolledCourseIds.filter((courseId): courseId is string => typeof courseId === "string") : [],
       completedCourseIds: Array.isArray(parsed.completedCourseIds) ? parsed.completedCourseIds.filter((courseId): courseId is string => typeof courseId === "string") : [],
       certificateRecords: Array.isArray(parsed.certificateRecords) ? parsed.certificateRecords.filter((record): record is AcademyCertificateRecord => !!record && typeof record.courseId === "string" && typeof record.id === "string") : [],
       updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
     };
+
+    const cached = cache.get(key);
+    if (cached && sameAcademyState(cached, normalized)) return cached;
+    cache.set(key, normalized);
+
+    return normalized;
   } catch {
-    return defaultState(studentId);
+    const fallback = defaultState(studentId);
+    const cached = cache.get(key);
+    if (cached && sameAcademyState(cached, fallback)) return cached;
+    cache.set(key, fallback);
+    return fallback;
   }
 }
 
 export function writeAcademyState(state: AcademyState, storage?: StorageLike) {
   const store = getStorage(storage);
-  if (!store) {
-    return state;
-  }
-
+  const key = studentKey(state.studentId);
   const normalized = {
     ...state,
     studentId: state.studentId.toLowerCase(),
@@ -90,7 +130,15 @@ export function writeAcademyState(state: AcademyState, storage?: StorageLike) {
     updatedAt: new Date().toISOString(),
   };
 
-  store.setItem(studentKey(state.studentId), JSON.stringify(normalized));
+  if (!store) {
+    fallbackStateCache.set(key, normalized);
+    return normalized;
+  }
+
+  const cache = getStateCache(store);
+  cache.delete(key);
+  store.setItem(key, JSON.stringify(normalized));
+  cache.set(key, normalized);
   return normalized;
 }
 
