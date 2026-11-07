@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: celoht-dapp
+    runtime: static
+    buildCommand: npm ci && npm run build:custom-domain
+    staticPublishPath: ./out
+    autoDeploy: true
+    envVars:
+      - key: NEXT_PUBLIC_BACKEND_URL
+        value: https://api.celoht.com

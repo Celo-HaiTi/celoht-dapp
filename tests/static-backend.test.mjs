@@ -59,3 +59,12 @@ test("static build does not move server routes or leave temporary directories", 
   assert.doesNotMatch(build, /renameSync|hiddenApiDir|apiDir/);
   assert.match(build, /process\.exitCode/);
 });
+
+test("Render publishes the custom-domain static build with the official backend", () => {
+  const render = read("../render.yaml");
+  assert.match(render, /runtime: static/);
+  assert.match(render, /buildCommand: npm ci && npm run build:custom-domain/);
+  assert.match(render, /staticPublishPath: \.\/out/);
+  assert.match(render, /NEXT_PUBLIC_BACKEND_URL\s+value: https:\/\/api\.celoht\.com/);
+  assert.doesNotMatch(render, /SUPABASE_SERVICE_ROLE_KEY|AUTH_SESSION_SECRET|PRIVATE_KEY/);
+});
